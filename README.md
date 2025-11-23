@@ -72,7 +72,7 @@ Il progetto segue un'architettura modulare con separazione delle responsabilità
 
 ```bash
 git clone https://github.com/GiuseppeBellamacina/Steganography-WebApp.git
-cd Steganografia-QD
+cd Steganograpgy-WebApp
 ```
 
 2. **Installa le dipendenze:**
