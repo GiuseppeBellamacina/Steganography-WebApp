@@ -71,7 +71,7 @@ Il progetto segue un'architettura modulare con separazione delle responsabilità
 1. **Clona il repository:**
 
 ```bash
-git clone https://github.com/GiuseppeBellamacina/Steganografia-QD.git
+git clone https://github.com/GiuseppeBellamacina/Steganography-WebApp.git
 cd Steganografia-QD
 ```
 
