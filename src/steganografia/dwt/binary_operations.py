@@ -167,6 +167,10 @@ class BinarySteganography:
         output_path: str,
         size: int | None = None,
         backup_file: str | None = None,
+        # Parametri manuali opzionali (usati se manual_params=True)
+        alpha: float | None = None,
+        bands: list[str] | None = None,
+        use_all_channels: bool | None = None,
         **kwargs,  # Ignora compression_mode, n, div per compatibilità API
     ) -> None:
         """
@@ -177,50 +181,76 @@ class BinarySteganography:
             output_path: Percorso di output
             size: Dimensione del file nascosto in byte
             backup_file: File di backup opzionale
+            alpha: Fattore di embedding manuale (opzionale)
+            bands: Bande DWT manuali (opzionale)
+            use_all_channels: Usa tutti i canali RGB (opzionale)
         """
-        # Carica parametri da backup o cache (compatibile con image_operations.py)
-        backup_data = None
-        if backup_file:
-            backup_data = backup_system.load_backup_data(backup_file)
-
-        # Se non c'è backup file, usa cache dell'ultima operazione
-        if not backup_data:
-            recent_params = backup_system.get_last_params(DataType.BINARY)
-            if recent_params:
-                print("Usando parametri dall'ultima operazione di nascondimento")
-                backup_data = {"params": recent_params}
-
-        if backup_data and "params" in backup_data:
-            params = backup_data["params"]
-            size = params.get("size")
-            # Carica TUTTI i parametri DWT per compatibilità
-            wavelet = params.get("wavelet", BinarySteganography.WAVELET)
-            level = params.get("level", BinarySteganography.LEVEL)
-            seed = params.get("seed", BinarySteganography.SEED)
-            step = params.get("step", BinarySteganography.STEP)
-            channel_idx = params.get("channel", BinarySteganography.CHANNEL)
-            bits_secret = params.get("bits_secret", BinarySteganography.BITS_SECRET)
-            bands = params.get("bands", BinarySteganography.BANDS)
-            alpha = params.get("alpha", BinarySteganography.ALPHA)
-            use_all_channels = params.get(
-                "use_all_channels", BinarySteganography.USE_ALL_CHANNELS
+        # PRIORITÀ: parametri manuali > backup file > cache recente > default
+        # Se sono forniti parametri manuali, usali
+        if alpha is not None or bands is not None or use_all_channels is not None:
+            print("Usando parametri MANUALI forniti dall'interfaccia")
+            # Usa parametri manuali se forniti, altrimenti default
+            alpha = alpha if alpha is not None else BinarySteganography.ALPHA
+            bands = bands if bands is not None else BinarySteganography.BANDS
+            use_all_channels = (
+                use_all_channels
+                if use_all_channels is not None
+                else BinarySteganography.USE_ALL_CHANNELS
             )
-
-            print(
-                f"DWT Get Binary - Parametri: WAVELET={wavelet}, LEVEL={level}, SEED={seed}, ALPHA={alpha}, BANDS={bands}, USE_ALL_CHANNELS={use_all_channels}"
-            )
-        else:
-            # Usa valori di default se non c'è backup
-            size = None
+            # Altri parametri sempre da default (wavelet, level, etc.)
             wavelet = BinarySteganography.WAVELET
             level = BinarySteganography.LEVEL
             seed = BinarySteganography.SEED
             step = BinarySteganography.STEP
             channel_idx = BinarySteganography.CHANNEL
             bits_secret = BinarySteganography.BITS_SECRET
-            bands = BinarySteganography.BANDS
-            alpha = BinarySteganography.ALPHA
-            use_all_channels = BinarySteganography.USE_ALL_CHANNELS
+            # size deve essere ancora fornito
+            if size is None:
+                raise ValueError("Size richiesto per parametri manuali")
+        else:
+            # Carica parametri da backup o cache
+            backup_data = None
+            if backup_file:
+                backup_data = backup_system.load_backup_data(backup_file)
+
+            # Se non c'è backup file, usa cache dell'ultima operazione
+            if not backup_data:
+                recent_params = backup_system.get_last_params(DataType.BINARY)
+                if recent_params:
+                    print("Usando parametri dall'ultima operazione di nascondimento")
+                    backup_data = {"params": recent_params}
+
+            if backup_data and "params" in backup_data:
+                params = backup_data["params"]
+                size = params.get("size")
+                # Carica TUTTI i parametri DWT
+                wavelet = params.get("wavelet", BinarySteganography.WAVELET)
+                level = params.get("level", BinarySteganography.LEVEL)
+                seed = params.get("seed", BinarySteganography.SEED)
+                step = params.get("step", BinarySteganography.STEP)
+                channel_idx = params.get("channel", BinarySteganography.CHANNEL)
+                bits_secret = params.get("bits_secret", BinarySteganography.BITS_SECRET)
+                bands = params.get("bands", BinarySteganography.BANDS)
+                alpha = params.get("alpha", BinarySteganography.ALPHA)
+                use_all_channels = params.get(
+                    "use_all_channels", BinarySteganography.USE_ALL_CHANNELS
+                )
+            else:
+                # Usa valori di default se non c'è backup
+                size = None
+                wavelet = BinarySteganography.WAVELET
+                level = BinarySteganography.LEVEL
+                seed = BinarySteganography.SEED
+                step = BinarySteganography.STEP
+                channel_idx = BinarySteganography.CHANNEL
+                bits_secret = BinarySteganography.BITS_SECRET
+                bands = BinarySteganography.BANDS
+                alpha = BinarySteganography.ALPHA
+                use_all_channels = BinarySteganography.USE_ALL_CHANNELS
+
+        print(
+            f"DWT Get Binary - Parametri: WAVELET={wavelet}, LEVEL={level}, SEED={seed}, ALPHA={alpha}, BANDS={bands}, USE_ALL_CHANNELS={use_all_channels}"
+        )
 
         if size is None:
             raise ValueError(ErrorMessages.PARAMS_MISSING)

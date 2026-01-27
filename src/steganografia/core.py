@@ -178,6 +178,14 @@ def get_bin_file(
     size: int | None = None,
     backup_file: str | None = None,
     method: str = SteganographyMethod.LSB,
+    # Parametri manuali per DWT
+    dwt_alpha: float | None = None,
+    dwt_bands: list[str] | None = None,
+    dwt_use_all_channels: bool | None = None,
+    # Parametri manuali per PVD
+    pvd_ranges_type: str | None = None,
+    pvd_pair_step: int | None = None,
+    pvd_channels: list[int] | None = None,
 ) -> None:
     """
     Recupera un file binario da un'immagine
@@ -188,12 +196,28 @@ def get_bin_file(
         compression_mode, n, div, size: Parametri di recupero
         backup_file: File di backup opzionale
         method: Metodo di steganografia usato ('lsb', 'dwt', 'pvd')
+        dwt_*: Parametri manuali per DWT
+        pvd_*: Parametri manuali per PVD
     """
     if method == SteganographyMethod.DWT:
-        DwtBinary.get_binary_file(img, output_path, size=size, backup_file=backup_file)
+        DwtBinary.get_binary_file(
+            img,
+            output_path,
+            size=size,
+            backup_file=backup_file,
+            alpha=dwt_alpha,
+            bands=dwt_bands,
+            use_all_channels=dwt_use_all_channels,
+        )
     elif method == SteganographyMethod.PVD:
         return PvdBinary.get_binary_file(
-            img, output_path, size=size, backup_file=backup_file
+            img,
+            output_path,
+            size=size,
+            backup_file=backup_file,
+            ranges_type=pvd_ranges_type,
+            pair_step=pvd_pair_step,
+            channels=pvd_channels,
         )
     else:  # Default: LSB
         LsbBinary.get_binary_file(

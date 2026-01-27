@@ -411,7 +411,13 @@ class RecoverDataPages:
             )
 
         # Dimensioni immagine (width/height) SOLO se parametri manuali
-        lsb = msb = div = width = height = None
+        # Inizializza solo se NON già configurati sopra
+        if not manual_params:
+            lsb = msb = div = width = height = None
+        else:
+            # Inizializza solo width/height per parametri manuali
+            width = height = None
+        
         if manual_params:
             st.subheader("📐 Dimensioni Immagine")
             col1, col2 = st.columns(2)
@@ -538,6 +544,9 @@ class RecoverDataPages:
         )
 
         # Configurazione metodo SOLO se parametri manuali
+        dwt_alpha = dwt_bands = dwt_use_all_channels = None
+        pvd_ranges_type = pvd_pair_step = pvd_channels = None
+        
         if (
             manual_params
             and manual_params
@@ -563,19 +572,19 @@ class RecoverDataPages:
             )
 
             if preset == "⚖️ Bilanciato":
-                DWT_Binary.ALPHA = 0.1
-                DWT_Binary.BANDS = ["cH"]
-                DWT_Binary.USE_ALL_CHANNELS = False
+                dwt_alpha = 0.1
+                dwt_bands = ["cH"]
+                dwt_use_all_channels = False
                 st.info("⚖️ ALPHA=0.1, banda cH, canale R")
             elif preset == "📦 Massima Capacità":
-                DWT_Binary.ALPHA = 0.15
-                DWT_Binary.BANDS = ["cH", "cV", "cD"]
-                DWT_Binary.USE_ALL_CHANNELS = True
+                dwt_alpha = 0.15
+                dwt_bands = ["cH", "cV", "cD"]
+                dwt_use_all_channels = True
                 st.info("📦 ALPHA=0.15, tutte le bande, tutti i canali")
             elif preset == "🎨 Massima Qualità":
-                DWT_Binary.ALPHA = 0.05
-                DWT_Binary.BANDS = ["cH"]
-                DWT_Binary.USE_ALL_CHANNELS = False
+                dwt_alpha = 0.05
+                dwt_bands = ["cH"]
+                dwt_use_all_channels = False
                 st.info("🎨 ALPHA=0.05, banda cH, canale R")
             else:
                 col1, col2 = st.columns(2)
@@ -594,9 +603,9 @@ class RecoverDataPages:
                         key="dwt_bin_rec_bands",
                     )
 
-                DWT_Binary.ALPHA = alpha_val
-                DWT_Binary.BANDS = bands_val if bands_val else ["cH"]
-                DWT_Binary.USE_ALL_CHANNELS = multi_ch
+                dwt_alpha = alpha_val
+                dwt_bands = bands_val if bands_val else ["cH"]
+                dwt_use_all_channels = multi_ch
 
         elif (
             manual_params
@@ -622,14 +631,14 @@ class RecoverDataPages:
             )
 
             if preset == "📦 Capacità (consigliato)":
-                PVD_Binary.RANGES = PVD_Binary.RANGES_CAPACITY
-                PVD_Binary.PAIR_STEP = 1
-                PVD_Binary.CHANNELS = [0, 1, 2]
+                pvd_ranges_type = "capacity"
+                pvd_pair_step = 1
+                pvd_channels = [0, 1, 2]
                 st.info("📦 Ranges capacità, step=1, tutti i canali")
             elif preset == "🎨 Qualità":
-                PVD_Binary.RANGES = PVD_Binary.RANGES_QUALITY
-                PVD_Binary.PAIR_STEP = 2
-                PVD_Binary.CHANNELS = [0, 1]
+                pvd_ranges_type = "quality"
+                pvd_pair_step = 2
+                pvd_channels = [0, 1]
                 st.info("🎨 Ranges qualità, step=2, canali R+G")
             else:
                 col1, col2 = st.columns(2)
@@ -653,13 +662,9 @@ class RecoverDataPages:
                         else [0, 1, 2]
                     )
 
-                PVD_Binary.RANGES = (
-                    PVD_Binary.RANGES_QUALITY
-                    if use_quality
-                    else PVD_Binary.RANGES_CAPACITY
-                )
-                PVD_Binary.PAIR_STEP = pair_step_bin
-                PVD_Binary.CHANNELS = channels_list
+                pvd_ranges_type = "quality" if use_quality else "capacity"
+                pvd_pair_step = pair_step_bin
+                pvd_channels = channels_list
 
         elif manual_params and selected_method == SteganographyMethod.LSB:
             st.info("💡 Configura i parametri LSB usati durante l'occultamento")
@@ -698,7 +703,10 @@ class RecoverDataPages:
             )
 
         # Parametri zip_mode e size SOLO se parametri manuali
-        zip_mode = n = div = size = None
+        # Inizializza solo se NON già configurati sopra
+        if not manual_params:
+            zip_mode = n = div = size = None
+        
         if manual_params:
             st.subheader("📎 Parametri File")
             col1, col2 = st.columns(2)
@@ -751,6 +759,12 @@ class RecoverDataPages:
                                 size,
                                 backup_file_path,
                                 method=selected_method,
+                                dwt_alpha=dwt_alpha,
+                                dwt_bands=dwt_bands,
+                                dwt_use_all_channels=dwt_use_all_channels,
+                                pvd_ranges_type=pvd_ranges_type,
+                                pvd_pair_step=pvd_pair_step,
+                                pvd_channels=pvd_channels,
                             )
 
                         if os.path.exists(output_name):

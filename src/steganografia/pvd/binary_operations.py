@@ -216,41 +216,59 @@ class BinarySteganography:
         output_path: str,
         size: int | None = None,
         backup_file: str | None = None,
+        # Parametri manuali opzionali
+        ranges_type: str | None = None,  # "quality" o "capacity"
+        pair_step: int | None = None,
+        channels: list[int] | None = None,
         **kwargs,  # Ignora compression_mode, n, div per compatibilità API
     ) -> None:
         """Recupera un file binario da un'immagine usando PVD"""
 
-        # Carica parametri
-        pair_step = BinarySteganography.PAIR_STEP
-        channels = BinarySteganography.CHANNELS
-
-        if backup_file:
-            backup_data = backup_system.load_backup_data(backup_file)
-            if backup_data and "params" in backup_data:
-                size = backup_data["params"].get("size")
-                pair_step = backup_data["params"].get("pair_step", pair_step)
-                channels = backup_data["params"].get("channels", channels)
-                # Carica RANGES
-                ranges_type = backup_data["params"].get("ranges_type", "quality")
-                BinarySteganography.RANGES = (
-                    BinarySteganography.RANGES_QUALITY
-                    if ranges_type == "quality"
-                    else BinarySteganography.RANGES_CAPACITY
-                )
+        # PRIORITÀ: parametri manuali > backup file > cache recente > default
+        if ranges_type is not None or pair_step is not None or channels is not None:
+            print("Usando parametri MANUALI forniti dall'interfaccia")
+            # Usa parametri manuali se forniti, altrimenti default
+            if ranges_type == "quality":
+                BinarySteganography.RANGES = BinarySteganography.RANGES_QUALITY
+            elif ranges_type == "capacity":
+                BinarySteganography.RANGES = BinarySteganography.RANGES_CAPACITY
+            pair_step = pair_step if pair_step is not None else BinarySteganography.PAIR_STEP
+            channels = channels if channels is not None else BinarySteganography.CHANNELS
+            # size deve essere fornito
+            if size is None:
+                raise ValueError("Size richiesto per parametri manuali")
         else:
-            recent_params = backup_system.get_last_params(DataType.BINARY)
-            if recent_params:
-                print("Usando parametri dall'ultima operazione di nascondimento")
-                size = recent_params.get("size")
-                pair_step = recent_params.get("pair_step", pair_step)
-                channels = recent_params.get("channels", channels)
-                # Carica RANGES dalla cache
-                ranges_type = recent_params.get("ranges_type", "quality")
-                BinarySteganography.RANGES = (
-                    BinarySteganography.RANGES_QUALITY
-                    if ranges_type == "quality"
-                    else BinarySteganography.RANGES_CAPACITY
-                )
+            # Carica parametri da backup o cache
+            pair_step = BinarySteganography.PAIR_STEP
+            channels = BinarySteganography.CHANNELS
+
+            if backup_file:
+                backup_data = backup_system.load_backup_data(backup_file)
+                if backup_data and "params" in backup_data:
+                    size = backup_data["params"].get("size")
+                    pair_step = backup_data["params"].get("pair_step", pair_step)
+                    channels = backup_data["params"].get("channels", channels)
+                    # Carica RANGES
+                    ranges_type = backup_data["params"].get("ranges_type", "quality")
+                    BinarySteganography.RANGES = (
+                        BinarySteganography.RANGES_QUALITY
+                        if ranges_type == "quality"
+                        else BinarySteganography.RANGES_CAPACITY
+                    )
+            else:
+                recent_params = backup_system.get_last_params(DataType.BINARY)
+                if recent_params:
+                    print("Usando parametri dall'ultima operazione di nascondimento")
+                    size = recent_params.get("size")
+                    pair_step = recent_params.get("pair_step", pair_step)
+                    channels = recent_params.get("channels", channels)
+                    # Carica RANGES dalla cache
+                    ranges_type = recent_params.get("ranges_type", "quality")
+                    BinarySteganography.RANGES = (
+                        BinarySteganography.RANGES_QUALITY
+                        if ranges_type == "quality"
+                        else BinarySteganography.RANGES_CAPACITY
+                    )
 
         if size is None:
             raise ValueError(ErrorMessages.PARAMS_MISSING)
