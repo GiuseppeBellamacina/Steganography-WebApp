@@ -122,7 +122,7 @@ streamlit run app.py
 
 5. **Carica l'immagine** e segui le istruzioni interattive
 
-## �️ Strumenti di Sviluppo
+## ⚙️ Strumenti di Sviluppo
 
 ### Formattazione del Codice
 
@@ -145,8 +145,8 @@ isort src/ config/ --check-only
 ```
 Steganography-WebApp/
 ├── 🌐 app.py                    # Streamlit application
-├── 📄 requirements.txt          # Python dependencies
-├── 📄 pyproject.toml            # Project configuration
+├── 🧺 requirements.txt          # Python dependencies
+├── ⚙️ pyproject.toml            # Project configuration
 ├── 📄 README.md                 # Documentation
 │
 ├── 📁 src/                      # Source code
@@ -193,21 +193,21 @@ Steganography-WebApp/
 
 ## 🎯 Algoritmi di Steganografia
 
-### LSB (Least Significant Bit)
+### ⚡ LSB (Least Significant Bit)
 
 Modifica i bit meno significativi dei pixel per nascondere i dati. Semplice e veloce, ideale per la maggior parte delle applicazioni.
 
 **Vantaggi**: Elevata capacità, veloce
 **Svantaggi**: Vulnerabile a compressione e modifiche dell'immagine
 
-### DWT (Discrete Wavelet Transform)
+### 🧪 DWT (Discrete Wavelet Transform)
 
 Utilizza trasformate wavelet per incorporare i dati nei coefficienti di frequenza dell'immagine. Più robusto rispetto a LSB.
 
 **Vantaggi**: Resistente a compressione JPEG, più sicuro
 **Svantaggi**: Capacità inferiore, più lento
 
-### PVD (Pixel Value Differencing)
+### 🔀 PVD (Pixel Value Differencing)
 
 Sfrutta le differenze tra pixel adiacenti per nascondere quantità variabili di dati in base alle caratteristiche locali dell'immagine.
 
