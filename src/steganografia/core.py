@@ -203,6 +203,7 @@ def get_bin_file(
         DwtBinary.get_binary_file(
             img,
             output_path,
+            compression_mode=compression_mode,
             size=size,
             backup_file=backup_file,
             alpha=dwt_alpha,
@@ -213,6 +214,7 @@ def get_bin_file(
         return PvdBinary.get_binary_file(
             img,
             output_path,
+            compression_mode=compression_mode,
             size=size,
             backup_file=backup_file,
             ranges_type=pvd_ranges_type,

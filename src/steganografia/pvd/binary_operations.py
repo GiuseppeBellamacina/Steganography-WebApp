@@ -214,18 +214,24 @@ class BinarySteganography:
     def get_binary_file(
         img: Image.Image,
         output_path: str,
+        compression_mode: int | None = None,  # Accettato per compatibilità API
         size: int | None = None,
         backup_file: str | None = None,
         # Parametri manuali opzionali
         ranges_type: str | None = None,  # "quality" o "capacity"
         pair_step: int | None = None,
         channels: list[int] | None = None,
-        **kwargs,  # Ignora compression_mode, n, div per compatibilità API
+        **kwargs,  # Ignora n, div per compatibilità API
     ) -> None:
         """Recupera un file binario da un'immagine usando PVD"""
 
         # PRIORITÀ: parametri manuali > backup file > cache recente > default
-        if ranges_type is not None or pair_step is not None or channels is not None:
+        if (
+            ranges_type is not None
+            or pair_step is not None
+            or channels is not None
+            or size is not None
+        ):
             print("Usando parametri MANUALI forniti dall'interfaccia")
             # Usa parametri manuali se forniti, altrimenti default
             if ranges_type == "quality":

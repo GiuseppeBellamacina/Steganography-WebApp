@@ -165,13 +165,14 @@ class BinarySteganography:
     def get_binary_file(
         img: Image.Image,
         output_path: str,
+        compression_mode: int | None = None,  # Accettato per compatibilità API
         size: int | None = None,
         backup_file: str | None = None,
         # Parametri manuali opzionali (usati se manual_params=True)
         alpha: float | None = None,
         bands: list[str] | None = None,
         use_all_channels: bool | None = None,
-        **kwargs,  # Ignora compression_mode, n, div per compatibilità API
+        **kwargs,  # Ignora n, div per compatibilità API
     ) -> None:
         """
         Recupera un file binario da un'immagine usando DWT
@@ -187,7 +188,12 @@ class BinarySteganography:
         """
         # PRIORITÀ: parametri manuali > backup file > cache recente > default
         # Se sono forniti parametri manuali, usali
-        if alpha is not None or bands is not None or use_all_channels is not None:
+        if (
+            alpha is not None
+            or bands is not None
+            or use_all_channels is not None
+            or size is not None
+        ):
             print("Usando parametri MANUALI forniti dall'interfaccia")
             # Usa parametri manuali se forniti, altrimenti default
             alpha = alpha if alpha is not None else BinarySteganography.ALPHA

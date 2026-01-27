@@ -179,16 +179,23 @@ class ImageSteganography:
         Args:
             img: Immagine contenente l'immagine nascosta
             output_path: Percorso di output
-            width: Larghezza dell'immagine nascosta
-            height: Altezza dell'immagine nascosta
+            width: Larghezza dell'immagine nascosta (manuale)
+            height: Altezza dell'immagine nascosta (manuale)
             backup_file: File di backup opzionale
         """
         # Carica parametri da backup se necessario
         if backup_file:
             backup_data = backup_system.load_backup_data(backup_file)
             if backup_data and "params" in backup_data:
-                width = backup_data["params"].get("width")
-                height = backup_data["params"].get("height")
+                # MERGE: parametri manuali hanno priorità
+                width = (
+                    width if width is not None else backup_data["params"].get("width")
+                )
+                height = (
+                    height
+                    if height is not None
+                    else backup_data["params"].get("height")
+                )
                 # CRITICO: carica TUTTI i parametri DWT usati durante hide
                 ImageSteganography.WAVELET = backup_data["params"].get(
                     "wavelet", ImageSteganography.WAVELET

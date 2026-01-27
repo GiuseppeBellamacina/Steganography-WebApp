@@ -213,6 +213,8 @@ class ImageSteganography:
     def get_image(
         img: Image.Image,
         output_path: str,
+        width: int | None = None,
+        height: int | None = None,
         backup_file: str | None = None,
         **kwargs,
     ):
@@ -231,8 +233,9 @@ class ImageSteganography:
         if not data:
             raise ValueError(ErrorMessages.PARAMS_MISSING)
 
-        width = data["width"]
-        height = data["height"]
+        # MERGE: parametri manuali hanno priorità su backup
+        width = width if width is not None else data["width"]
+        height = height if height is not None else data["height"]
         SECRET_BITS = data.get("secret_bits", 2)  # Default: 2 bit (qualità ottimale)
         pair_step = data.get("pair_step", ImageSteganography.PAIR_STEP)
         channels = data.get("channels", ImageSteganography.CHANNELS)
