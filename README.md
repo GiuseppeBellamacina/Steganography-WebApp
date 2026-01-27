@@ -38,7 +38,7 @@ Prova l'applicazione online su [Streamlit Cloud](https://steganography-webapp.st
 - 💾 **Backup Automatico**: Sistema intelligente di recupero parametri
 - 🎨 **Interfaccia Intuitiva**: UI Streamlit user-friendly con selezione visuale
 - 🔄 **Conversioni Automatiche**: Gestione formati RGB/RGBA/Grayscale
-- 📊 **Metriche di Qualità**: Calcolo PSNR, MSE, e altre metriche di valutazione
+- 📊 **Metriche di Qualità**: Calcolo PSNR e SSIM
 - 🛡️ **Validazione Robusta**: Controlli completi su input e parametri
 - 🧹 **Clean Architecture**: Codice modulare e manutenibile
 
@@ -155,7 +155,7 @@ Steganography-WebApp/
 │   │   ├── bit_operations.py    # Bit manipulation
 │   │   ├── core.py              # Core functions
 │   │   ├── file_utils.py        # File utilities
-│   │   ├── metrics.py           # Quality metrics (PSNR, MSE)
+│   │   ├── metrics.py           # Quality metrics (PSNR, SSIM)
 │   │   ├── validator.py         # Input validation
 │   │   │
 │   │   ├── 📁 lsb/              # LSB algorithm
@@ -219,7 +219,7 @@ Sfrutta le differenze tra pixel adiacenti per nascondere quantità variabili di 
 - **Capacità**: Varia in base all'algoritmo e alle dimensioni dell'immagine host
 - **Qualità**: Perdita minima di qualità (misurabile con PSNR)
 - **Formati Supportati**: PNG, JPEG, BMP, TIFF e altri formati comuni
-- **Metriche**: Calcolo automatico di PSNR, MSE, SSIM per valutare la qualità
+- **Metriche**: Calcolo automatico di PSNR, SSIM per valutare la qualità
 
 ## 🤝 Contribuire
 

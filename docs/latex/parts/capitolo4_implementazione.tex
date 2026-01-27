@@ -137,51 +137,72 @@ class ParameterBackup:
 
 \subsection{Calcolo Metriche di Qualità}
 
-Implementazione PSNR, MSE e SSIM:
+Implementazione PSNR e SSIM usando direttamente le librerie scikit-image:
 
 \begin{lstlisting}[caption={Metriche di qualità}]
 import numpy as np
+from skimage.metrics import peak_signal_noise_ratio as psnr
 from skimage.metrics import structural_similarity as ssim
 
 class QualityMetrics:
     @staticmethod
-    def calculate_mse(img1, img2):
-        """Mean Squared Error"""
-        arr1 = np.array(img1, dtype=np.float64)
-        arr2 = np.array(img2, dtype=np.float64)
+    def calculate_metrics(original_img: Image.Image, 
+                         modified_img: Image.Image) -> dict:
+        """Calcola SSIM e PSNR tra immagine originale e modificata"""
+        # Converte in RGB se necessario
+        if original_img.mode != "RGB":
+            original_img = original_img.convert("RGB")
+        if modified_img.mode != "RGB":
+            modified_img = modified_img.convert("RGB")
         
-        mse = np.mean((arr1 - arr2) ** 2)
-        return mse
+        # Converte in array numpy
+        original_array = np.array(original_img)
+        modified_array = np.array(modified_img)
+        
+        # Calcola SSIM (per immagini multichannel)
+        ssim_value = ssim(
+            original_array,
+            modified_array,
+            channel_axis=2,  # RGB ha 3 canali
+            data_range=255,  # Range dei valori dei pixel (0-255)
+        )
+        
+        # Calcola PSNR usando direttamente la libreria
+        if np.array_equal(original_array, modified_array):
+            psnr_value = np.inf
+        else:
+            psnr_value = psnr(original_array, modified_array, 
+                            data_range=255)
+        
+        return {"ssim": ssim_value, "psnr": psnr_value}
     
     @staticmethod
-    def calculate_psnr(img1, img2):
-        """Peak Signal-to-Noise Ratio"""
-        mse = QualityMetrics.calculate_mse(img1, img2)
+    def format_metrics(metrics: dict) -> str:
+        """Formatta le metriche in una stringa leggibile"""
+        ssim_val = metrics["ssim"]
+        psnr_val = metrics["psnr"]
         
-        if mse == 0:
-            return float('inf')
+        # Interpreta qualita SSIM
+        if ssim_val >= 0.99:
+            ssim_quality = "Eccellente"
+        elif ssim_val >= 0.95:
+            ssim_quality = "Ottima"
+        else:
+            ssim_quality = "Buona"
         
-        max_pixel = 255.0
-        psnr = 20 * np.log10(max_pixel / np.sqrt(mse))
-        return psnr
-    
-    @staticmethod
-    def calculate_ssim(img1, img2):
-        """Structural Similarity Index"""
-        arr1 = np.array(img1.convert('L'))  # Grayscale
-        arr2 = np.array(img2.convert('L'))
+        # Interpreta qualita PSNR
+        if np.isinf(psnr_val):
+            psnr_str = "inf"
+            psnr_quality = "Perfetto"
+        elif psnr_val >= 40:
+            psnr_str = f"{psnr_val:.2f}"
+            psnr_quality = "Ottima"
+        else:
+            psnr_str = f"{psnr_val:.2f}"
+            psnr_quality = "Buona"
         
-        ssim_value = ssim(arr1, arr2)
-        return ssim_value
-    
-    @staticmethod
-    def calculate_all_metrics(img1, img2):
-        """Calcola tutte le metriche"""
-        return {
-            "mse": QualityMetrics.calculate_mse(img1, img2),
-            "psnr": QualityMetrics.calculate_psnr(img1, img2),
-            "ssim": QualityMetrics.calculate_ssim(img1, img2)
-        }
+        return (f"SSIM: {ssim_val:.4f} ({ssim_quality}) | "
+                f"PSNR: {psnr_str} dB ({psnr_quality})")
 \end{lstlisting}
 
 \section{Ottimizzazioni Implementate}
