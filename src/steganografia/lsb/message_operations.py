@@ -68,7 +68,9 @@ class MessageSteganography:
         terminator = "1111000011110000"
 
         # Costruisce il payload completo: HEADER + LENGTH + CHECKSUM + MESSAGE + TERMINATOR
-        full_payload = magic_header + msg_length + checksum_binary + msg_binary + terminator
+        full_payload = (
+            magic_header + msg_length + checksum_binary + msg_binary + terminator
+        )
         msg_list = list(full_payload)
 
         for i in range(img.width):
@@ -84,7 +86,9 @@ class MessageSteganography:
                         break
 
         original_len = len(full_payload)
-        percentage = format(((original_len / ((img.width * img.height) * 3)) * 100), ".2f")
+        percentage = format(
+            ((original_len / ((img.width * img.height) * 3)) * 100), ".2f"
+        )
         print(
             f"TERMINATO - Percentuale di pixel usati: {percentage}% (Header: {len(magic_header + msg_length + checksum_binary + terminator)} bit, Messaggio: {len(msg_binary)} bit)"
         )
@@ -95,7 +99,9 @@ class MessageSteganography:
 
         # Calcola metriche di qualità (SSIM e PSNR)
         metrics = QualityMetrics.calculate_metrics(img, img_copy)
-        print(f"Metriche di qualità - SSIM: {metrics['ssim']:.4f}, PSNR: {metrics['psnr']:.2f} dB")
+        print(
+            f"Metriche di qualità - SSIM: {metrics['ssim']:.4f}, PSNR: {metrics['psnr']:.2f} dB"
+        )
 
         return img_copy, metrics
 
@@ -196,7 +202,9 @@ class MessageSteganography:
         if message_start + message_bits_length > len(all_bits):
             raise ValueError(ErrorMessages.DECODE_FAILED)
 
-        message_bits = "".join(all_bits[message_start : message_start + message_bits_length])
+        message_bits = "".join(
+            all_bits[message_start : message_start + message_bits_length]
+        )
 
         # Verifica il terminatore (16 bit dopo il messaggio)
         terminator_start = message_start + message_bits_length

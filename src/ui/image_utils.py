@@ -12,7 +12,9 @@ class ImageDisplay:
     """Gestisce la visualizzazione delle immagini in Streamlit"""
 
     @staticmethod
-    def show_resized_image(image_data, title: str, max_width: int = 400, max_height: int = 300):
+    def show_resized_image(
+        image_data, title: str, max_width: int = 400, max_height: int = 300
+    ):
         """
         Mostra un'immagine ridimensionata per evitare di occupare troppo spazio
 
@@ -45,7 +47,9 @@ class ImageDisplay:
                 new_height = int(original_height * ratio)
 
                 # Crea una copia ridimensionata per la visualizzazione
-                display_image = pil_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                display_image = pil_image.resize(
+                    (new_width, new_height), Image.Resampling.LANCZOS
+                )
 
                 st.markdown(f"**{title}**")
                 st.image(

@@ -81,7 +81,9 @@ class ImageSteganography:
         band_map = {"cH": cH, "cV": cV, "cD": cD}
         selected_bands = ImageSteganography.BANDS
 
-        print(f"DWT Hide - Parametri: STEP={step}, BITS={bits_secret}, BANDS={selected_bands}")
+        print(
+            f"DWT Hide - Parametri: STEP={step}, BITS={bits_secret}, BANDS={selected_bands}"
+        )
 
         all_coeffs = []
         for band_name in selected_bands:
@@ -188,8 +190,12 @@ class ImageSteganography:
                 width = backup_data["params"].get("width")
                 height = backup_data["params"].get("height")
                 # CRITICO: carica TUTTI i parametri DWT usati durante hide
-                ImageSteganography.WAVELET = backup_data["params"].get("wavelet", ImageSteganography.WAVELET)
-                ImageSteganography.STEP = backup_data["params"].get("step", ImageSteganography.STEP)
+                ImageSteganography.WAVELET = backup_data["params"].get(
+                    "wavelet", ImageSteganography.WAVELET
+                )
+                ImageSteganography.STEP = backup_data["params"].get(
+                    "step", ImageSteganography.STEP
+                )
                 ImageSteganography.BITS_SECRET = backup_data["params"].get(
                     "bits_per_pixel", ImageSteganography.BITS_SECRET
                 )
@@ -199,7 +205,9 @@ class ImageSteganography:
                 ImageSteganography.LEVEL = backup_data["params"].get(
                     "level", ImageSteganography.LEVEL
                 )
-                ImageSteganography.SEED = backup_data["params"].get("seed", ImageSteganography.SEED)
+                ImageSteganography.SEED = backup_data["params"].get(
+                    "seed", ImageSteganography.SEED
+                )
                 ImageSteganography.CHANNEL = backup_data["params"].get(
                     "channel", ImageSteganography.CHANNEL
                 )
@@ -216,14 +224,24 @@ class ImageSteganography:
                 width = recent_params.get("width")
                 height = recent_params.get("height")
                 # Carica anche i parametri DWT dalla cache
-                ImageSteganography.WAVELET = recent_params.get("wavelet", ImageSteganography.WAVELET)
-                ImageSteganography.STEP = recent_params.get("step", ImageSteganography.STEP)
+                ImageSteganography.WAVELET = recent_params.get(
+                    "wavelet", ImageSteganography.WAVELET
+                )
+                ImageSteganography.STEP = recent_params.get(
+                    "step", ImageSteganography.STEP
+                )
                 ImageSteganography.BITS_SECRET = recent_params.get(
                     "bits_per_pixel", ImageSteganography.BITS_SECRET
                 )
-                ImageSteganography.BANDS = recent_params.get("bands", ImageSteganography.BANDS)
-                ImageSteganography.LEVEL = recent_params.get("level", ImageSteganography.LEVEL)
-                ImageSteganography.SEED = recent_params.get("seed", ImageSteganography.SEED)
+                ImageSteganography.BANDS = recent_params.get(
+                    "bands", ImageSteganography.BANDS
+                )
+                ImageSteganography.LEVEL = recent_params.get(
+                    "level", ImageSteganography.LEVEL
+                )
+                ImageSteganography.SEED = recent_params.get(
+                    "seed", ImageSteganography.SEED
+                )
                 ImageSteganography.CHANNEL = recent_params.get(
                     "channel", ImageSteganography.CHANNEL
                 )
@@ -260,7 +278,9 @@ class ImageSteganography:
         band_map = {"cH": cH, "cV": cV, "cD": cD}
         selected_bands = ImageSteganography.BANDS
 
-        print(f"DWT Get - Parametri: STEP={step}, BITS={bits_secret}, BANDS={selected_bands}")
+        print(
+            f"DWT Get - Parametri: STEP={step}, BITS={bits_secret}, BANDS={selected_bands}"
+        )
 
         all_coeffs = []
         for band_name in selected_bands:

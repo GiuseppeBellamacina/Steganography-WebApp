@@ -15,7 +15,9 @@ def binary_convert_back(text: str) -> str:
 
 def set_last_bit(value: int, bit: str) -> int:
     """Setta l'ultimo bit di un numero"""
-    value_str = format(value, "08b")  # converte un intero in una stringa di 8 caratteri (byte)
+    value_str = format(
+        value, "08b"
+    )  # converte un intero in una stringa di 8 caratteri (byte)
     value_str = value_str[:7] + bit  # cambia l'ultimo bit
     result = int(value_str, 2)  # riconverte la stringa in un numero
     result = min(255, max(0, result))  # controlla se il numero è fuori range

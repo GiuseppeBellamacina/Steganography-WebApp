@@ -57,7 +57,9 @@ class MessageSteganography:
         checksum_binary = format(checksum, "016b")
         terminator = "1111000011110000"  # Terminatore complesso (16 bit)
 
-        full_payload = magic_header + msg_length + checksum_binary + msg_binary + terminator
+        full_payload = (
+            magic_header + msg_length + checksum_binary + msg_binary + terminator
+        )
 
         # Verifica capacità
         max_capacity = img.width * img.height * 3 // 4  # Approssimazione
@@ -114,7 +116,9 @@ class MessageSteganography:
             reconstructed = pywt.idwt2((cA, (cH, cV, cD)), MessageSteganography.WAVELET)
 
             # Gestisce eventuali differenze di dimensione dovute al padding
-            reconstructed = reconstructed[: channel_data.shape[0], : channel_data.shape[1]]
+            reconstructed = reconstructed[
+                : channel_data.shape[0], : channel_data.shape[1]
+            ]
 
             img_array[:, :, channel] = reconstructed
 
@@ -154,16 +158,28 @@ class MessageSteganography:
         if backup_file:
             backup_data = backup_system.load_backup_data(backup_file)
             if backup_data and "params" in backup_data:
-                MessageSteganography.WAVELET = backup_data["params"].get("wavelet", MessageSteganography.WAVELET)
-                MessageSteganography.ALPHA = backup_data["params"].get("alpha", MessageSteganography.ALPHA)
-                print(f"Parametri DWT caricati da backup: WAVELET={MessageSteganography.WAVELET}, ALPHA={MessageSteganography.ALPHA}")
+                MessageSteganography.WAVELET = backup_data["params"].get(
+                    "wavelet", MessageSteganography.WAVELET
+                )
+                MessageSteganography.ALPHA = backup_data["params"].get(
+                    "alpha", MessageSteganography.ALPHA
+                )
+                print(
+                    f"Parametri DWT caricati da backup: WAVELET={MessageSteganography.WAVELET}, ALPHA={MessageSteganography.ALPHA}"
+                )
         else:
             # Usa parametri dalla cache dell'ultima operazione
             recent = backup_system.get_last_params(DataType.STRING)
             if recent:
-                MessageSteganography.WAVELET = recent.get("wavelet", MessageSteganography.WAVELET)
-                MessageSteganography.ALPHA = recent.get("alpha", MessageSteganography.ALPHA)
-                print(f"Parametri DWT dalla cache: WAVELET={MessageSteganography.WAVELET}, ALPHA={MessageSteganography.ALPHA}")
+                MessageSteganography.WAVELET = recent.get(
+                    "wavelet", MessageSteganography.WAVELET
+                )
+                MessageSteganography.ALPHA = recent.get(
+                    "alpha", MessageSteganography.ALPHA
+                )
+                print(
+                    f"Parametri DWT dalla cache: WAVELET={MessageSteganography.WAVELET}, ALPHA={MessageSteganography.ALPHA}"
+                )
 
         if img.mode != "RGB":
             img = img.convert("RGB")
@@ -243,7 +259,9 @@ class MessageSteganography:
             actual_checksum ^= ord(char)
 
         if actual_checksum != expected_checksum:
-            print("Warning: Checksum non corrisponde. Messaggio potrebbe essere corrotto.")
+            print(
+                "Warning: Checksum non corrisponde. Messaggio potrebbe essere corrotto."
+            )
 
         print("Messaggio recuperato con successo usando DWT")
         return message

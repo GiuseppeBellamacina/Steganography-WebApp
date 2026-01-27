@@ -112,4 +112,7 @@ class QualityMetrics:
             psnr_quality = "Bassa"
             psnr_str = f"{psnr_val:.2f}"
 
-        return f"SSIM: {ssim_val:.4f} ({ssim_quality}) | " f"PSNR: {psnr_str} dB ({psnr_quality})"
+        return (
+            f"SSIM: {ssim_val:.4f} ({ssim_quality}) | "
+            f"PSNR: {psnr_str} dB ({psnr_quality})"
+        )

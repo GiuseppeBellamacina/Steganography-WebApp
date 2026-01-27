@@ -165,7 +165,9 @@ class BinarySteganography:
                     pixel1 = int(img_array[row, col, channel])
                     pixel2 = int(img_array[row, col + 1, channel])
 
-                    _, _, capacity = BinarySteganography._get_range_capacity(pixel2 - pixel1)
+                    _, _, capacity = BinarySteganography._get_range_capacity(
+                        pixel2 - pixel1
+                    )
                     bits_to_embed = full_payload[bit_index : bit_index + capacity]
 
                     if bits_to_embed:

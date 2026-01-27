@@ -92,7 +92,9 @@ class ParameterValidator:
             raise ValueError(ErrorMessages.DIV_EXCESSIVE.format(div=div))
 
     @staticmethod
-    def validate_div_for_file(div: float, total_pixels: int, file_size: int, n: int) -> None:
+    def validate_div_for_file(
+        div: float, total_pixels: int, file_size: int, n: int
+    ) -> None:
         """Valida il parametro DIV per i file"""
         if total_pixels * n < div * file_size * 8:
             raise ValueError(ErrorMessages.DIV_EXCESSIVE.format(div=div))

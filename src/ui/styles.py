@@ -132,6 +132,8 @@ def get_custom_css() -> str:
     </style>
     """
 
+
 def apply_custom_styles():
     import streamlit as st
+
     st.markdown(get_custom_css(), unsafe_allow_html=True)

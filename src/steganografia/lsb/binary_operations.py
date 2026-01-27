@@ -78,7 +78,9 @@ class BinarySteganography:
                         )
 
             # Verifica dimensioni
-            ParameterValidator.validate_image_size_for_file(img, total_bytes, n, channels)
+            ParameterValidator.validate_image_size_for_file(
+                img, total_bytes, n, channels
+            )
 
             # Converte immagine in array
             arr = np.array(img).flatten().copy()
@@ -88,7 +90,9 @@ class BinarySteganography:
             if div == 0:
                 div = find_div(total_pixels_ch, working_file, n)
             else:
-                ParameterValidator.validate_div_for_file(div, total_pixels_ch, total_bytes, n)
+                ParameterValidator.validate_div_for_file(
+                    div, total_pixels_ch, total_bytes, n
+                )
 
             # Inizia a nascondere il file
             print("Nascondendo file...")
@@ -125,7 +129,9 @@ class BinarySteganography:
                 ((total_bytes * 8) / ((img.width * img.height) * channels * n)) * 100,
                 ".2f",
             )
-            print(f"TERMINATO - Percentuale di pixel usati con n={n} e div={div}: {percentage}%")
+            print(
+                f"TERMINATO - Percentuale di pixel usati con n={n} e div={div}: {percentage}%"
+            )
 
             # Crea immagine risultato
             result_img = Image.fromarray(arr.reshape(img.height, img.width, channels))
@@ -136,7 +142,9 @@ class BinarySteganography:
             result_for_metrics = (
                 result_img.convert("RGB") if result_img.mode == "RGBA" else result_img
             )
-            metrics = QualityMetrics.calculate_metrics(img_for_metrics, result_for_metrics)
+            metrics = QualityMetrics.calculate_metrics(
+                img_for_metrics, result_for_metrics
+            )
             print(
                 f"Metriche di qualità - SSIM: {metrics['ssim']:.4f}, PSNR: {metrics['psnr']:.2f} dB"
             )
@@ -192,13 +200,17 @@ class BinarySteganography:
             if not backup_data:
                 recent_params = backup_system.get_last_params(DataType.BINARY)
                 if recent_params:
-                    print("Usando parametri dall'ultima operazione di occultamento file binari")
+                    print(
+                        "Usando parametri dall'ultima operazione di occultamento file binari"
+                    )
                     backup_data = {"type": DataType.BINARY, "params": recent_params}
 
             if backup_data and "params" in backup_data:
                 params = backup_data["params"]
                 compression_mode = (
-                    compression_mode if compression_mode is not None else params.get("zipMode")
+                    compression_mode
+                    if compression_mode is not None
+                    else params.get("zipMode")
                 )
                 n = n if n is not None else params.get("n")
                 div = div if div is not None else params.get("div")
@@ -214,7 +226,10 @@ class BinarySteganography:
 
         # Assert per il type checker
         assert (
-            compression_mode is not None and n is not None and div is not None and size is not None
+            compression_mode is not None
+            and n is not None
+            and div is not None
+            and size is not None
         )
 
         # Validazioni specifiche

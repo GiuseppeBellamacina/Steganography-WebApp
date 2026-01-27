@@ -44,7 +44,9 @@ class RecoverDataPages:
 
         # Configurazione metodo
         if selected_method == SteganographyMethod.PVD:
-            st.info("💡 Se non hai il backup, configura i parametri usati durante l'occultamento")
+            st.info(
+                "💡 Se non hai il backup, configura i parametri usati durante l'occultamento"
+            )
 
             from src.steganografia.pvd.message_operations import (
                 MessageSteganography as PVD_Msg,
@@ -77,7 +79,9 @@ class RecoverDataPages:
                     use_quality = st.checkbox(
                         "Usa ranges qualità", value=True, key="pvd_msg_rec_quality"
                     )
-                    pair_step_msg = st.slider("Sparsità", 1, 4, 1, key="pvd_msg_rec_step")
+                    pair_step_msg = st.slider(
+                        "Sparsità", 1, 4, 1, key="pvd_msg_rec_step"
+                    )
                 with col2:
                     channels_msg = st.multiselect(
                         "Canali",
@@ -91,13 +95,17 @@ class RecoverDataPages:
                         else [0, 1, 2]
                     )
 
-                PVD_Msg.RANGES = PVD_Msg.RANGES_QUALITY if use_quality else PVD_Msg.RANGES_CAPACITY
+                PVD_Msg.RANGES = (
+                    PVD_Msg.RANGES_QUALITY if use_quality else PVD_Msg.RANGES_CAPACITY
+                )
                 PVD_Msg.PAIR_STEP = pair_step_msg
                 PVD_Msg.CHANNELS = channels_list
 
         # Configurazione metodo DWT
         elif selected_method == SteganographyMethod.DWT:
-            st.info("💡 Se non hai il backup, configura i parametri usati durante l'occultamento")
+            st.info(
+                "💡 Se non hai il backup, configura i parametri usati durante l'occultamento"
+            )
 
             from src.steganografia.dwt.message_operations import (
                 MessageSteganography as DWT_Msg,
@@ -113,7 +121,7 @@ class RecoverDataPages:
                 ],
                 index=0,
                 key="dwt_msg_recover_preset",
-                help="Usa la stessa configurazione dell'occultamento!"
+                help="Usa la stessa configurazione dell'occultamento!",
             )
 
             if preset == "⚖️ Bilanciato":
@@ -135,7 +143,7 @@ class RecoverDataPages:
                         "Tipo Wavelet",
                         options=["haar", "db2", "db4", "db8", "sym2", "sym4", "coif1"],
                         index=0,
-                        key="dwt_msg_recover_wavelet"
+                        key="dwt_msg_recover_wavelet",
                     )
                 with col2:
                     alpha = st.slider(
@@ -144,7 +152,7 @@ class RecoverDataPages:
                         max_value=0.5,
                         value=0.1,
                         step=0.05,
-                        key="dwt_msg_recover_alpha"
+                        key="dwt_msg_recover_alpha",
                     )
 
                 DWT_Msg.WAVELET = wavelet
@@ -152,7 +160,9 @@ class RecoverDataPages:
 
         # Per le stringhe LSB non servono parametri particolari
         elif selected_method == SteganographyMethod.LSB:
-            st.info("💡 Le stringhe LSB non richiedono parametri speciali - il recupero è automatico!")
+            st.info(
+                "💡 Le stringhe LSB non richiedono parametri speciali - il recupero è automatico!"
+            )
 
         if st.button("🔓 Recupera Messaggio", type="primary"):
             if hidden_image:
@@ -208,9 +218,13 @@ class RecoverDataPages:
                 with col1:
                     st.metric("Caratteri", len(result_data["message_text"]))
                 with col2:
-                    st.metric("Dimensione in byte", f"{result_data['message_length']} byte")
+                    st.metric(
+                        "Dimensione in byte", f"{result_data['message_length']} byte"
+                    )
 
-                st.text_area("Messaggio nascosto:", value=result_data["message_text"], height=100)
+                st.text_area(
+                    "Messaggio nascosto:", value=result_data["message_text"], height=100
+                )
 
             create_download_button(
                 result_data["data"],
@@ -240,7 +254,9 @@ class RecoverDataPages:
             )
 
         # Opzioni parametri
-        backup_file_path, use_recent, manual_params = display_backup_options("image_get", show_manual=True)
+        backup_file_path, use_recent, manual_params = display_backup_options(
+            "image_get", show_manual=True
+        )
 
         # Configurazione metodo SOLO se parametri manuali
         if manual_params and selected_method == SteganographyMethod.DWT:
@@ -281,7 +297,9 @@ class RecoverDataPages:
             else:
                 col1, col2 = st.columns(2)
                 with col1:
-                    step_val = st.slider("STEP", 4.0, 32.0, 12.0, 0.5, key="dwt_img_rec_step")
+                    step_val = st.slider(
+                        "STEP", 4.0, 32.0, 12.0, 0.5, key="dwt_img_rec_step"
+                    )
                     bits_val = st.slider("Bit Secret", 2, 4, 3, key="dwt_img_rec_bits")
                 with col2:
                     bands_val = st.multiselect(
@@ -290,7 +308,9 @@ class RecoverDataPages:
                         default=["cH", "cV"],
                         key="dwt_img_rec_bands",
                     )
-                    level_val = st.number_input("Level", 1, 3, 1, key="dwt_img_rec_level")
+                    level_val = st.number_input(
+                        "Level", 1, 3, 1, key="dwt_img_rec_level"
+                    )
 
                 DWT.STEP = step_val
                 DWT.BITS_SECRET = bits_val
@@ -325,7 +345,9 @@ class RecoverDataPages:
                     use_quality = st.checkbox(
                         "Usa ranges qualità", value=True, key="pvd_img_rec_quality"
                     )
-                    pair_step_val = st.slider("Sparsità", 1, 4, 1, key="pvd_img_rec_step")
+                    pair_step_val = st.slider(
+                        "Sparsità", 1, 4, 1, key="pvd_img_rec_step"
+                    )
                 with col2:
                     channels_val = st.multiselect(
                         "Canali",
@@ -344,10 +366,10 @@ class RecoverDataPages:
                     channels=channels_list,
                     use_quality_ranges=use_quality,
                 )
-        
+
         elif manual_params and selected_method == SteganographyMethod.LSB:
             st.info("💡 Configura i parametri LSB usati durante l'occultamento")
-            
+
             preset = st.selectbox(
                 "📋 Preconfigurazione LSB:",
                 options=[
@@ -359,7 +381,7 @@ class RecoverDataPages:
                 index=0,
                 key="lsb_img_recover_preset",
             )
-            
+
             if preset == "⚖️ Bilanciato":
                 lsb = 4
                 msb = 4
@@ -378,7 +400,7 @@ class RecoverDataPages:
                     lsb = st.number_input("LSB", 1, 8, 4, key="lsb_img_rec_lsb")
                 with col2:
                     msb = st.number_input("MSB", 1, 8, 4, key="lsb_img_rec_msb")
-            
+
             # DIV sempre modificabile manualmente
             div = st.number_input(
                 "DIV (Divisore)",
@@ -387,16 +409,20 @@ class RecoverDataPages:
                 help="0.0 = automatico. Inserisci un valore specifico se conosci quello usato durante l'occultamento.",
                 key="lsb_img_rec_div",
             )
-        
+
         # Dimensioni immagine (width/height) SOLO se parametri manuali
         lsb = msb = div = width = height = None
         if manual_params:
             st.subheader("📐 Dimensioni Immagine")
             col1, col2 = st.columns(2)
             with col1:
-                width = st.number_input("Larghezza", min_value=1, value=100, key="manual_width")
+                width = st.number_input(
+                    "Larghezza", min_value=1, value=100, key="manual_width"
+                )
             with col2:
-                height = st.number_input("Altezza", min_value=1, value=100, key="manual_height")
+                height = st.number_input(
+                    "Altezza", min_value=1, value=100, key="manual_height"
+                )
 
         output_name = st.text_input(
             "Nome file output", value="recovered_image.png", key="img_recover_output"
@@ -507,10 +533,16 @@ class RecoverDataPages:
             ImageDisplay.show_image_details(hidden_image, "Dettagli Immagine")
 
         # Opzioni parametri
-        backup_file_path, use_recent, manual_params = display_backup_options("binary_get", show_manual=True)
+        backup_file_path, use_recent, manual_params = display_backup_options(
+            "binary_get", show_manual=True
+        )
 
         # Configurazione metodo SOLO se parametri manuali
-        if manual_params and manual_params and selected_method == SteganographyMethod.DWT:
+        if (
+            manual_params
+            and manual_params
+            and selected_method == SteganographyMethod.DWT
+        ):
 
             st.info("💡 Configura i parametri DWT usati durante l'occultamento")
 
@@ -548,8 +580,12 @@ class RecoverDataPages:
             else:
                 col1, col2 = st.columns(2)
                 with col1:
-                    alpha_val = st.slider("ALPHA", 4.0, 24.0, 8.0, 0.5, key="dwt_bin_rec_alpha")
-                    multi_ch = st.checkbox("Tutti i canali", value=True, key="dwt_bin_rec_multi")
+                    alpha_val = st.slider(
+                        "ALPHA", 4.0, 24.0, 8.0, 0.5, key="dwt_bin_rec_alpha"
+                    )
+                    multi_ch = st.checkbox(
+                        "Tutti i canali", value=True, key="dwt_bin_rec_multi"
+                    )
                 with col2:
                     bands_val = st.multiselect(
                         "Bande",
@@ -562,7 +598,11 @@ class RecoverDataPages:
                 DWT_Binary.BANDS = bands_val if bands_val else ["cH"]
                 DWT_Binary.USE_ALL_CHANNELS = multi_ch
 
-        elif manual_params and manual_params and selected_method == SteganographyMethod.PVD:
+        elif (
+            manual_params
+            and manual_params
+            and selected_method == SteganographyMethod.PVD
+        ):
 
             st.info("💡 Configura i parametri PVD usati durante l'occultamento")
 
@@ -597,7 +637,9 @@ class RecoverDataPages:
                     use_quality = st.checkbox(
                         "Usa ranges qualità", value=False, key="pvd_bin_rec_quality"
                     )
-                    pair_step_bin = st.slider("Sparsità", 1, 4, 1, key="pvd_bin_rec_step")
+                    pair_step_bin = st.slider(
+                        "Sparsità", 1, 4, 1, key="pvd_bin_rec_step"
+                    )
                 with col2:
                     channels_bin = st.multiselect(
                         "Canali",
@@ -612,14 +654,16 @@ class RecoverDataPages:
                     )
 
                 PVD_Binary.RANGES = (
-                    PVD_Binary.RANGES_QUALITY if use_quality else PVD_Binary.RANGES_CAPACITY
+                    PVD_Binary.RANGES_QUALITY
+                    if use_quality
+                    else PVD_Binary.RANGES_CAPACITY
                 )
                 PVD_Binary.PAIR_STEP = pair_step_bin
                 PVD_Binary.CHANNELS = channels_list
-        
+
         elif manual_params and selected_method == SteganographyMethod.LSB:
             st.info("💡 Configura i parametri LSB usati durante l'occultamento")
-            
+
             preset = st.selectbox(
                 "📋 Preconfigurazione LSB:",
                 options=[
@@ -631,7 +675,7 @@ class RecoverDataPages:
                 index=0,
                 key="lsb_bin_recover_preset",
             )
-            
+
             if preset == "⚖️ Bilanciato":
                 n = 4
                 st.info("⚖️ N=4")
@@ -643,7 +687,7 @@ class RecoverDataPages:
                 st.info("📦 N=6")
             else:
                 n = st.number_input("N", 1, 8, 4, key="lsb_bin_rec_n")
-            
+
             # DIV sempre modificabile manualmente
             div = st.number_input(
                 "DIV (Divisore)",
@@ -675,7 +719,10 @@ class RecoverDataPages:
                 )
             with col2:
                 size = st.number_input(
-                    "Dimensione file (bytes)", min_value=1, value=1000, key="manual_size"
+                    "Dimensione file (bytes)",
+                    min_value=1,
+                    value=1000,
+                    key="manual_size",
                 )
 
         output_name = st.text_input(

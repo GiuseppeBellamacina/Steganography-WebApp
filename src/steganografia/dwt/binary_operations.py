@@ -76,7 +76,9 @@ class BinarySteganography:
 
         # Determina quali canali usare
         channels_to_use = (
-            [0, 1, 2] if BinarySteganography.USE_ALL_CHANNELS else [BinarySteganography.CHANNEL]
+            [0, 1, 2]
+            if BinarySteganography.USE_ALL_CHANNELS
+            else [BinarySteganography.CHANNEL]
         )
         selected_bands = BinarySteganography.BANDS
 
@@ -110,7 +112,9 @@ class BinarySteganography:
                         abs_val = 2.0
 
                     # Usa moltiplicatori fissi robusti basati su ALPHA
-                    strength = max(5.0, 1.0 / BinarySteganography.ALPHA)  # Min 5x per robustezza
+                    strength = max(
+                        5.0, 1.0 / BinarySteganography.ALPHA
+                    )  # Min 5x per robustezza
 
                     if bit == 1:
                         # bit=1: grande valore POSITIVO
@@ -128,7 +132,9 @@ class BinarySteganography:
             cV = band_map["cV"]
             cD = band_map["cD"]
             reconstructed = pywt.idwt2((cA, (cH, cV, cD)), BinarySteganography.WAVELET)
-            reconstructed = reconstructed[: channel_data.shape[0], : channel_data.shape[1]]
+            reconstructed = reconstructed[
+                : channel_data.shape[0], : channel_data.shape[1]
+            ]
             img_array[:, :, channel_idx] = reconstructed
 
         img_array = np.clip(img_array, 0, 255).astype(np.uint8)
@@ -196,7 +202,9 @@ class BinarySteganography:
             bits_secret = params.get("bits_secret", BinarySteganography.BITS_SECRET)
             bands = params.get("bands", BinarySteganography.BANDS)
             alpha = params.get("alpha", BinarySteganography.ALPHA)
-            use_all_channels = params.get("use_all_channels", BinarySteganography.USE_ALL_CHANNELS)
+            use_all_channels = params.get(
+                "use_all_channels", BinarySteganography.USE_ALL_CHANNELS
+            )
 
             print(
                 f"DWT Get Binary - Parametri: WAVELET={wavelet}, LEVEL={level}, SEED={seed}, ALPHA={alpha}, BANDS={bands}, USE_ALL_CHANNELS={use_all_channels}"
