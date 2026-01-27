@@ -258,6 +258,9 @@ class RecoverDataPages:
             "image_get", show_manual=True
         )
 
+        # Inizializza tutte le variabili a None per evitare errori di variabili non inizializzate
+        lsb = msb = div = width = height = None
+
         # Configurazione metodo SOLO se parametri manuali
         if manual_params and selected_method == SteganographyMethod.DWT:
             st.info("💡 Configura i parametri DWT usati durante l'occultamento")
@@ -410,14 +413,6 @@ class RecoverDataPages:
                 key="lsb_img_rec_div",
             )
 
-        # Dimensioni immagine (width/height) SOLO se parametri manuali
-        # Inizializza solo se NON già configurati sopra
-        if not manual_params:
-            lsb = msb = div = width = height = None
-        else:
-            # Inizializza solo width/height per parametri manuali
-            width = height = None
-
         if manual_params:
             st.subheader("📐 Dimensioni Immagine")
             col1, col2 = st.columns(2)
@@ -546,6 +541,7 @@ class RecoverDataPages:
         # Configurazione metodo SOLO se parametri manuali
         dwt_alpha = dwt_bands = dwt_use_all_channels = None
         pvd_ranges_type = pvd_pair_step = pvd_channels = None
+        zip_mode = n = div = size = None
 
         if (
             manual_params
@@ -693,11 +689,6 @@ class RecoverDataPages:
                 help="0.0 = automatico. Inserisci un valore specifico se conosci quello usato durante l'occultamento.",
                 key="lsb_bin_rec_div",
             )
-
-        # Parametri zip_mode e size SOLO se parametri manuali
-        # Inizializza solo se NON già configurati sopra
-        if not manual_params:
-            zip_mode = n = div = size = None
 
         if manual_params:
             st.subheader("📎 Parametri File")

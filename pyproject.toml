@@ -74,11 +74,12 @@ select = [
     "W",   # pycodestyle warnings
     "F",   # pyflakes
     "I",   # isort
-    "N",   # pep8-naming
     "UP",  # pyupgrade
 ]
 ignore = [
     "E501",  # line too long (handled by black)
+    "N806",  # non-lowercase variable (cA, cH, cV, cD sono standard DWT)
+    "N814",  # camelcase import (DWT, PVD sono alias accettabili)
 ]
 
 [tool.ruff.lint.isort]

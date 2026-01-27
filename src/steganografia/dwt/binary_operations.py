@@ -201,9 +201,7 @@ class BinarySteganography:
             wavelet = BinarySteganography.WAVELET
             level = BinarySteganography.LEVEL
             seed = BinarySteganography.SEED
-            step = BinarySteganography.STEP
             channel_idx = BinarySteganography.CHANNEL
-            bits_secret = BinarySteganography.BITS_SECRET
             # size deve essere ancora fornito
             if size is None:
                 raise ValueError("Size richiesto per parametri manuali")
@@ -227,9 +225,7 @@ class BinarySteganography:
                 wavelet = params.get("wavelet", BinarySteganography.WAVELET)
                 level = params.get("level", BinarySteganography.LEVEL)
                 seed = params.get("seed", BinarySteganography.SEED)
-                step = params.get("step", BinarySteganography.STEP)
                 channel_idx = params.get("channel", BinarySteganography.CHANNEL)
-                bits_secret = params.get("bits_secret", BinarySteganography.BITS_SECRET)
                 bands = params.get("bands", BinarySteganography.BANDS)
                 alpha = params.get("alpha", BinarySteganography.ALPHA)
                 use_all_channels = params.get(
@@ -241,9 +237,7 @@ class BinarySteganography:
                 wavelet = BinarySteganography.WAVELET
                 level = BinarySteganography.LEVEL
                 seed = BinarySteganography.SEED
-                step = BinarySteganography.STEP
                 channel_idx = BinarySteganography.CHANNEL
-                bits_secret = BinarySteganography.BITS_SECRET
                 bands = BinarySteganography.BANDS
                 alpha = BinarySteganography.ALPHA
                 use_all_channels = BinarySteganography.USE_ALL_CHANNELS
@@ -264,6 +258,10 @@ class BinarySteganography:
         # Determina quali canali usare (deve corrispondere a hide)
         channels_to_use = [0, 1, 2] if use_all_channels else [channel_idx]
         extracted_bits = []
+
+        # Assicura che bands non sia None
+        if bands is None:
+            bands = ["cH"]
 
         # ESTRAZIONE BASATA SU SEGNO (semplice e robusto)
         for ch_idx in channels_to_use:

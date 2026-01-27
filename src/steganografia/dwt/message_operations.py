@@ -89,7 +89,6 @@ class MessageSteganography:
                 # Se non ci sono abbastanza coefficienti in questo canale, continua
                 pass
 
-            coeff_idx = 0
             for i in usable_indices:
                 if bit_index >= len(full_payload):
                     break
