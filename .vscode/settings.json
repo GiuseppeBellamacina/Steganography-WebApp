@@ -1,0 +1,13 @@
+{
+  "python.analysis.extraPaths": [
+    "./src",
+    "./src/steganografia",
+    "./src/steganografia/lsb/",
+    "./src/steganografia/dwt/",
+    "./src/steganografia/pvd/",
+    "src/ui/"
+  ],
+  "python.testing.pytestArgs": ["tests"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
+}
