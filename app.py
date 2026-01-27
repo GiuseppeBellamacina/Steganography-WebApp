@@ -7,7 +7,7 @@ import streamlit as st
 import traceback
 
 # Import dei moduli refactored
-from src.ui.layout import AppLayout, DynamicInstructions
+from src.ui.layout import AppLayout
 from src.ui.hide_pages import HideDataPages
 from src.ui.recover_pages import RecoverDataPages
 from src.ui.image_utils import ResultDisplay
@@ -30,9 +30,7 @@ def main():
             "dwt": "🧪 DWT - Discrete Wavelet Transform",
             "pvd": "🔀 PVD - Pixel Value Differencing"
         }
-        st.markdown(f"##### {method_names.get(selected_method, 'Nessuna modalità')}")
-        
-        st.markdown("---")
+        st.markdown(f"#### {method_names.get(selected_method, 'Nessuna modalità')}")
         
         # Tabs per Hide/Recover
         tab_hide, tab_recover = st.tabs(["🔒 Nascondi Dati", "🔓 Recupera Dati"])
