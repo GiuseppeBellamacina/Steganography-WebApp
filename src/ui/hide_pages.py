@@ -783,10 +783,10 @@ class HideDataPages:
             dwt_preset = st.selectbox(
                 "Seleziona configurazione",
                 options=[
-                    "Bilanciato",
-                    "Massima Capacità",
-                    "Massima Qualità",
-                    "Personalizzato",
+                    "⚖️ Bilanciato",
+                    "📦 Massima Capacità",
+                    "🎨 Massima Qualità",
+                    "⚙️ Personalizzato",
                 ],
                 index=0,
                 help="Bilanciato: buon compromesso capacità/qualità. Massima Capacità: usa tutte le bande e canali. Massima Qualità: minimal embedding.",
@@ -794,15 +794,15 @@ class HideDataPages:
             )
 
             # Imposta valori di default basati sul preset
-            if dwt_preset == "Bilanciato":
+            if dwt_preset == "⚖️ Bilanciato":
                 default_alpha = 0.1
                 default_bands = ["cH"]
                 default_multi_channel = False
-            elif dwt_preset == "Massima Capacità":
+            elif dwt_preset == "📦 Massima Capacità":
                 default_alpha = 0.15
                 default_bands = ["cH", "cV", "cD"]
                 default_multi_channel = True
-            elif dwt_preset == "Massima Qualità":
+            elif dwt_preset == "🎨 Massima Qualità":
                 default_alpha = 0.05
                 default_bands = ["cH"]
                 default_multi_channel = False
@@ -812,7 +812,7 @@ class HideDataPages:
                 default_multi_channel = False
 
             # Mostra controlli solo in modalità Personalizzato
-            if dwt_preset == "Personalizzato":
+            if dwt_preset == "⚙️ Personalizzato":
                 col1, col2 = st.columns(2)
                 with col1:
                     alpha_value = st.slider(
