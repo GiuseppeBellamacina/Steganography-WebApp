@@ -7,7 +7,7 @@ name = "steganography-webapp"
 version = "1.0.0"
 description = "Advanced steganography web application with LSB, DWT, and PVD methods"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
     {name = "Giuseppe Bellamacina"}
