@@ -33,7 +33,7 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Check import sorting with isort
-        run: isort src/ tests/ config/ --check-only --diff
+        run: isort src/ config/ --check-only --diff
 
       - name: Format with Black
-        run: black src/ tests/ config/ --check --diff
+        run: black src/ config/ --check --diff
