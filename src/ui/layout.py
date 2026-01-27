@@ -27,7 +27,7 @@ class AppLayout:
         st.markdown(
             """
             <div style='text-align: center; padding: 1rem 0 2rem 0;'>
-                <h1 style='margin: 0; font-size: 3.5rem; font-weight: 700; 
+                <h1 style='margin: 0; font-size: 4.5rem; font-weight: 700; 
                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                            -webkit-background-clip: text;
                            -webkit-text-fill-color: transparent;
