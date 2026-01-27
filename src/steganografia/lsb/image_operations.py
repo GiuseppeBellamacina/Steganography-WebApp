@@ -79,7 +79,9 @@ class ImageSteganography:
         if div == 0:
             div = (len(arr1) * lsb) / (len(arr2) * msb)
         else:
-            ParameterValidator.validate_div_for_images(div, len(arr1), len(arr2), lsb, msb)
+            ParameterValidator.validate_div_for_images(
+                div, len(arr1), len(arr2), lsb, msb
+            )
 
         # Algoritmo per nascondere l'immagine
         pos_in_img1 = 0.0
@@ -106,7 +108,9 @@ class ImageSteganography:
                 # Nascondili nel pixel corrente di host_img
                 pixel_pos = int(pos_in_img1)
                 if pixel_pos < len(arr1):
-                    arr1[pixel_pos] = set_last_n_bits(arr1[pixel_pos], bits_to_hide, lsb)
+                    arr1[pixel_pos] = set_last_n_bits(
+                        arr1[pixel_pos], bits_to_hide, lsb
+                    )
 
                 # Avanza nella posizione di host_img
                 pos_in_img1 += div
@@ -119,7 +123,9 @@ class ImageSteganography:
 
             pixel_pos = int(pos_in_img1)
             if pixel_pos < len(arr1):
-                arr1[pixel_pos] = set_last_n_bits(arr1[pixel_pos], bit_buffer[:lsb], lsb)
+                arr1[pixel_pos] = set_last_n_bits(
+                    arr1[pixel_pos], bit_buffer[:lsb], lsb
+                )
 
         # Crea immagine risultato
         w, h = secret_img.width, secret_img.height
@@ -137,7 +143,9 @@ class ImageSteganography:
 
         # Calcola metriche di qualità (SSIM e PSNR)
         metrics = QualityMetrics.calculate_metrics(host_img, result_img)
-        print(f"Metriche di qualità - SSIM: {metrics['ssim']:.4f}, PSNR: {metrics['psnr']:.2f} dB")
+        print(
+            f"Metriche di qualità - SSIM: {metrics['ssim']:.4f}, PSNR: {metrics['psnr']:.2f} dB"
+        )
 
         # Salva i parametri per il recupero
         params = {
@@ -192,7 +200,9 @@ class ImageSteganography:
             if not backup_data:
                 recent_params = backup_system.get_last_params(DataType.IMAGE)
                 if recent_params:
-                    print("Usando parametri dall'ultima operazione di occultamento immagini")
+                    print(
+                        "Usando parametri dall'ultima operazione di occultamento immagini"
+                    )
                     backup_data = {"type": DataType.IMAGE, "params": recent_params}
 
             if backup_data and "params" in backup_data:
@@ -256,4 +266,6 @@ class ImageSteganography:
             print(f"IMMAGINE TROVATA - Immagine salvata come {output_path}")
             return res_img
         except Exception as e:
-            raise ValueError(ErrorMessages.IMAGE_RECONSTRUCTION_FAILED.format(error=str(e)))
+            raise ValueError(
+                ErrorMessages.IMAGE_RECONSTRUCTION_FAILED.format(error=str(e))
+            )

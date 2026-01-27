@@ -33,7 +33,9 @@ class HideDataPages:
 
         # Mostra anteprima dell'immagine host
         if host_image:
-            ImageDisplay.show_resized_image(host_image, "🖼️ Immagine Host", max_width=400)
+            ImageDisplay.show_resized_image(
+                host_image, "🖼️ Immagine Host", max_width=400
+            )
             ImageDisplay.show_image_details(host_image, "Dettagli Immagine Host")
 
         message = st.text_area(
@@ -75,7 +77,9 @@ class HideDataPages:
                     use_quality = st.checkbox(
                         "Usa ranges qualità", value=True, key="pvd_msg_hide_quality"
                     )
-                    pair_step_msg = st.slider("Sparsità", 1, 4, 1, key="pvd_msg_hide_step")
+                    pair_step_msg = st.slider(
+                        "Sparsità", 1, 4, 1, key="pvd_msg_hide_step"
+                    )
                 with col2:
                     channels_msg = st.multiselect(
                         "Canali",
@@ -89,7 +93,9 @@ class HideDataPages:
                         else [0, 1, 2]
                     )
 
-                PVD_Msg.RANGES = PVD_Msg.RANGES_QUALITY if use_quality else PVD_Msg.RANGES_CAPACITY
+                PVD_Msg.RANGES = (
+                    PVD_Msg.RANGES_QUALITY if use_quality else PVD_Msg.RANGES_CAPACITY
+                )
                 PVD_Msg.PAIR_STEP = pair_step_msg
                 PVD_Msg.CHANNELS = channels_list
 
@@ -109,7 +115,7 @@ class HideDataPages:
                 ],
                 index=0,
                 key="dwt_msg_hide_preset",
-                help="Bilanciato: uso generale. Qualità: invisibile. Robustezza: resiste a compressione/rumore."
+                help="Bilanciato: uso generale. Qualità: invisibile. Robustezza: resiste a compressione/rumore.",
             )
 
             if preset == "⚖️ Bilanciato":
@@ -123,7 +129,9 @@ class HideDataPages:
             elif preset == "💪 Robustezza":
                 DWT_Msg.WAVELET = "db4"
                 DWT_Msg.ALPHA = 0.3
-                st.info("💪 Wavelet Daubechies 4, alpha 0.3 - Più robusto, resiste meglio a modifiche")
+                st.info(
+                    "💪 Wavelet Daubechies 4, alpha 0.3 - Più robusto, resiste meglio a modifiche"
+                )
             else:
                 col1, col2 = st.columns(2)
                 with col1:
@@ -132,7 +140,7 @@ class HideDataPages:
                         options=["haar", "db2", "db4", "db8", "sym2", "sym4", "coif1"],
                         index=0,
                         help="haar=veloce standard, db/sym=più robuste",
-                        key="dwt_msg_hide_wavelet"
+                        key="dwt_msg_hide_wavelet",
                     )
                 with col2:
                     alpha = st.slider(
@@ -142,13 +150,15 @@ class HideDataPages:
                         value=0.1,
                         step=0.05,
                         help="Basso=invisibile ma fragile, Alto=visibile ma robusto",
-                        key="dwt_msg_hide_alpha"
+                        key="dwt_msg_hide_alpha",
                     )
 
                 DWT_Msg.WAVELET = wavelet
                 DWT_Msg.ALPHA = alpha
 
-        output_name = st.text_input("📁 Nome file output", value="image_with_message.png")
+        output_name = st.text_input(
+            "📁 Nome file output", value="image_with_message.png"
+        )
 
         if st.button("🔒 Nascondi Messaggio", type="primary"):
             if host_image and message:
@@ -163,7 +173,9 @@ class HideDataPages:
 
                         # Nascondi messaggio
                         with st.spinner("Nascondendo messaggio..."):
-                            result_img, metrics = hide_message(img, message, method=selected_method)
+                            result_img, metrics = hide_message(
+                                img, message, method=selected_method
+                            )
 
                         st.success("✅ Messaggio nascosto con successo!")
 
@@ -246,7 +258,9 @@ class HideDataPages:
 
         # Mostra anteprima dell'immagine host
         if host_image:
-            ImageDisplay.show_resized_image(host_image, "🖼️ Immagine Host", max_width=300)
+            ImageDisplay.show_resized_image(
+                host_image, "🖼️ Immagine Host", max_width=300
+            )
             ImageDisplay.show_image_details(host_image, "Dettagli Immagine Host")
 
         secret_image = st.file_uploader(
@@ -260,7 +274,9 @@ class HideDataPages:
             ImageDisplay.show_resized_image(
                 secret_image, "🔒 Immagine da Nascondere", max_width=300
             )
-            ImageDisplay.show_image_details(secret_image, "Dettagli Immagine da Nascondere")
+            ImageDisplay.show_image_details(
+                secret_image, "Dettagli Immagine da Nascondere"
+            )
 
         # Controllo compatibilità dimensioni
         if host_image and secret_image:
@@ -282,7 +298,9 @@ class HideDataPages:
                     st.warning(
                         f"⚠️ **Attenzione**: L'immagine host ({host_pixels:,} pixel) è solo {host_pixels / secret_pixels:.1f}x più grande dell'immagine da nascondere ({secret_pixels:,} pixel)"
                     )
-                    st.info("💡 Per migliori risultati, usa un'immagine host almeno 2x più grande")
+                    st.info(
+                        "💡 Per migliori risultati, usa un'immagine host almeno 2x più grande"
+                    )
                 else:
                     st.success(
                         f"✅ **Dimensioni compatibili**: L'immagine host ({host_pixels:,} pixel) è {host_pixels / secret_pixels:.1f}x più grande dell'immagine da nascondere ({secret_pixels:,} pixel)"
@@ -402,7 +420,9 @@ class HideDataPages:
                     host_w, host_h = host_info["width"], host_info["height"]
 
                     # Con epsilon filter, praticamente TUTTI i coefficienti sono utilizzabili (~99%)
-                    dwt_capacity_bits = int((host_w * host_h / 4) * len(bands_selection) * 0.99)
+                    dwt_capacity_bits = int(
+                        (host_w * host_h / 4) * len(bands_selection) * 0.99
+                    )
                     secret_w, secret_h = secret_info["width"], secret_info["height"]
                     secret_bits_needed = secret_w * secret_h * 3 * bits_secret
 
@@ -441,7 +461,7 @@ class HideDataPages:
                 help="Bilanciato: LSB=4 MSB=4. Alta Qualità: LSB=1 MSB=8. Alta Capacità: LSB=6 MSB=2. DIV sempre automatico.",
                 key="lsb_img_preset",
             )
-            
+
             if preset == "⚖️ Bilanciato":
                 lsb = 4
                 msb = 4
@@ -460,7 +480,7 @@ class HideDataPages:
             else:  # Personalizzato
                 st.markdown("**Parametri Personalizzati:**")
                 col1, col2, col3 = st.columns(3)
-                
+
                 with col1:
                     lsb = st.number_input(
                         "LSB (bit da modificare)",
@@ -550,7 +570,9 @@ class HideDataPages:
             lsb = 0
             msb = 8
             div = 0.0
-            method_name = SteganographyMethod.get_display_names().get(selected_method, "Unknown")
+            method_name = SteganographyMethod.get_display_names().get(
+                selected_method, "Unknown"
+            )
             st.info(f"ℹ️ Il metodo {method_name} non richiede parametri aggiuntivi")
 
         col1, col2 = st.columns(2)
@@ -718,10 +740,14 @@ class HideDataPages:
 
         # Mostra anteprima dell'immagine host
         if host_image:
-            ImageDisplay.show_resized_image(host_image, "🖼️ Immagine Host", max_width=400)
+            ImageDisplay.show_resized_image(
+                host_image, "🖼️ Immagine Host", max_width=400
+            )
             ImageDisplay.show_image_details(host_image, "Dettagli Immagine Host")
 
-        secret_file = st.file_uploader("Carica il file da nascondere", key="secret_file")
+        secret_file = st.file_uploader(
+            "Carica il file da nascondere", key="secret_file"
+        )
 
         if secret_file:
             st.write(f"**Nome file:** {secret_file.name}")
@@ -841,7 +867,9 @@ class HideDataPages:
 
                     # Header overhead: magic(16) + size(32) + terminator(16) = 64 bit
                     overhead_bits = 64
-                    capacity_bits = (coeffs_per_band * num_bands * num_channels) - overhead_bits
+                    capacity_bits = (
+                        coeffs_per_band * num_bands * num_channels
+                    ) - overhead_bits
                     file_bits_needed = file_size * 8
 
                     if file_bits_needed > capacity_bits:
@@ -877,7 +905,7 @@ class HideDataPages:
                 help="Bilanciato: N=4. Alta Qualità: N=1. Alta Capacità: N=6. DIV sempre automatico.",
                 key="lsb_bin_preset",
             )
-            
+
             if preset == "⚖️ Bilanciato":
                 n = 4
                 div = 0.0
@@ -957,7 +985,9 @@ class HideDataPages:
                     )
 
                 PVD_Binary.RANGES = (
-                    PVD_Binary.RANGES_QUALITY if use_quality else PVD_Binary.RANGES_CAPACITY
+                    PVD_Binary.RANGES_QUALITY
+                    if use_quality
+                    else PVD_Binary.RANGES_CAPACITY
                 )
                 PVD_Binary.PAIR_STEP = pair_step_bin
                 PVD_Binary.CHANNELS = channels_list
@@ -969,7 +999,9 @@ class HideDataPages:
             # Metodi senza parametri
             n = 0
             div = 0.0
-            method_name = SteganographyMethod.get_display_names().get(selected_method, "Unknown")
+            method_name = SteganographyMethod.get_display_names().get(
+                selected_method, "Unknown"
+            )
             with col2:
                 st.info(f"ℹ️ Il metodo {method_name} non richiede parametri")
             with col3:

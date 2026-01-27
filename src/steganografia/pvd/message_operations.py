@@ -146,7 +146,9 @@ class MessageSteganography:
         checksum_binary = format(checksum, "016b")
         terminator = "1111000011110000"  # Terminatore complesso (16 bit)
 
-        full_payload = magic_header + msg_length + checksum_binary + msg_binary + terminator
+        full_payload = (
+            magic_header + msg_length + checksum_binary + msg_binary + terminator
+        )
 
         # Nasconde nei pixel usando coppie orizzontali
         bit_index = 0
@@ -162,7 +164,9 @@ class MessageSteganography:
                     pixel2 = int(img_array[row, col + 1, channel])
 
                     # Determina quanti bit possiamo nascondere
-                    _, _, capacity = MessageSteganography._get_range_capacity(pixel2 - pixel1)
+                    _, _, capacity = MessageSteganography._get_range_capacity(
+                        pixel2 - pixel1
+                    )
                     bits_to_embed = full_payload[bit_index : bit_index + capacity]
 
                     if bits_to_embed:
@@ -227,7 +231,9 @@ class MessageSteganography:
                     if ranges_type == "quality"
                     else MessageSteganography.RANGES_CAPACITY
                 )
-                print(f"Parametri PVD caricati da backup: ranges={ranges_type}, pair_step={pair_step}, channels={channels}")
+                print(
+                    f"Parametri PVD caricati da backup: ranges={ranges_type}, pair_step={pair_step}, channels={channels}"
+                )
         else:
             recent = backup_system.get_last_params(DataType.STRING)
             if recent:
@@ -240,7 +246,9 @@ class MessageSteganography:
                     if ranges_type == "quality"
                     else MessageSteganography.RANGES_CAPACITY
                 )
-                print(f"Parametri PVD dalla cache: ranges={ranges_type}, pair_step={pair_step}, channels={channels}")
+                print(
+                    f"Parametri PVD dalla cache: ranges={ranges_type}, pair_step={pair_step}, channels={channels}"
+                )
 
         print("Recuperando messaggio con PVD...")
         img_array = np.array(img, dtype=np.int32)
@@ -263,7 +271,9 @@ class MessageSteganography:
 
         header_pos = full_binary.find(magic_header)
         if header_pos == -1:
-            raise ValueError("Nessun messaggio trovato nell'immagine (header magic mancante)")
+            raise ValueError(
+                "Nessun messaggio trovato nell'immagine (header magic mancante)"
+            )
 
         # Legge lunghezza
         length_start = header_pos + 16
@@ -289,7 +299,9 @@ class MessageSteganography:
             actual_checksum ^= ord(char)
 
         if actual_checksum != expected_checksum:
-            print("Warning: Checksum non corrisponde. Messaggio potrebbe essere corrotto.")
+            print(
+                "Warning: Checksum non corrisponde. Messaggio potrebbe essere corrotto."
+            )
 
         print("Messaggio recuperato con successo usando PVD")
         return message
