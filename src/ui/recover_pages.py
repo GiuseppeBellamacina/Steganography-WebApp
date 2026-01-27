@@ -711,10 +711,10 @@ class RecoverDataPages:
                         CompressionMode.DIR,
                     ],
                     format_func=lambda x: {
-                        CompressionMode.NO_ZIP: "Nessuna",
-                        CompressionMode.FILE: "File",
-                        CompressionMode.DIR: "Directory",
-                    }.get(x, "Nessuna"),
+                        CompressionMode.NO_ZIP: "❌ Nessuna",
+                        CompressionMode.FILE: "🗄️ File",
+                        CompressionMode.DIR: "📁 Directory",
+                    }.get(x, "❌ Nessuna"),
                     key="manual_zipmode",
                 )
             with col2:

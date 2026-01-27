@@ -765,11 +765,11 @@ class HideDataPages:
                 "Modalità compressione",
                 [CompressionMode.NO_ZIP, CompressionMode.FILE, CompressionMode.DIR],
                 format_func=lambda x: {
-                    CompressionMode.NO_ZIP: "Nessuna",
-                    CompressionMode.FILE: "Comprimi file",
-                    CompressionMode.DIR: "Comprimi directory",
+                    CompressionMode.NO_ZIP: "❌ Nessuna",
+                    CompressionMode.FILE: "🗄️ Comprimi file",
+                    CompressionMode.DIR: "📁 Comprimi directory",
                 }.get(
-                    x, "Nessuna"
+                    x, "❌ Nessuna"
                 ),  # Usa .get() con default per evitare errori
             )
 
