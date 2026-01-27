@@ -553,44 +553,45 @@ class RecoverDataPages:
             preset = st.selectbox(
                 "📋 Preconfigurazione DWT:",
                 options=[
-                    "📦 Capacità (consigliato)",
                     "⚖️ Bilanciato",
-                    "🎨 Qualità",
+                    "📦 Massima Capacità",
+                    "🎨 Massima Qualità",
                     "⚙️ Personalizzato",
                 ],
                 index=0,
                 key="dwt_bin_recover_preset",
             )
 
-            if preset == "📦 Capacità (consigliato)":
-                DWT_Binary.ALPHA = 8.0
-                DWT_Binary.BANDS = ["cH", "cV", "cD"]
-                DWT_Binary.USE_ALL_CHANNELS = True
-                st.info("📦 ALPHA=8, tutte bande, tutti i canali")
-            elif preset == "⚖️ Bilanciato":
-                DWT_Binary.ALPHA = 12.0
-                DWT_Binary.BANDS = ["cH", "cV"]
-                DWT_Binary.USE_ALL_CHANNELS = True
-                st.info("⚖️ ALPHA=12, cH+cV, tutti i canali")
-            elif preset == "🎨 Qualità":
-                DWT_Binary.ALPHA = 16.0
+            if preset == "⚖️ Bilanciato":
+                DWT_Binary.ALPHA = 0.1
                 DWT_Binary.BANDS = ["cH"]
                 DWT_Binary.USE_ALL_CHANNELS = False
-                st.info("🎨 ALPHA=16, cH, solo R")
+                st.info("⚖️ ALPHA=0.1, banda cH, canale R")
+            elif preset == "📦 Massima Capacità":
+            elif preset == "📦 Massima Capacità":
+                DWT_Binary.ALPHA = 0.15
+                DWT_Binary.BANDS = ["cH", "cV", "cD"]
+                DWT_Binary.USE_ALL_CHANNELS = True
+                st.info("📦 ALPHA=0.15, tutte le bande, tutti i canali")
+            elif preset == "🎨 Massima Qualità":
+                DWT_Binary.ALPHA = 0.05
+                DWT_Binary.BANDS = ["cH"]
+                DWT_Binary.USE_ALL_CHANNELS = False
+                st.info("🎨 ALPHA=0.05, banda cH, canale R")
             else:
                 col1, col2 = st.columns(2)
                 with col1:
                     alpha_val = st.slider(
-                        "ALPHA", 4.0, 24.0, 8.0, 0.5, key="dwt_bin_rec_alpha"
+                        "ALPHA", 0.05, 0.3, 0.1, 0.05, key="dwt_bin_rec_alpha"
                     )
                     multi_ch = st.checkbox(
-                        "Tutti i canali", value=True, key="dwt_bin_rec_multi"
+                        "Tutti i canali", value=False, key="dwt_bin_rec_multi"
                     )
                 with col2:
                     bands_val = st.multiselect(
                         "Bande",
                         ["cH", "cV", "cD"],
-                        default=["cH", "cV", "cD"],
+                        default=["cH"],
                         key="dwt_bin_rec_bands",
                     )
 
