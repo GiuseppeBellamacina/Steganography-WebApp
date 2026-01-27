@@ -232,8 +232,12 @@ class BinarySteganography:
                 BinarySteganography.RANGES = BinarySteganography.RANGES_QUALITY
             elif ranges_type == "capacity":
                 BinarySteganography.RANGES = BinarySteganography.RANGES_CAPACITY
-            pair_step = pair_step if pair_step is not None else BinarySteganography.PAIR_STEP
-            channels = channels if channels is not None else BinarySteganography.CHANNELS
+            pair_step = (
+                pair_step if pair_step is not None else BinarySteganography.PAIR_STEP
+            )
+            channels = (
+                channels if channels is not None else BinarySteganography.CHANNELS
+            )
             # size deve essere fornito
             if size is None:
                 raise ValueError("Size richiesto per parametri manuali")

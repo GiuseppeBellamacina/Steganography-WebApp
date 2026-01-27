@@ -417,7 +417,7 @@ class RecoverDataPages:
         else:
             # Inizializza solo width/height per parametri manuali
             width = height = None
-        
+
         if manual_params:
             st.subheader("📐 Dimensioni Immagine")
             col1, col2 = st.columns(2)
@@ -546,7 +546,7 @@ class RecoverDataPages:
         # Configurazione metodo SOLO se parametri manuali
         dwt_alpha = dwt_bands = dwt_use_all_channels = None
         pvd_ranges_type = pvd_pair_step = pvd_channels = None
-        
+
         if (
             manual_params
             and manual_params
@@ -554,10 +554,6 @@ class RecoverDataPages:
         ):
 
             st.info("💡 Configura i parametri DWT usati durante l'occultamento")
-
-            from src.steganografia.dwt.binary_operations import (
-                BinarySteganography as DWT_Binary,
-            )
 
             preset = st.selectbox(
                 "📋 Preconfigurazione DWT:",
@@ -614,10 +610,6 @@ class RecoverDataPages:
         ):
 
             st.info("💡 Configura i parametri PVD usati durante l'occultamento")
-
-            from src.steganografia.pvd.binary_operations import (
-                BinarySteganography as PVD_Binary,
-            )
 
             preset = st.selectbox(
                 "📋 Preconfigurazione PVD:",
@@ -706,7 +698,7 @@ class RecoverDataPages:
         # Inizializza solo se NON già configurati sopra
         if not manual_params:
             zip_mode = n = div = size = None
-        
+
         if manual_params:
             st.subheader("📎 Parametri File")
             col1, col2 = st.columns(2)
