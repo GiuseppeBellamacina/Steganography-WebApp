@@ -35,5 +35,3 @@ Thumbs.db
 
 # Project Specific
 *.zip
-*.lock
-uv.lock
