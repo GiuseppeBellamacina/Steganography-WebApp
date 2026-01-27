@@ -568,7 +568,6 @@ class RecoverDataPages:
                 DWT_Binary.USE_ALL_CHANNELS = False
                 st.info("⚖️ ALPHA=0.1, banda cH, canale R")
             elif preset == "📦 Massima Capacità":
-            elif preset == "📦 Massima Capacità":
                 DWT_Binary.ALPHA = 0.15
                 DWT_Binary.BANDS = ["cH", "cV", "cD"]
                 DWT_Binary.USE_ALL_CHANNELS = True
