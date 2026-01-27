@@ -6,7 +6,7 @@ A comprehensive web application for steganography that allows hiding and recover
 
 ## 🌐 Live Demo
 
-Prova l'applicazione online su [Streamlit Cloud](https://steganography-webapp.streamlit.app)
+Prova l'applicazione online su [Streamlit Cloud](https://steg-app.streamlit.app)
 
 ## 📋 Indice
 
