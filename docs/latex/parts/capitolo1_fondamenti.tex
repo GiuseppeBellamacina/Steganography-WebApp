@@ -1,0 +1,116 @@
+\chapter{Fondamenti di Steganografia}
+
+\section{Definizione e Storia}
+
+La steganografia deriva dal greco \textit{steganos} (coperto) e \textit{graphein} (scrittura), 
+letteralmente "scrittura nascosta". Le sue origini risalgono all'antica Grecia, dove venivano 
+utilizzate tecniche come:
+
+\begin{itemize}
+    \item Tatuaggi sul cuoio capelluto rasato di messaggeri
+    \item Inchiostri invisibili
+    \item Messaggi nascosti in tavole di cera
+\end{itemize}
+
+Con l'avvento dell'era digitale, la steganografia ha trovato nuove applicazioni nel dominio 
+dei file multimediali, in particolare immagini, audio e video~\cite{katzenbeisser2000information}.
+
+\section{Steganografia vs Crittografia}
+
+È importante distinguere tra steganografia e crittografia:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Aspetto} & \textbf{Steganografia} & \textbf{Crittografia} \\ \hline
+Obiettivo & Nascondere l'esistenza & Rendere illeggibile \\ \hline
+Sospetto & Basso & Alto \\ \hline
+Capacità & Limitata & Illimitata \\ \hline
+Robustezza & Variabile & Molto alta \\ \hline
+Chiave & Spesso opzionale & Sempre richiesta \\ \hline
+\end{tabular}
+\caption{Confronto tra steganografia e crittografia}
+\end{table}
+
+Le due tecniche possono essere combinate: prima cifrare il messaggio (crittografia) e poi 
+nasconderlo (steganografia), ottenendo un doppio livello di sicurezza~\cite{provos2003hide}.
+
+\section{Requisiti di un Sistema Steganografico}
+
+Un sistema steganografico efficace deve soddisfare tre requisiti fondamentali:
+
+\subsection{Impercettibilità (Imperceptibility)}
+
+Le modifiche apportate al contenitore (cover) non devono essere percepibili dall'occhio umano. 
+Questo si misura attraverso metriche quantitative come:
+
+\begin{itemize}
+    \item \textbf{PSNR (Peak Signal-to-Noise Ratio)}: Misura il rapporto tra il segnale 
+          massimo possibile e il rumore di distorsione. Valori superiori a 30 dB indicano 
+          differenze impercettibili.
+          
+    $$PSNR = 10 \cdot \log_{10}\left(\frac{MAX^2}{MSE}\right)$$
+    
+    dove $MAX$ è il valore massimo del pixel (255 per immagini a 8 bit) e $MSE$ è l'errore 
+    quadratico medio.
+    
+    \item \textbf{MSE (Mean Squared Error)}: Calcola la media delle differenze al quadrato 
+          tra pixel originali e modificati.
+          
+    $$MSE = \frac{1}{mn}\sum_{i=0}^{m-1}\sum_{j=0}^{n-1}[I(i,j) - K(i,j)]^2$$
+    
+    \item \textbf{SSIM (Structural Similarity Index)}: Valuta la similarità strutturale 
+          percettiva tra le immagini (valore tra -1 e 1, dove 1 indica identità perfetta).
+\end{itemize}
+
+\subsection{Capacità (Capacity)}
+
+La quantità di informazioni che possono essere nascoste nell'immagine host. Si misura in:
+\begin{itemize}
+    \item \textbf{Bit per pixel (bpp)}: Rapporto tra bit nascosti e pixel totali
+    \item \textbf{Percentuale di utilizzo}: Frazione dell'immagine modificata
+\end{itemize}
+
+Esiste sempre un trade-off tra capacità e impercettibilità: aumentare la quantità di dati 
+nascosti aumenta il rischio di degradazione visibile.
+
+\subsection{Robustezza (Robustness)}
+
+La capacità del messaggio nascosto di resistere a manipolazioni come:
+\begin{itemize}
+    \item Compressione JPEG
+    \item Ridimensionamento
+    \item Rotazione e ritaglio
+    \item Aggiunta di rumore
+    \item Filtri di elaborazione
+\end{itemize}
+
+Algoritmi diversi offrono diversi livelli di robustezza a seconda del dominio di embedding 
+utilizzato (spaziale vs frequenza).
+
+\section{Classificazione degli Algoritmi Steganografici}
+
+Gli algoritmi steganografici per immagini si possono classificare in due categorie principali:
+
+\subsection{Algoritmi nel Dominio Spaziale}
+
+Modificano direttamente i valori dei pixel. Sono generalmente:
+\begin{itemize}
+    \item Veloci da implementare
+    \item Ad alta capacità
+    \item Poco robusti a manipolazioni
+    \item Esempi: LSB, PVD
+\end{itemize}
+
+\subsection{Algoritmi nel Dominio della Frequenza}
+
+Operano sui coefficienti di trasformazioni matematiche (DCT, DWT, DFT). Sono generalmente:
+\begin{itemize}
+    \item Più complessi da implementare
+    \item A capacità inferiore
+    \item Più robusti a compressione e filtri
+    \item Esempi: DWT, DCT-based
+\end{itemize}
+
+\newpage

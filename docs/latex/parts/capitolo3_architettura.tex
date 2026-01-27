@@ -1,0 +1,215 @@
+\chapter{Architettura del Sistema}
+
+\section{Panoramica dell'Architettura}
+
+Il progetto segue un'architettura modulare a strati con separazione netta tra logica di 
+business e presentazione. La struttura è progettata per essere:
+
+\begin{itemize}
+    \item \textbf{Modulare}: Ogni componente ha responsabilità ben definite
+    \item \textbf{Estensibile}: Facile aggiungere nuovi algoritmi o funzionalità
+    \item \textbf{Manutenibile}: Codice pulito e ben documentato
+    \item \textbf{Testabile}: Componenti isolati facilmente testabili
+\end{itemize}
+
+\subsection{Schema Architetturale}
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox{0.9\textwidth}{
+\centering
+\textbf{Frontend - Streamlit UI}\\
+\small (layout.py, components.py, styles.py)\\[1em]
+$\downarrow$\\[1em]
+\textbf{UI Layer - Pages}\\
+\small (hide\_pages.py, recover\_pages.py)\\[1em]
+$\downarrow$\\[1em]
+\textbf{Business Logic Layer}\\[0.5em]
+\fbox{LSB} \quad \fbox{DWT} \quad \fbox{PVD}\\[0.5em]
+\small Ogni algoritmo implementa:\\
+\small - message\_operations.py\\
+\small - image\_operations.py\\
+\small - binary\_operations.py\\[1em]
+$\downarrow$\\[1em]
+\textbf{Utility Layer}\\
+\small (backup.py, validator.py, metrics.py,\\
+\small bit\_operations.py, file\_utils.py)\\[1em]
+$\downarrow$\\[1em]
+\textbf{Configuration Layer}\\
+\small (constants.py)
+}}
+\caption{Architettura a strati del sistema}
+\end{figure}
+
+\section{Pattern Architetturali Utilizzati}
+
+\subsection{Strategy Pattern}
+
+Ogni algoritmo (LSB, DWT, PVD) implementa la stessa interfaccia per le tre operazioni:
+\begin{itemize}
+    \item \texttt{hide\_message() / get\_message()}
+    \item \texttt{hide\_image() / get\_image()}
+    \item \texttt{hide\_bin\_file() / get\_bin\_file()}
+\end{itemize}
+
+Questo permette al sistema di selezionare dinamicamente l'algoritmo a runtime:
+
+\begin{lstlisting}[caption={Selezione dinamica algoritmo}]
+if selected_method == SteganographyMethod.LSB:
+    from src.steganografia.lsb import message_operations as ops
+elif selected_method == SteganographyMethod.DWT:
+    from src.steganografia.dwt import message_operations as ops
+elif selected_method == SteganographyMethod.PVD:
+    from src.steganografia.pvd import message_operations as ops
+
+result = ops.MessageSteganography.hide_message(img, msg)
+\end{lstlisting}
+
+\subsection{Singleton Pattern}
+
+Il sistema di backup e le classi di utility usano metodi statici per evitare istanziazioni 
+multiple:
+
+\begin{lstlisting}[caption={Utility classes come singleton}]
+class ParameterBackup:
+    @staticmethod
+    def save_backup_data(data_type, params, filepath):
+        # ...
+
+class QualityMetrics:
+    @staticmethod
+    def calculate_psnr(original, modified):
+        # ...
+\end{lstlisting}
+
+\subsection{Factory Pattern}
+
+La creazione di componenti UI avviene attraverso factory methods nella classe \texttt{AppLayout}:
+
+\begin{lstlisting}[caption={Factory methods per UI}]
+class AppLayout:
+    @staticmethod
+    def setup_sidebar():
+        # Crea e configura sidebar con cards metodi
+        
+    @staticmethod
+    def show_data_type_selector():
+        # Crea selector tipo dato
+\end{lstlisting}
+
+\section{Separazione delle Responsabilità}
+
+\subsection{Business Logic Layer}
+
+Contiene tutta la logica steganografica, completamente indipendente dall'UI. Ogni modulo 
+ha una responsabilità specifica:
+
+\begin{itemize}
+    \item \textbf{message\_operations.py}: Embedding/extraction di stringhe
+    \item \textbf{image\_operations.py}: Embedding/extraction di immagini
+    \item \textbf{binary\_operations.py}: Embedding/extraction di file binari
+\end{itemize}
+
+\subsection{Utility Layer}
+
+Fornisce servizi trasversali utilizzati da tutti gli algoritmi:
+
+\begin{itemize}
+    \item \textbf{backup.py}: Serializzazione/deserializzazione parametri JSON
+    \item \textbf{validator.py}: Validazione dimensioni, formati, capacità
+    \item \textbf{metrics.py}: Calcolo PSNR, MSE, SSIM
+    \item \textbf{bit\_operations.py}: Conversioni binarie, manipolazione bit
+    \item \textbf{file\_utils.py}: I/O file, gestione temporanei
+\end{itemize}
+
+\subsection{Configuration Layer}
+
+Centralizza tutte le costanti e configurazioni:
+
+\begin{lstlisting}[caption={Enumerazioni di configurazione}]
+class SteganographyMethod(str, Enum):
+    LSB = "lsb"
+    DWT = "dwt"
+    PVD = "pvd"
+
+class DataType(str, Enum):
+    STRING = "string"
+    IMAGE = "image"
+    BINARY = "binary"
+
+class CompressionMode(str, Enum):
+    NO_ZIP = "no_zip"
+    FILE = "file"
+    DIR = "dir"
+\end{lstlisting}
+
+\section{Gestione dello Stato}
+
+L'applicazione utilizza Streamlit Session State per mantenere lo stato tra le interazioni:
+
+\begin{lstlisting}[caption={Gestione stato con Streamlit}]
+# Inizializzazione
+if "selected_method" not in st.session_state:
+    st.session_state.selected_method = SteganographyMethod.LSB
+
+# Memorizzazione risultati
+st.session_state["hide_image_results"] = {
+    "image": img_data,
+    "preview_image": img,
+    "metrics": {"psnr": 45.2, "ssim": 0.998}
+}
+
+# Recupero risultati
+if "hide_image_results" in st.session_state:
+    results = st.session_state["hide_image_results"]
+\end{lstlisting}
+
+\section{Gestione degli Errori}
+
+Il sistema implementa una gestione robusta degli errori a più livelli:
+
+\subsection{Validazione Preventiva}
+
+\begin{lstlisting}[caption={Validazione input}]
+class ParameterValidator:
+    @staticmethod
+    def validate_image_size_for_message(img, message):
+        required_bits = len(message) * 8 + 80  # +header
+        available_bits = img.width * img.height * 3
+        
+        if required_bits > available_bits:
+            raise ValueError(
+                f"Messaggio troppo lungo. "
+                f"Richiesti: {required_bits} bit, "
+                f"Disponibili: {available_bits} bit"
+            )
+\end{lstlisting}
+
+\subsection{Try-Catch nelle Operazioni Critiche}
+
+\begin{lstlisting}[caption={Gestione eccezioni nelle pagine UI}]
+try:
+    result_img, metrics = hide_message(img, message, backup_file)
+    st.success("Messaggio nascosto con successo!")
+    # Mostra risultati...
+except ValueError as e:
+    st.error(f"Errore di validazione: {str(e)}")
+except Exception as e:
+    st.error(f"Errore imprevisto: {str(e)}")
+    # Log per debugging...
+\end{lstlisting}
+
+\section{Estensibilità}
+
+L'architettura facilita l'aggiunta di nuovi algoritmi:
+
+\begin{enumerate}
+    \item Creare nuova directory sotto \texttt{src/steganografia/}
+    \item Implementare i tre moduli di operazioni
+    \item Aggiungere enum in \texttt{SteganographyMethod}
+    \item Aggiornare UI per includere il nuovo metodo
+\end{enumerate}
+
+Non sono richieste modifiche agli altri moduli grazie all'isolamento tra componenti.
+
+\newpage

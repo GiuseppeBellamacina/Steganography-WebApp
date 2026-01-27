@@ -35,3 +35,15 @@ Thumbs.db
 
 # Project Specific
 *.zip
+docs/latex/*.aux
+docs/latex/*.bbl
+docs/latex/*.blg
+docs/latex/*.fdb_latexmk
+docs/latex/*.fls
+docs/latex/*.synctex.gz
+docs/latex/*.log
+docs/latex/*.out
+docs/latex/*.toc
+
+# Relazione
+docs/latex/relazione.pdf

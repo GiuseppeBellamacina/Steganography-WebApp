@@ -1,0 +1,302 @@
+\chapter{Implementazione}
+
+\section{Tecnologie Utilizzate}
+
+\subsection{Stack Tecnologico}
+
+Il progetto è sviluppato interamente in Python 3.9+ utilizzando le seguenti librerie~\cite{streamlit2023, numpy2020, van2014scikit}:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Libreria} & \textbf{Versione} & \textbf{Scopo} \\ \hline
+Streamlit & >=1.20.0 & Framework web per l'interfaccia utente \\ \hline
+NumPy & >=1.24.0 & Operazioni matriciali e calcoli numerici \\ \hline
+Pillow (PIL) & >=9.5.0 & Manipolazione e I/O immagini \\ \hline
+PyWavelets & >=1.4.0 & Trasformata wavelet per DWT \\ \hline
+scikit-image & >=0.20.0 & Metriche di qualita (SSIM) \\ \hline
+\end{tabular}
+\caption{Dipendenze principali del progetto}
+\end{table}
+
+\subsection{Gestione Dipendenze con uv}
+
+Il progetto utilizza \texttt{uv} come package manager per gestione rapida e affidabile delle 
+dipendenze:
+
+\begin{lstlisting}[caption={pyproject.toml - configurazione dipendenze}, language=bash]
+[project]
+name = "steganography-webapp"
+version = "1.0.0"
+requires-python = ">=3.9"
+
+dependencies = [
+    "streamlit>=1.20.0",
+    "numpy>=1.24.0",
+    "Pillow>=9.5.0",
+    "PyWavelets>=1.4.0",
+    "scikit-image>=0.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "isort>=5.12.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "black>=23.0.0",
+    "isort>=5.12.0",
+]
+\end{lstlisting}
+
+\section{Implementazione degli Algoritmi}
+
+\subsection{Sistema di Conversione Binaria}
+
+Tutti gli algoritmi si basano su funzioni di conversione tra testo e binario:
+
+\begin{lstlisting}[caption={Conversione testo-binario}]
+def binary_convert(s: str) -> str:
+    """Converte una stringa in rappresentazione binaria"""
+    binary = "".join(format(ord(char), "08b") for char in s)
+    return binary
+
+def binary_convert_back(s: str) -> str:
+    """Riconverte binario in stringa"""
+    chars = [s[i:i+8] for i in range(0, len(s), 8)]
+    text = "".join(chr(int(char, 2)) for char in chars)
+    return text
+\end{lstlisting}
+
+\subsection{Manipolazione Bit LSB}
+
+Operazioni fondamentali per l'algoritmo LSB:
+
+\begin{lstlisting}[caption={Operazioni bit-level}]
+def set_last_bit(value: int, bit: str) -> int:
+    """Imposta l'ultimo bit di un valore"""
+    if bit == "1":
+        return value | 1  # OR bit-wise per settare a 1
+    else:
+        return value & ~1  # AND con NOT per settare a 0
+
+def get_last_bit(value: int) -> str:
+    """Estrae l'ultimo bit di un valore"""
+    return str(value & 1)
+
+def set_color_component(mat, x: int, y: int, value: int, component: int):
+    """Modifica una componente RGB di un pixel"""
+    pixel = list(mat[x, y])
+    pixel[component] = value
+    mat[x, y] = tuple(pixel)
+    return mat
+\end{lstlisting}
+
+\subsection{Sistema di Backup Parametri}
+
+Implementazione del salvataggio automatico dei parametri per il recupero:
+
+\begin{lstlisting}[caption={Sistema backup JSON}]
+import json
+import os
+from pathlib import Path
+
+class ParameterBackup:
+    @staticmethod
+    def save_backup_data(data_type, params, filepath=None):
+        """Salva parametri in file JSON"""
+        if filepath is None:
+            filepath = f"backup_{data_type}_{int(time.time())}.json"
+        
+        backup_data = {
+            "data_type": data_type,
+            "timestamp": time.time(),
+            "parameters": params,
+            "version": "1.0"
+        }
+        
+        with open(filepath, "w") as f:
+            json.dump(backup_data, f, indent=2)
+        
+        return filepath
+    
+    @staticmethod
+    def load_backup_data(filepath):
+        """Carica parametri da file JSON"""
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"File backup non trovato: {filepath}")
+        
+        with open(filepath, "r") as f:
+            backup_data = json.load(f)
+        
+        return backup_data["parameters"]
+\end{lstlisting}
+
+\subsection{Calcolo Metriche di Qualità}
+
+Implementazione PSNR, MSE e SSIM:
+
+\begin{lstlisting}[caption={Metriche di qualità}]
+import numpy as np
+from skimage.metrics import structural_similarity as ssim
+
+class QualityMetrics:
+    @staticmethod
+    def calculate_mse(img1, img2):
+        """Mean Squared Error"""
+        arr1 = np.array(img1, dtype=np.float64)
+        arr2 = np.array(img2, dtype=np.float64)
+        
+        mse = np.mean((arr1 - arr2) ** 2)
+        return mse
+    
+    @staticmethod
+    def calculate_psnr(img1, img2):
+        """Peak Signal-to-Noise Ratio"""
+        mse = QualityMetrics.calculate_mse(img1, img2)
+        
+        if mse == 0:
+            return float('inf')
+        
+        max_pixel = 255.0
+        psnr = 20 * np.log10(max_pixel / np.sqrt(mse))
+        return psnr
+    
+    @staticmethod
+    def calculate_ssim(img1, img2):
+        """Structural Similarity Index"""
+        arr1 = np.array(img1.convert('L'))  # Grayscale
+        arr2 = np.array(img2.convert('L'))
+        
+        ssim_value = ssim(arr1, arr2)
+        return ssim_value
+    
+    @staticmethod
+    def calculate_all_metrics(img1, img2):
+        """Calcola tutte le metriche"""
+        return {
+            "mse": QualityMetrics.calculate_mse(img1, img2),
+            "psnr": QualityMetrics.calculate_psnr(img1, img2),
+            "ssim": QualityMetrics.calculate_ssim(img1, img2)
+        }
+\end{lstlisting}
+
+\section{Ottimizzazioni Implementate}
+
+\subsection{Pre-validazione Capacita}
+
+Prima di iniziare l'embedding, il sistema verifica la capacita disponibile:
+
+\begin{lstlisting}[caption={Pre-validazione per evitare computazioni inutili}]
+# Calcola capacita prima dell'embedding
+required_bits = len(message) * 8 + header_size
+available_bits = img.width * img.height * 3
+
+if required_bits > available_bits:
+    # Fallimento immediato senza iniziare l'embedding
+    raise ValueError("Capacita insufficiente")
+
+# Mostra percentuale utilizzo previsto
+usage = (required_bits / available_bits) * 100
+st.info(f"Utilizzo previsto: {usage:.2f}%")
+\end{lstlisting}
+
+\section{Gestione File Temporanei}
+
+Sistema robusto per gestire file temporanei durante le operazioni:
+
+\begin{lstlisting}[caption={Gestione sicura file temporanei}]
+import tempfile
+import os
+
+def save_uploaded_file(uploaded_file):
+    """Salva file caricato in directory temporanea"""
+    temp_dir = tempfile.gettempdir()
+    temp_path = os.path.join(temp_dir, uploaded_file.name)
+    
+    with open(temp_path, "wb") as f:
+        f.write(uploaded_file.getvalue())
+    
+    return temp_path
+
+def cleanup_temp_file(filepath):
+    """Rimuove file temporaneo se esiste"""
+    try:
+        if os.path.exists(filepath):
+            os.remove(filepath)
+    except Exception as e:
+        # Log warning ma non bloccare l'esecuzione
+        print(f"Warning: impossibile rimuovere {filepath}: {e}")
+\end{lstlisting}
+
+\section{Testing e Quality Assurance}
+
+\subsection{Code Formatting}
+
+Il progetto utilizza Black e isort per mantenere coerenza del codice:
+
+\begin{lstlisting}[caption={Configurazione formattazione}, language=bash]
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+\end{lstlisting}
+
+\subsection{Continuous Integration}
+
+Pipeline CI/CD con GitHub Actions:
+
+\begin{lstlisting}[caption={CI workflow con uv}, language=bash]
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: Install dependencies
+        run: uv sync --all-extras
+      
+      - name: Check import sorting
+        run: uv run isort src/ config/ --check-only
+      
+      - name: Check code formatting
+        run: uv run black src/ config/ --check
+\end{lstlisting}
+
+\section{Deploy su Streamlit Cloud}
+
+L'applicazione è deployata su Streamlit Cloud con configurazione automatica:
+
+\begin{itemize}
+    \item \textbf{uv.lock}: Rilevato automaticamente da Streamlit Cloud
+    \item \textbf{.python-version}: Specifica Python 3.12
+    \item \textbf{pyproject.toml}: Contiene tutte le dipendenze
+\end{itemize}
+
+Il deploy è completamente automatizzato: ogni push su \texttt{main} triggera un redeploy.
+
+\newpage

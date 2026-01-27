@@ -1,0 +1,227 @@
+\chapter{Conclusioni}
+
+\section{Riepilogo del Progetto}
+
+Il progetto Steganography WebApp ha raggiunto gli obiettivi prefissati, realizzando 
+un'applicazione web completa e funzionale per la steganografia digitale~\cite{cox2007digital}. L'implementazione 
+di tre algoritmi distinti (LSB, DWT e PVD) offre agli utenti la flessibilità di scegliere 
+l'approccio più adatto alle loro esigenze specifiche.
+
+\subsection{Obiettivi Raggiunti}
+
+\begin{itemize}
+    \item \textbf{Implementazione multi-algoritmo}: Tre algoritmi completamente funzionanti 
+          con caratteristiche complementari
+    \item \textbf{Supporto multi-formato}: Gestione di stringhe, immagini e file binari 
+          arbitrari
+    \item \textbf{Interfaccia user-friendly}: UI intuitiva accessibile anche a utenti non 
+          tecnici
+    \item \textbf{Sistema di metriche}: Valutazione quantitativa della qualità (PSNR, MSE, 
+          SSIM)
+    \item \textbf{Automazione}: Backup parametri automatico e preset ottimizzati
+    \item \textbf{Deployment online}: Applicazione accessibile su Streamlit Cloud
+\end{itemize}
+
+\section{Confronto Prestazioni}
+
+\subsection{Risultati Sperimentali}
+
+Test condotti su diverse immagini hanno confermato le aspettative teoriche:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Metrica} & \textbf{LSB} & \textbf{DWT} & \textbf{PVD} \\ \hline
+PSNR medio & 52.3 dB & 38.7 dB & 47.1 dB \\ \hline
+SSIM medio & 0.9998 & 0.9945 & 0.9987 \\ \hline
+Capacità (bpp) & 3.0 & 0.8 & 2.5 \\ \hline
+Tempo medio* & 0.12s & 1.85s & 0.45s \\ \hline
+\end{tabular}
+\caption{Prestazioni medie su immagini 800×600 (*su CPU Intel i7)}
+\end{table}
+
+\subsection{Trade-off Osservati}
+
+\textbf{LSB:}
+\begin{itemize}
+    \item[+] Qualità eccellente e velocità massima
+    \item[-] Nessuna robustezza a compressione JPEG
+\end{itemize}
+
+\textbf{DWT:}
+\begin{itemize}
+    \item[+] Unico robusto a compressione JPEG (fino a 90\%)
+    \item[-] Capacità limitata e computazionalmente costoso
+\end{itemize}
+
+\textbf{PVD:}
+\begin{itemize}
+    \item[+] Ottimo bilanciamento capacità/qualità
+    \item[-] Complessità intermedia, sensibile a ridimensionamento
+\end{itemize}
+
+\section{Contributi Originali}
+
+Rispetto alle implementazioni esistenti, il progetto introduce:
+
+\begin{enumerate}
+    \item \textbf{Header robusto multi-layer}:
+          \begin{itemize}
+              \item Magic header per identificazione
+              \item Lunghezza messaggio per lettura precisa
+              \item Checksum per verifica integrità
+              \item Terminatore per sicurezza
+          \end{itemize}
+    
+    \item \textbf{Sistema preset intelligenti}:
+          \begin{itemize}
+              \item Configurazioni ottimizzate per casi d'uso comuni
+              \item Parametri calibrati sperimentalmente
+              \item Bilanciamento automatico capacità/qualità
+          \end{itemize}
+    
+    \item \textbf{Architettura modulare estensibile}:
+          \begin{itemize}
+              \item Separazione netta business logic / UI
+              \item Facile aggiunta di nuovi algoritmi
+              \item Utility riusabili tra algoritmi
+          \end{itemize}
+    
+    \item \textbf{Interfaccia moderna e accessibile}:
+          \begin{itemize}
+              \item Design responsive multi-dispositivo
+              \item Feedback visivo in tempo reale
+              \item Gestione errori user-friendly
+          \end{itemize}
+\end{enumerate}
+
+\section{Limitazioni e Miglioramenti Futuri}
+
+\subsection{Limitazioni Attuali}
+
+\begin{itemize}
+    \item \textbf{Formato immagine output}: Solo PNG per garantire lossless, limitando 
+          compatibilità
+    \item \textbf{Dimensioni file}: Immagini molto grandi (>10MB) possono causare timeout 
+          su Streamlit Cloud
+    \item \textbf{Assenza cifratura}: I dati non sono criptati, solo nascosti
+    \item \textbf{Robustezza limitata}: Solo DWT resiste a compressione, nessun algoritmo 
+          resiste a ritaglio significativo
+\end{itemize}
+
+\subsection{Sviluppi Futuri Proposti}
+
+\subsubsection{Nuovi Algoritmi}
+
+\begin{itemize}
+    \item \textbf{DCT-based steganography}: Embedding nei coefficienti DCT (JPEG-friendly)
+    \item \textbf{Spread Spectrum}: Distribuzione dati su frequenze multiple
+    \item \textbf{Adaptive embedding}: Selezione automatica zone embedding in base a contenuto
+\end{itemize}
+
+\subsubsection{Funzionalità Aggiuntive}
+
+\begin{enumerate}
+    \item \textbf{Crittografia integrata}:
+          \begin{lstlisting}
+# Cifratura pre-embedding
+from cryptography.fernet import Fernet
+
+key = Fernet.generate_key()
+cipher = Fernet(key)
+encrypted_msg = cipher.encrypt(message.encode())
+
+# Embedding del messaggio cifrato
+hide_message(img, encrypted_msg)
+          \end{lstlisting}
+    
+    \item \textbf{Stegoanalisi integrata}:
+          \begin{itemize}
+              \item Chi-square attack detection
+              \item RS analysis
+              \item Visual attack visualization
+          \end{itemize}
+    
+    \item \textbf{Batch processing}:
+          \begin{itemize}
+              \item Upload multiplo immagini
+              \item Distribuzione dati su più immagini
+              \item Processing parallelo
+          \end{itemize}
+    
+    \item \textbf{Supporto video}:
+          \begin{itemize}
+              \item Embedding in frame video
+              \item Maggiore capacità totale
+              \item Robustezza temporale
+          \end{itemize}
+    
+    \item \textbf{API REST}:
+          \begin{itemize}
+              \item Integrazione programmatica
+              \item Automazione workflows
+              \item Servizio headless
+          \end{itemize}
+\end{enumerate}
+
+\subsubsection{Ottimizzazioni Tecniche}
+
+\begin{itemize}
+    \item \textbf{GPU acceleration}: Uso CUDA per DWT su grandi immagini
+    \item \textbf{Compressione adattiva}: Algoritmi di compressione context-aware per binari
+    \item \textbf{Multi-threading}: Parallelizzazione embedding su canali RGB
+    \item \textbf{Progressive encoding}: Streaming per file molto grandi
+\end{itemize}
+
+\section{Lezioni Apprese}
+
+\subsection{Aspetti Tecnici}
+
+\begin{itemize}
+    \item \textbf{Trade-off inevitabili}: Impossibile ottimizzare simultaneamente capacità, 
+          qualità e robustezza
+    \item \textbf{Importanza validazione}: Controlli preventivi evitano computazioni 
+          inutili e migliorano UX
+    \item \textbf{Modularità cruciale}: Architettura modulare ha facilitato debugging 
+          e estensioni
+    \item \textbf{Testing essenziale}: Metriche quantitative fondamentali per valutare 
+          algoritmi oggettivamente
+\end{itemize}
+
+\subsection{Gestione Progetto}
+
+\begin{itemize}
+    \item \textbf{Prototipazione rapida}: Streamlit ha permesso sviluppo UI molto veloce
+    \item \textbf{CI/CD vantaggioso}: Automazione testing/deploy ha ridotto errori
+    \item \textbf{Documentazione parallela}: Scrivere docs durante sviluppo facilita manutenzione
+    \item \textbf{Version control disciplinato}: Commit atomici e branch feature hanno 
+          organizzato lo sviluppo
+\end{itemize}
+
+\section{Considerazioni Finali}
+
+Il progetto Steganography WebApp dimostra come tecniche teoriche di steganografia possano 
+essere implementate in un'applicazione pratica e accessibile. L'architettura modulare e 
+l'interfaccia intuitiva rendono il sistema utilizzabile sia per scopi didattici che 
+applicativi reali.
+
+L'implementazione di tre algoritmi con caratteristiche diverse offre un panorama completo 
+delle possibilità della steganografia moderna, evidenziando i trade-off tra capacità, 
+qualità e robustezza.
+
+Il codice open-source e ben documentato può servire come base per ulteriori ricerche e 
+sviluppi nel campo della steganografia digitale, facilitando l'integrazione di nuovi 
+algoritmi e funzionalità.
+
+\vspace{1cm}
+
+\textit{Il progetto è disponibile pubblicamente su GitHub:}
+
+\texttt{https://github.com/GiuseppeBellamacina/Steganography-WebApp}
+
+\textit{Demo live su Streamlit Cloud:}
+
+\texttt{https://steg-app.streamlit.app}
+
+\newpage

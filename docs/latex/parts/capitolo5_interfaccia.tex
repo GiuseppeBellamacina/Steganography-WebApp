@@ -1,0 +1,319 @@
+\chapter{Interfaccia Utente}
+
+\section{Design dell'Interfaccia}
+
+L'interfaccia utente è stata progettata seguendo principi di user experience per rendere 
+accessibili operazioni complesse anche a utenti non tecnici. Il design si basa su:
+
+\begin{itemize}
+    \item \textbf{Chiarezza}: Ogni operazione è guidata con istruzioni e feedback
+    \item \textbf{Semplicità}: Complessità nascosta dietro preset e configurazioni automatiche
+    \item \textbf{Immediatezza}: Feedback visivo in tempo reale
+    \item \textbf{Coerenza}: Pattern di interazione uniformi in tutta l'applicazione
+\end{itemize}
+
+\section{Struttura dell'Interfaccia}
+
+\subsection{Header e Branding}
+
+L'header principale presenta il titolo con effetto gradient e glow semi-fluorescente:
+
+\begin{lstlisting}[caption={Header con gradient CSS}]
+st.markdown("""
+    <div style='text-align: center; padding: 1rem 0 2rem 0;'>
+        <h1 style='margin: 0; font-size: 4.5rem; font-weight: 700; 
+                   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                   -webkit-background-clip: text;
+                   -webkit-text-fill-color: transparent;
+                   text-shadow: 0 0 30px rgba(102, 126, 234, 0.3),
+                                0 0 60px rgba(118, 75, 162, 0.2);'>
+            Steganography WebApp
+        </h1>
+        <p style='font-size: 1.1rem; opacity: 0.7;'>
+            Hide data within images using advanced algorithms
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+\end{lstlisting}
+
+\subsection{Sidebar - Selezione Metodo}
+
+La sidebar contiene cards cliccabili per selezionare l'algoritmo:
+
+\begin{lstlisting}[caption={Sidebar con cards metodi}]
+with st.sidebar:
+    st.markdown("### Metodo Steganografico")
+    
+    # Card LSB
+    if st.button("LSB\nVeloce - Alta capacita", 
+                 use_container_width=True):
+        st.session_state.selected_method = SteganographyMethod.LSB
+        st.rerun()
+    
+    # Card DWT
+    if st.button("DWT\nRobusto - Qualita", 
+                 use_container_width=True):
+        st.session_state.selected_method = SteganographyMethod.DWT
+        st.rerun()
+    
+    # Card PVD
+    if st.button("PVD\nAdattivo - Versatile", 
+                 use_container_width=True):
+        st.session_state.selected_method = SteganographyMethod.PVD
+        st.rerun()
+\end{lstlisting}
+
+\subsection{Selezione Tipo di Dato}
+
+Cards orizzontali per selezionare il tipo di dato da nascondere:
+
+\begin{lstlisting}[caption={Data type selector con columns}]
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    if st.button("Testo", use_container_width=True):
+        st.session_state.selected_data_type = "Stringhe"
+
+with col2:
+    if st.button("Immagini", use_container_width=True):
+        st.session_state.selected_data_type = "Immagini"
+
+with col3:
+    if st.button("File Binari", use_container_width=True):
+        st.session_state.selected_data_type = "File binari"
+\end{lstlisting}
+
+\section{Workflow Utente}
+
+\subsection{Operazione Hide (Nascondere)}
+
+Il workflow per nascondere dati è strutturato in passi sequenziali:
+
+\begin{enumerate}
+    \item \textbf{Selezione metodo} (sidebar): LSB / DWT / PVD
+    \item \textbf{Selezione tipo dato}: Testo / Immagini / File binari
+    \item \textbf{Upload immagine host}: File uploader con anteprima
+    \item \textbf{Input dati da nascondere}: 
+          \begin{itemize}
+              \item Testo: Text area
+              \item Immagine: File uploader
+              \item File binario: File uploader + selezione compressione
+          \end{itemize}
+    \item \textbf{Configurazione parametri}: Preset o personalizzati
+    \item \textbf{Esecuzione}: Pulsante "Nascondi" con spinner
+    \item \textbf{Risultati}: Anteprima + metriche + download
+\end{enumerate}
+
+\subsection{Operazione Recover (Recuperare)}
+
+Il workflow di recupero è più semplice:
+
+\begin{enumerate}
+    \item \textbf{Selezione metodo} (sidebar)
+    \item \textbf{Selezione tipo dato}
+    \item \textbf{Upload immagine con dati nascosti}
+    \item \textbf{Modalità recupero parametri}:
+          \begin{itemize}
+              \item Backup file (automatico)
+              \item Backup recente
+              \item Parametri manuali
+          \end{itemize}
+    \item \textbf{Esecuzione}: Pulsante "Recupera" con spinner
+    \item \textbf{Risultati}: Dati recuperati + download
+\end{enumerate}
+
+\section{Componenti UI Riutilizzabili}
+
+\subsection{File Upload con Anteprima}
+
+\begin{lstlisting}[caption={Component per upload immagini}]
+class ImageDisplay:
+    @staticmethod
+    def show_resized_image(uploaded_file, caption, max_width=400):
+        """Mostra immagine caricata con resize"""
+        img = Image.open(uploaded_file)
+        st.image(img, caption=caption, width=max_width)
+    
+    @staticmethod
+    def show_image_details(uploaded_file, title):
+        """Mostra dettagli tecnici immagine"""
+        img = Image.open(uploaded_file)
+        
+        with st.expander(title):
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write(f"**Dimensioni:** {img.width} x {img.height}")
+                st.write(f"**Formato:** {img.format}")
+            with col2:
+                st.write(f"**Modalita:** {img.mode}")
+                size_kb = len(uploaded_file.getvalue()) / 1024
+                st.write(f"**Dimensione:** {size_kb:.2f} KB")
+\end{lstlisting}
+
+\subsection{Download Button con Icone}
+
+\begin{lstlisting}[caption={Download button personalizzato}]
+def create_download_button(data, filename, mime, label):
+    """Crea pulsante download con icona"""
+    st.download_button(
+        label=label,
+        data=data,
+        file_name=filename,
+        mime=mime,
+        use_container_width=True,
+        type="primary"
+    )
+\end{lstlisting}
+
+\subsection{Preset Configurabili}
+
+Ogni algoritmo offre preset ottimizzati:
+
+\begin{lstlisting}[caption={Preset selector con descrizioni}]
+preset = st.selectbox(
+    "Preconfigurazione:",
+    options=[
+        "Bilanciato",
+        "Alta Qualita",
+        "Alta Capacita",
+        "Personalizzato"
+    ],
+    help="Bilanciato: ottimo per uso generale. "
+         "Alta Qualita: minime modifiche visibili. "
+         "Alta Capacita: massimizza i dati nascosti."
+)
+
+if preset == "Bilanciato":
+    n, div = 4, 0.0
+    st.info("N=4, DIV=auto - Buon compromesso")
+elif preset == "Alta Qualita":
+    n, div = 1, 0.0
+    st.info("N=1, DIV=auto - Massima qualita visiva")
+# ...
+\end{lstlisting}
+
+\section{Feedback Visivo e User Experience}
+
+\subsection{Indicatori di Progresso}
+
+Durante operazioni lunghe, viene mostrato uno spinner:
+
+\begin{lstlisting}[caption={Spinner con messaggio}]
+with st.spinner("Nascondendo messaggio con DWT..."):
+    result_img, metrics = hide_message(img, message)
+    
+st.success("Messaggio nascosto con successo!")
+\end{lstlisting}
+
+\subsection{Visualizzazione Metriche}
+
+Le metriche di qualità sono presentate con st.metric:
+
+\begin{lstlisting}[caption={Metriche con delta}]
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric(
+        label="SSIM (Similarita Strutturale)",
+        value=f"{metrics['ssim']:.4f}",
+        help="1.0 = immagini identiche"
+    )
+
+with col2:
+    st.metric(
+        label="PSNR (Rapporto Segnale/Rumore)",
+        value=f"{metrics['psnr']:.2f} dB",
+        help="Valori piu alti = migliore qualita"
+    )
+\end{lstlisting}
+
+\subsection{Messaggi di Errore Informativi}
+
+Gli errori sono presentati con contesto utile:
+
+\begin{lstlisting}[caption={Gestione errori user-friendly}]
+try:
+    result = hide_message(img, msg)
+except ValueError as e:
+    st.error(f"""
+        **Errore di validazione**
+        
+        {str(e)}
+        
+        **Suggerimento:** Prova a:
+        - Usare un'immagine piu grande
+        - Ridurre la lunghezza del messaggio
+        - Comprimere i dati (per file binari)
+    """)
+\end{lstlisting}
+
+\section{Responsività e Accessibilità}
+
+L'interfaccia si adatta a diverse dimensioni di schermo grazie al layout responsive di 
+Streamlit:
+
+\begin{itemize}
+    \item \textbf{Desktop}: Layout a colonne con sidebar
+    \item \textbf{Tablet}: Colonne ridotte, sidebar collassabile
+    \item \textbf{Mobile}: Layout verticale singola colonna
+\end{itemize}
+
+\subsection{Stili CSS Personalizzati}
+
+\begin{lstlisting}[caption={Custom CSS per tema scuro}]
+st.markdown("""
+    <style>
+    /* Card metodi nella sidebar */
+    .method-card-container {
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        transition: all 0.3s;
+    }
+    
+    .method-card-container.selected {
+        background: linear-gradient(135deg, #667eea20, #764ba220);
+        border: 2px solid #667eea;
+    }
+    
+    /* Footer */
+    .app-footer {
+        text-align: center;
+        padding: 2rem 0;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        margin-top: 3rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+\end{lstlisting}
+
+\section{Gestione dello Stato tra Pagine}
+
+Il sistema mantiene lo stato tra le interazioni usando Session State:
+
+\begin{lstlisting}[caption={Persistenza risultati}]
+# Salvataggio risultati
+st.session_state["hide_image_results"] = {
+    "image": img_buffer.getvalue(),
+    "filename": output_filename,
+    "preview_image": result_img,
+    "metrics": metrics,
+    "backup": backup_data
+}
+
+# Visualizzazione persistente
+if "hide_image_results" in st.session_state:
+    results = st.session_state["hide_image_results"]
+    
+    st.image(results["preview_image"], caption="Risultato")
+    
+    # Download disponibile fino a refresh
+    create_download_button(
+        results["image"],
+        results["filename"],
+        "image/png",
+        "Scarica immagine"
+    )
+\end{lstlisting}
+
+\newpage
