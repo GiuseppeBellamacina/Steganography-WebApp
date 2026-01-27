@@ -1,5 +1,0 @@
-numpy
-pillow
-streamlit
-scikit-image
-PyWavelets

@@ -1,10 +1,39 @@
+# Python
 __pycache__/
-.pytest_cache/
-.coverage
-.ruff_cache/
-
+*.pyc
+*.pyo
+*.pyd
+.Python
 *.egg-info/
 
-*.venv/
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
 
+# Build & Distribution
+dist/
+build/
+*.egg
+
+# Tools & Linters
+.ruff_cache/
+.mypy_cache/
+.black
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project Specific
 *.zip
+*.lock
+uv.lock
