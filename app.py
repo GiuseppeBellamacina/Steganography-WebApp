@@ -31,7 +31,7 @@ def main():
         method_names = {
             "lsb": "⚡ LSB - Least Significant Bit",
             "dwt": "🧪 DWT - Discrete Wavelet Transform",
-            "pvd": "🔀 PVD - Pixel Value Differencing"
+            "pvd": "🔀 PVD - Pixel Value Differencing",
         }
         st.markdown(f"#### {method_names.get(selected_method, 'Nessuna modalità')}")
 
@@ -68,13 +68,14 @@ def main():
             [
                 "Ricarica la pagina",
                 "Verifica che tutti i file siano presenti",
-                "Controlla i log per dettagli aggiuntivi"
-            ]
+                "Controlla i log per dettagli aggiuntivi",
+            ],
         )
 
         # In modalità debug, mostra anche il traceback
         if st.sidebar.checkbox("🐛 Mostra dettagli debug"):
             st.code(traceback.format_exc())
+
 
 if __name__ == "__main__":
     main()
