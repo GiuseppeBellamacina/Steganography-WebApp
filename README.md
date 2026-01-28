@@ -13,6 +13,7 @@ Prova l'applicazione online su [Streamlit Cloud](https://steg-app.streamlit.app)
 - [Caratteristiche](#caratteristiche)
 - [Architettura del Progetto](#architettura-del-progetto)
 - [Installazione](#installazione)
+- [Setup Git Hooks](#setup-git-hooks)
 - [Utilizzo](#utilizzo)
 - [Struttura del Progetto](#struttura-del-progetto)
 - [Algoritmi di Steganografia](#algoritmi-di-steganografia)
@@ -86,6 +87,27 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
+
+## ⚙️ Setup Git Hooks
+
+Dopo aver clonato il repository, configura i git hooks per la formattazione automatica del codice:
+
+```bash
+# Su Linux/Mac
+chmod +x setup-hooks.sh
+./setup-hooks.sh
+
+# Su Windows (Git Bash)
+bash setup-hooks.sh
+```
+
+Questo abiliterà il pre-commit hook che esegue automaticamente:
+
+- `ruff check . --fix` - Linting e fix automatici
+- `isort .` - Ordinamento degli import
+- `black .` - Formattazione del codice
+
+I file modificati vengono ri-aggiunti allo stage automaticamente prima del commit.
 
 ### Dipendenze Principali
 

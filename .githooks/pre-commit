@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# Pre-commit hook per formattazione automatica del codice
+# Esegue ruff, isort e black, poi ri-aggiunge i file modificati
+#
+
+# Colori
+GREEN='\033[1;32m'
+YELLOW='\033[0;33m'
+RED='\033[1;31m'
+NC='\033[0m' # No Color
+
+printf "${YELLOW}Attivazione venv...${NC}\n"
+# Attiva il virtual environment
+if [ -d ".venv" ]; then
+    . .venv/Scripts/activate
+elif [ -d "venv" ]; then
+    . venv/Scripts/activate
+else
+    printf "${RED}Errore: virtual environment non trovato${NC}\n"
+    exit 1
+fi
+
+printf "\n${YELLOW}Esecuzione ruff check . --fix...${NC}\n"
+ruff check . --fix
+if [ $? -ne 0 ]; then
+    printf "${RED}Errore durante l'esecuzione di ruff${NC}\n"
+    exit 1
+fi
+
+printf "\n${YELLOW}Esecuzione isort . ...${NC}\n"
+isort .
+if [ $? -ne 0 ]; then
+    printf "${RED}Errore durante l'esecuzione di isort${NC}\n"
+    exit 1
+fi
+
+printf "\n${YELLOW}Esecuzione black . ...${NC}\n"
+black .
+if [ $? -ne 0 ]; then
+    printf "${RED}Errore durante l'esecuzione di black${NC}\n"
+    exit 1
+fi
+
+printf "\n${YELLOW}Ri-aggiunta dei file modificati allo stage...${NC}\n"
+# Ottieni la lista dei file che erano in stage
+FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Ri-aggiungi tutti i file modificati
+if [ -n "$FILES" ]; then
+    echo "$FILES" | xargs git add
+fi
+
+printf "\n${GREEN}Formattazione completata con successo!${NC}\n"
+exit 0
