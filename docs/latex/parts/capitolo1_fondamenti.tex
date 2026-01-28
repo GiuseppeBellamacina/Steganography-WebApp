@@ -2,39 +2,28 @@
 
 \section{Definizione e Storia}
 
-La steganografia deriva dal greco \textit{steganos} (coperto) e \textit{graphein} (scrittura), 
-letteralmente "scrittura nascosta". Le sue origini risalgono all'antica Grecia, dove venivano 
-utilizzate tecniche come:
-
-\begin{itemize}
-    \item Tatuaggi sul cuoio capelluto rasato di messaggeri
-    \item Inchiostri invisibili
-    \item Messaggi nascosti in tavole di cera
-\end{itemize}
-
-Con l'avvento dell'era digitale, la steganografia ha trovato nuove applicazioni nel dominio 
-dei file multimediali, in particolare immagini, audio e video~\cite{katzenbeisser2000information}.
+La steganografia deriva dal greco \textit{steganos} (coperto) e \textit{graphein} (scrittura),
+letteralmente "scrittura nascosta". Le sue origini risalgono all'antica Grecia, dove si
+utilizzavano tecniche ingegnose quali tatuaggi sul cuoio capelluto rasato di messaggeri,
+inchiostri invisibili e messaggi nascosti in tavole di cera. Con l'avvento dell'era digitale,
+la steganografia ha trovato nuove applicazioni nel dominio dei file multimediali, trasformandosi
+da arte artigianale a scienza computazionale precisa~\cite{katzenbeisser2000information}.
 
 \section{Steganografia vs Crittografia}
 
-È importante distinguere tra steganografia e crittografia:
+La distinzione tra steganografia e crittografia è fondamentale per comprendere i diversi
+approcci alla sicurezza dell'informazione. Mentre la crittografia si concentra nel rendere
+illeggibile un messaggio, attirando inevitabilmente l'attenzione sulla comunicazione, la
+steganografia mira a nasconderne completamente l'esistenza. Questo approccio discreto comporta
+alcuni compromessi: la capacità di dati che può essere nascosta è tipicamente limitata dalla
+dimensione del contenitore, e la robustezza alle manipolazioni varia significativamente a
+seconda della tecnica impiegata. Tuttavia, il vantaggio principale risiede proprio nel basso
+livello di sospetto generato: un'immagine contenente dati nascosti appare del tutto ordinaria
+a un osservatore~\cite{provos2003hide}.
 
-\begin{table}[H]
-\centering
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Aspetto} & \textbf{Steganografia} & \textbf{Crittografia} \\ \hline
-Obiettivo & Nascondere l'esistenza & Rendere illeggibile \\ \hline
-Sospetto & Basso & Alto \\ \hline
-Capacità & Limitata & Illimitata \\ \hline
-Robustezza & Variabile & Molto alta \\ \hline
-Chiave & Spesso opzionale & Sempre richiesta \\ \hline
-\end{tabular}
-\caption{Confronto tra steganografia e crittografia}
-\end{table}
-
-Le due tecniche possono essere combinate: prima cifrare il messaggio (crittografia) e poi 
-nasconderlo (steganografia), ottenendo un doppio livello di sicurezza~\cite{provos2003hide}.
+Le due tecniche possono essere efficacemente combinate, cifrando prima il messaggio e poi
+nascondendolo, ottenendo così un doppio livello di sicurezza che protegge sia il contenuto
+che l'esistenza stessa della comunicazione.
 
 \section{Requisiti di un Sistema Steganografico}
 
@@ -42,27 +31,18 @@ Un sistema steganografico efficace deve soddisfare tre requisiti fondamentali:
 
 \subsection{Impercettibilità (Imperceptibility)}
 
-Le modifiche apportate al contenitore (cover) non devono essere percepibili dall'occhio umano. 
-Questo si misura attraverso metriche quantitative come:
+Le modifiche apportate al contenitore devono rimanere impercettibili all'osservazione umana.
+La valutazione quantitativa di questo requisito si affida a metriche consolidate nel campo
+dell'elaborazione delle immagini. Il PSNR (Peak Signal-to-Noise Ratio) misura il rapporto tra
+il segnale massimo possibile e il rumore di distorsione; valori superiori a 30 dB indicano
+differenze generalmente impercettibili:
 
-\begin{itemize}
-    \item \textbf{PSNR (Peak Signal-to-Noise Ratio)}: Misura il rapporto tra il segnale 
-          massimo possibile e il rumore di distorsione. Valori superiori a 30 dB indicano 
-          differenze impercettibili.
-          
-    $$PSNR = 10 \cdot \log_{10}\left(\frac{MAX^2}{MSE}\right)$$
-    
-    dove $MAX$ è il valore massimo del pixel (255 per immagini a 8 bit) e $MSE$ è l'errore 
-    quadratico medio.
-    
-    \item \textbf{MSE (Mean Squared Error)}: Calcola la media delle differenze al quadrato 
-          tra pixel originali e modificati.
-          
-    $$MSE = \frac{1}{mn}\sum_{i=0}^{m-1}\sum_{j=0}^{n-1}[I(i,j) - K(i,j)]^2$$
-    
-    \item \textbf{SSIM (Structural Similarity Index)}: Valuta la similarità strutturale 
-          percettiva tra le immagini (valore tra -1 e 1, dove 1 indica identità perfetta).
-\end{itemize}
+$$PSNR = 10 \cdot \log_{10}\left(\frac{MAX^2}{MSE}\right)$$
+
+dove $MAX$ rappresenta il valore massimo del pixel (255 per immagini a 8 bit) e $MSE$ l'errore
+quadratico medio tra i pixel originali e modificati. Complementare al PSNR, l'indice SSIM
+(Structural Similarity Index) valuta la similarità strutturale percettiva tra le immagini su
+una scala da -1 a 1, dove 1 indica identità perfetta.
 
 \subsection{Capacità (Capacity)}
 

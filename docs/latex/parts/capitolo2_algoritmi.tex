@@ -24,12 +24,11 @@ bit (LSB) cambia il valore del pixel al massimo di ±1, una differenza invisibil
 L'implementazione nel progetto utilizza un approccio robusto con header strutturato:
 
 \begin{lstlisting}[caption={Struttura del payload LSB}]
-# Componenti del payload
-magic_header = "1010101011110000"  # 16 bit - marker identificativo
-msg_length = format(len(message), "032b")  # 32 bit - lunghezza
-checksum = format(xor_checksum, "016b")  # 16 bit - verifica integrita
-msg_binary = binary_convert(message)  # Messaggio codificato
-terminator = "1111000011110000"  # 16 bit - fine messaggio
+magic_header = "1010101011110000"
+msg_length = format(len(message), "032b")
+checksum = format(xor_checksum, "016b")
+msg_binary = binary_convert(message)
+terminator = "1111000011110000"
 
 full_payload = magic_header + msg_length + checksum + msg_binary + terminator
 \end{lstlisting}
@@ -67,20 +66,13 @@ Per un'immagine di dimensione $W \times H$ pixel:
 
 \subsection{Vantaggi e Limitazioni}
 
-\textbf{Vantaggi:}
-\begin{itemize}
-    \item Implementazione semplice e veloce
-    \item Alta capacità di embedding
-    \item PSNR molto elevato (> 50 dB tipicamente)
-    \item Modifiche completamente impercettibili
-\end{itemize}
-
-\textbf{Limitazioni:}
-\begin{itemize}
-    \item Vulnerabile a compressione JPEG (distrugge LSB)
-    \item Facilmente rilevabile con analisi statistica
-    \item Nessuna robustezza a modifiche dell'immagine
-\end{itemize}
+L'algoritmo LSB si distingue per la sua semplicità implementativa e l'elevata capacità di
+embedding, offrendo tipicamente PSNR superiori a 50 dB che garantiscono modifiche del tutto
+impercettibili all'occhio umano. Tuttavia, questa efficienza ha un costo in termini di robustezza:
+qualsiasi compressione JPEG o manipolazione dell'immagine distrugge i bit meno significativi,
+rendendo impossibile il recupero dei dati. Inoltre, l'approccio è vulnerabile ad analisi
+statistiche che possono rilevare la presenza di dati nascosti attraverso anomalie nella
+distribuzione dei valori dei pixel.
 
 \section{DWT - Discrete Wavelet Transform}
 
@@ -101,18 +93,55 @@ La trasformata wavelet 2D decompone un'immagine in quattro sub-bande:
 
 \subsection{Implementazione}
 
-Il progetto utilizza la wavelet di Haar per la sua semplicità e efficienza~\cite{pywavelets2023}:
+Il progetto utilizza la wavelet di Haar per la sua semplicità e efficienza~\cite{pywavelets2023}.
+L'implementazione usa \texttt{pywt.dwt2} per decomposizione single-level, garantendo efficienza
+e capacità prevedibile.
 
 \begin{lstlisting}[caption={Decomposizione DWT}]
 import pywt
 
-# Applica DWT 2D al canale dell'immagine
+# Applica DWT 2D single-level al canale dell'immagine
 coeffs = pywt.dwt2(channel_data, 'haar')
 cA, (cH, cV, cD) = coeffs
 
 # Nasconde nei coefficienti orizzontali (cH)
 cH_flat = cH.flatten()
 \end{lstlisting}
+
+\textbf{Header Robusto a 64-bit:}
+
+Per evitare false positive detection nel rumore dei coefficienti DWT, il sistema usa un
+magic header a 64-bit invece del tradizionale 16-bit:
+
+\begin{lstlisting}[caption={Header DWT robusto}]
+# Header 64-bit per robustezza
+MAGIC_HEADER_64 = "1100100100001111010110010100110011010101010011110000101011001101"
+SIZE_BITS = 32  # Dimensione payload in bit
+
+# Struttura: [64-bit magic][32-bit size][payload]
+full_payload = MAGIC_HEADER_64 + format(payload_size, "032b") + payload_bits
+\end{lstlisting}
+
+\textbf{Estrazione Two-Phase:}
+
+L'estrazione avviene in due fasi sincronizzate per evitare lettura di rumore:
+
+\begin{lstlisting}[caption={Estrazione two-phase DWT}]
+# FASE 1: Estrae header + size (96 bit totali)
+header_and_size = extract_bits_from_coefficients(96)
+magic = header_and_size[:64]
+payload_size = int(header_and_size[64:96], 2)
+
+# Verifica header
+if magic != MAGIC_HEADER_64:
+    raise ValueError("Header non trovato")
+
+# FASE 2: Estrae esattamente payload_size bit
+payload = extract_bits_from_coefficients(payload_size)
+\end{lstlisting}
+
+Questo approccio garantisce che l'estrazione si fermi esattamente dopo il payload,
+evitando di leggere coefficienti non modificati che causerebbero corruzione dei dati.
 
 L'embedding avviene modificando i coefficienti in base al bit da nascondere:
 
@@ -150,23 +179,15 @@ Capacità Massima & 0.15 & cH, cV, cD & R, G, B \\ \hline
 \caption{Configurazioni preset DWT}
 \end{table}
 
-\subsection{Vantaggi e Limitazioni}
+\subsection{Caratteristiche dell'Approccio}
 
-\textbf{Vantaggi:}
-\begin{itemize}
-    \item Robustezza a compressione JPEG
-    \item Resistenza a filtri e leggero rumore
-    \item Più difficile da rilevare statisticamente
-    \item Embedding nel dominio frequenza
-\end{itemize}
-
-\textbf{Limitazioni:}
-\begin{itemize}
-    \item Capacità inferiore rispetto a LSB
-    \item Computazionalmente più costoso
-    \item Richiede calibrazione parametri
-    \item PSNR inferiore (35-45 dB tipicamente)
-\end{itemize}
+Il principale punto di forza della DWT risiede nella sua robustezza: operando nel dominio
+della frequenza, l'algoritmo resiste a compressioni JPEG, filtri e aggiunte di rumore che
+distruggerebbero completamente i dati nascosti con LSB. Questa robustezza si paga con una
+capacità di embedding ridotta e un costo computazionale superiore. Il PSNR tipicamente si
+attesta tra 35 e 45 dB, comunque sufficiente per garantire modifiche visivamente accettabili.
+La calibrazione del parametro ALPHA richiede un bilanciamento attento tra robustezza e
+qualità visiva, rendendo i preset configurabili particolarmente utili per utenti meno esperti.
 
 \section{PVD - Pixel Value Differencing}
 
@@ -189,23 +210,23 @@ L'implementazione offre due profili di range:
 \textbf{Profile Qualità (default):}
 \begin{lstlisting}[caption={Range qualità PVD}]
 RANGES_QUALITY = [
-    (0, 7, 2),      # Diff 0-7: 2 bit
-    (8, 15, 3),     # Diff 8-15: 3 bit
-    (16, 31, 3),    # Diff 16-31: 3 bit
-    (32, 63, 4),    # Diff 32-63: 4 bit
-    (64, 127, 4),   # Diff 64-127: 4 bit
+    (0, 7, 2),
+    (8, 15, 3),
+    (16, 31, 3),
+    (32, 63, 4),
+    (64, 127, 4),
 ]
 \end{lstlisting}
 
 \textbf{Profile Capacità:}
 \begin{lstlisting}[caption={Range capacità PVD}]
 RANGES_CAPACITY = [
-    (0, 7, 3),      # Diff 0-7: 3 bit
-    (8, 15, 3),     # Diff 8-15: 3 bit
-    (16, 31, 4),    # Diff 16-31: 4 bit
-    (32, 63, 5),    # Diff 32-63: 5 bit
-    (64, 127, 6),   # Diff 64-127: 6 bit
-    (128, 255, 7),  # Diff 128-255: 7 bit
+    (0, 7, 3),
+    (8, 15, 3),
+    (16, 31, 4),
+    (32, 63, 5),
+    (64, 127, 6),
+    (128, 255, 7),
 ]
 \end{lstlisting}
 
@@ -216,18 +237,13 @@ def embed_in_pair(pixel1, pixel2, bits):
     diff = pixel2 - pixel1
     lower, upper, capacity = get_range_capacity(diff)
     
-    # Converte i bit in valore decimale
     decimal_value = int(bits[:capacity], 2)
-    
-    # Calcola la nuova differenza
     new_diff = lower + decimal_value
-    new_diff = min(new_diff, upper)  # Clamp
+    new_diff = min(new_diff, upper)
     
-    # Mantiene il segno
     if diff < 0:
         new_diff = -new_diff
     
-    # Distribuzione della modifica
     m = abs(new_diff) - abs(diff)
     if diff % 2 == 0:
         new_pixel1 = pixel1 - m // 2
@@ -236,39 +252,47 @@ def embed_in_pair(pixel1, pixel2, bits):
         new_pixel1 = pixel1 - (m + 1) // 2
         new_pixel2 = pixel2 + m - (m + 1) // 2
     
-    # Clipping a [0, 255]
     return max(0, min(255, new_pixel1)), max(0, min(255, new_pixel2))
 \end{lstlisting}
 
 \subsection{Parametri Configurabili}
 
-\begin{itemize}
-    \item \textbf{RANGES}: Profilo di quantizzazione (qualità o capacità)
-    \item \textbf{PAIR\_STEP}: Spaziatura tra coppie di pixel (1-4)
-          \begin{itemize}
-              \item Step=1: massima capacità, tutti i pixel
-              \item Step>1: capacità ridotta, più distribuito
-          \end{itemize}
-    \item \textbf{CHANNELS}: Canali RGB da utilizzare ([0], [0,1,2], ecc.)
-\end{itemize}
+L'implementazione offre tre parametri principali. Il profilo di quantizzazione \texttt{RANGES}
+determina la capacità di embedding per ogni livello di differenza tra pixel. Il fallback
+utilizza l'ultimo range definito (\texttt{RANGES[-1]}) invece di un valore hardcoded,
+garantendo compatibilità tra modalità QUALITY e CAPACITY.
 
-\subsection{Vantaggi e Limitazioni}
+La spaziatura \texttt{PAIR\_STEP} controlla la distanza tra coppie consecutive di pixel.
+Con \texttt{PAIR\_STEP=1} si ottiene la massima capacità utilizzando tutti i pixel disponibili,
+mentre valori superiori distribuiscono l'embedding su un'area più ampia riducendo la capacità.
+I loop di attraversamento usano \texttt{range(0, w - PAIR\_STEP, 2*PAIR\_STEP)} per prevenire
+accessi out-of-bounds quando si legge \texttt{pixel[x + PAIR\_STEP]}.
 
-\textbf{Vantaggi:}
-\begin{itemize}
-    \item Embedding adattivo al contenuto
-    \item Buon compromesso capacità/qualità
-    \item PSNR superiore a LSB semplice
-    \item Distribuzione naturale delle modifiche
-\end{itemize}
+Il parametro \texttt{CHANNELS} specifica quali canali RGB utilizzare. Il calcolo di
+\texttt{total\_bits} impiega \texttt{len(channels)} per determinare precisamente la capacità
+disponibile indipendentemente dalla configurazione.
 
-\textbf{Limitazioni:}
-\begin{itemize}
-    \item Più complesso di LSB
-    \item Vulnerabile a ritaglio e ridimensionamento
-    \item Richiede sincronizzazione precisa
-    \item Sensibile a modifiche dei pixel di bordo
-\end{itemize}
+L'implementazione richiede particolare attenzione alla sincronizzazione tra le fasi di
+embedding ed estrazione. Durante il processo di inserimento, l'indice deve essere incrementato
+esattamente del numero di bit effettivamente inseriti, e non della capacità teorica della coppia.
+Questo accorgimento previene desincronizzazioni quando il payload termina prima di saturare
+l'ultima coppia di pixel disponibile.
+
+\begin{lstlisting}[caption={Incremento dell'indice durante embedding}]
+bits_to_embed = payload[bit_index : bit_index + capacity]
+bit_index += len(bits_to_embed)
+\end{lstlisting}
+
+\subsection{Caratteristiche dell'Approccio}
+
+PVD rappresenta un interessante compromesso tra la semplicità di LSB e la robustezza di DWT.
+La natura adattiva dell'algoritmo, che modula la quantità di dati nascosti in base al
+contenuto locale dell'immagine, produce una distribuzione delle modifiche più naturale e meno
+rilevabile. Il PSNR risulta generalmente superiore a quello di LSB semplice, attestandosi
+tra 45 e 55 dB. Tuttavia, la complessità implementativa è maggiore e la sincronizzazione tra
+fasi di embedding ed estrazione deve essere gestita con precisione. L'algoritmo mostra
+vulnerabilità a operazioni di ridimensionamento e ritaglio, che alterano la struttura delle
+coppie di pixel su cui si basa il metodo.
 
 \section{Confronto tra gli Algoritmi}
 

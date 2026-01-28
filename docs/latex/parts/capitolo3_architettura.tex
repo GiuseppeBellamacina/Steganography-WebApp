@@ -2,15 +2,12 @@
 
 \section{Panoramica dell'Architettura}
 
-Il progetto segue un'architettura modulare a strati con separazione netta tra logica di 
-business e presentazione. La struttura è progettata per essere:
-
-\begin{itemize}
-    \item \textbf{Modulare}: Ogni componente ha responsabilità ben definite
-    \item \textbf{Estensibile}: Facile aggiungere nuovi algoritmi o funzionalità
-    \item \textbf{Manutenibile}: Codice pulito e ben documentato
-    \item \textbf{Testabile}: Componenti isolati facilmente testabili
-\end{itemize}
+Il progetto segue un'architettura modulare a strati con separazione netta tra logica di
+business e presentazione. La struttura è stata progettata per garantire modularità,
+assegnando a ciascun componente responsabilità ben definite. Questa organizzazione facilita
+l'estensione del sistema con nuovi algoritmi o funzionalità, mantenendo il codice pulito e
+bendocumentato. I componenti isolati risultano inoltre facilmente testabili, migliorando
+complessivamente la manutenibilità del progetto.
 
 \subsection{Schema Architetturale}
 
@@ -101,26 +98,19 @@ class AppLayout:
 
 \subsection{Business Logic Layer}
 
-Contiene tutta la logica steganografica, completamente indipendente dall'UI. Ogni modulo 
-ha una responsabilità specifica:
-
-\begin{itemize}
-    \item \textbf{message\_operations.py}: Embedding/extraction di stringhe
-    \item \textbf{image\_operations.py}: Embedding/extraction di immagini
-    \item \textbf{binary\_operations.py}: Embedding/extraction di file binari
-\end{itemize}
+Contiene tutta la logica steganografica, completamente indipendente dall'UI. Ciascun modulo
+gestisce un tipo specifico di dato: \texttt{message\_operations.py} per l'embedding e
+l'estrazione di stringhe, \texttt{image\_operations.py} per le immagini, e
+\texttt{binary\_operations.py} per file binari arbitrari.
 
 \subsection{Utility Layer}
 
-Fornisce servizi trasversali utilizzati da tutti gli algoritmi:
-
-\begin{itemize}
-    \item \textbf{backup.py}: Serializzazione/deserializzazione parametri JSON
-    \item \textbf{validator.py}: Validazione dimensioni, formati, capacità
-    \item \textbf{metrics.py}: Calcolo PSNR, SSIM
-    \item \textbf{bit\_operations.py}: Conversioni binarie, manipolazione bit
-    \item \textbf{file\_utils.py}: I/O file, gestione temporanei
-\end{itemize}
+Fornisce servizi trasversali utilizzati da tutti gli algoritmi. Il modulo \texttt{backup.py}
+gestisce serializzazione e deserializzazione dei parametri in formato JSON, mentre
+\texttt{validator.py} si occupa della validazione di dimensioni, formati e capacità.
+Il calcolo delle metriche PSNR e SSIM è centralizzato in \texttt{metrics.py}, le operazioni
+binarie e conversioni in \texttt{bit\_operations.py}, e la gestione I/O dei file in
+\texttt{file\_utils.py}.
 
 \subsection{Configuration Layer}
 

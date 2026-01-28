@@ -9,17 +9,14 @@ l'approccio più adatto alle loro esigenze specifiche.
 
 \subsection{Obiettivi Raggiunti}
 
-\begin{itemize}
-    \item \textbf{Implementazione multi-algoritmo}: Tre algoritmi completamente funzionanti 
-          con caratteristiche complementari
-    \item \textbf{Supporto multi-formato}: Gestione di stringhe, immagini e file binari 
-          arbitrari
-    \item \textbf{Interfaccia user-friendly}: UI intuitiva accessibile anche a utenti non 
-          tecnici
-    \item \textbf{Sistema di metriche}: Valutazione quantitativa della qualità (PSNR, SSIM)
-    \item \textbf{Automazione}: Backup parametri automatico e preset ottimizzati
-    \item \textbf{Deployment online}: Applicazione accessibile su Streamlit Cloud
-\end{itemize}
+L'implementazione si è concretizzata in un sistema completo che integra tre algoritmi
+steganografici funzionanti con caratteristiche complementari. Il supporto per formati multipli
+(stringhe, immagini e file binari) amplia lo spettro applicativo, mentre l'interfaccia utente
+intuitiva rende le operazioni accessibili anche a utenti non tecnici. Il sistema di metriche
+integrato fornisce valutazioni quantitative della qualità, e l'automazione attraverso backup
+parametri e preset ottimizzati semplifica notevolmente il flusso di lavoro. Il deployment su
+Streamlit Cloud garantisce accessibilità da qualsiasi dispositivo senza necessità di
+installazioni locali~\cite{streamlit2023}.
 
 \section{Confronto Prestazioni}
 
@@ -42,23 +39,13 @@ Tempo medio* & 0.12s & 1.85s & 0.45s \\ \hline
 
 \subsection{Trade-off Osservati}
 
-\textbf{LSB:}
-\begin{itemize}
-    \item[+] Qualità eccellente e velocità massima
-    \item[-] Nessuna robustezza a compressione JPEG
-\end{itemize}
-
-\textbf{DWT:}
-\begin{itemize}
-    \item[+] Unico robusto a compressione JPEG (fino a 90\%)
-    \item[-] Capacità limitata e computazionalmente costoso
-\end{itemize}
-
-\textbf{PVD:}
-\begin{itemize}
-    \item[+] Ottimo bilanciamento capacità/qualità
-    \item[-] Complessità intermedia, sensibile a ridimensionamento
-\end{itemize}
+I test sperimentali hanno confermato le caratteristiche distintive di ciascun algoritmo.
+LSB eccelle in qualità visiva e velocità di esecuzione, ma sacrifica completamente la
+robustezza a compressione JPEG. DWT rappresenta l'unico approccio robusto a compressioni
+JPEG fino al 90\%, ma questa resistenza comporta una capacità ridotta e costi computazionali
+significativamente più elevati. PVD si posiziona come compromesso interessante, offrendo un
+buon bilanciamento tra capacità e qualità con complessità intermedia, pur mostrando sensibilità
+a operazioni di ridimensionamento.
 
 \section{Contributi Originali}
 
@@ -67,10 +54,13 @@ Rispetto alle implementazioni esistenti, il progetto introduce:
 \begin{enumerate}
     \item \textbf{Header robusto multi-layer}:
           \begin{itemize}
-              \item Magic header per identificazione
+              \item Magic header 64-bit per DWT (riduce false positive in rumore coefficienti)
+              \item Magic header 16-bit per LSB/PVD (sufficiente in dominio spaziale)
               \item Lunghezza messaggio per lettura precisa
               \item Checksum per verifica integrità
               \item Terminatore per sicurezza
+              \item \textbf{Estrazione two-phase per DWT}: prima legge header+size,
+                    poi estrae esattamente il payload (previene lettura di coefficienti non modificati)
           \end{itemize}
     
     \item \textbf{Sistema preset intelligenti}:
@@ -99,25 +89,25 @@ Rispetto alle implementazioni esistenti, il progetto introduce:
 
 \subsection{Limitazioni Attuali}
 
-\begin{itemize}
-    \item \textbf{Formato immagine output}: Solo PNG per garantire lossless, limitando 
-          compatibilità
-    \item \textbf{Dimensioni file}: Immagini molto grandi (>10MB) possono causare timeout 
-          su Streamlit Cloud
-    \item \textbf{Assenza cifratura}: I dati non sono criptati, solo nascosti
-    \item \textbf{Robustezza limitata}: Solo DWT resiste a compressione, nessun algoritmo 
-          resiste a ritaglio significativo
-\end{itemize}
+Il sistema presenta alcune limitazioni legate principalmente a scelte implementative conservative.
+L'output in formato PNG, pur garantendo qualità lossless indispensabile per il recupero corretto
+dei dati, limita la compatibilità con sistemi che prediligono formati più compatti. Le dimensioni
+delle immagini processabili su Streamlit Cloud sono vincolate dai timeout del servizio, rendendo
+problematiche elaborazioni di file superiori a 10MB. L'assenza di cifratura integrata implica
+che i dati siano solamente nascosti ma non protetti da accesso non autorizzato. La robustezza
+rimane il tallone d'Achille: solo DWT resiste a compressioni moderate, mentre nessun algoritmo
+sopravvive a ritagli significativi o ridimensionamenti sostanziali.
 
 \subsection{Sviluppi Futuri Proposti}
 
 \subsubsection{Nuovi Algoritmi}
 
-\begin{itemize}
-    \item \textbf{DCT-based steganography}: Embedding nei coefficienti DCT (JPEG-friendly)
-    \item \textbf{Spread Spectrum}: Distribuzione dati su frequenze multiple
-    \item \textbf{Adaptive embedding}: Selezione automatica zone embedding in base a contenuto
-\end{itemize}
+L'architettura modulare faciliterebbe l'integrazione di algoritmi aggiuntivi. Un'implementazione
+basata su DCT (Discrete Cosine Transform) offrirebbe compatibilità nativa con JPEG, operando
+direttamente sui coefficienti di compressione. Le tecniche spread spectrum distribuirebbero
+i dati su multiple frequenze aumentando la robustezza al rumore. Approcci di embedding adattivo
+potrebbero selezionare automaticamente le zone più adatte in base al contenuto dell'immagine,
+migliorando il trade-off tra capacità e impercettibilità.
 
 \subsubsection{Funzionalità Aggiuntive}
 
@@ -175,28 +165,19 @@ hide_message(img, encrypted_msg)
 
 \section{Lezioni Apprese}
 
-\subsection{Aspetti Tecnici}
+L'esperienza di sviluppo ha evidenziato alcuni aspetti fondamentali. Dal punto di vista tecnico,
+i trade-off tra capacità, qualità e robustezza si sono rivelati inevitabili: ogni tentativo di
+ottimizzare una dimensione comporta sacrifici sulle altre. La validazione preventiva degli input
+è emersa come pratica essenziale, evitando computazioni inutili e migliorando significativamente
+l'esperienza utente. L'architettura modulare ha dimostrato il suo valore durante il debugging e
+le estensioni successive, mentre le metriche quantitative si sono rivelate fondamentali per
+valutazioni oggettive degli algoritmi.
 
-\begin{itemize}
-    \item \textbf{Trade-off inevitabili}: Impossibile ottimizzare simultaneamente capacità, 
-          qualità e robustezza
-    \item \textbf{Importanza validazione}: Controlli preventivi evitano computazioni 
-          inutili e migliorano UX
-    \item \textbf{Modularità cruciale}: Architettura modulare ha facilitato debugging 
-          e estensioni
-    \item \textbf{Testing essenziale}: Metriche quantitative fondamentali per valutare 
-          algoritmi oggettivamente
-\end{itemize}
-
-\subsection{Gestione Progetto}
-
-\begin{itemize}
-    \item \textbf{Prototipazione rapida}: Streamlit ha permesso sviluppo UI molto veloce
-    \item \textbf{CI/CD vantaggioso}: Automazione testing/deploy ha ridotto errori
-    \item \textbf{Documentazione parallela}: Scrivere docs durante sviluppo facilita manutenzione
-    \item \textbf{Version control disciplinato}: Commit atomici e branch feature hanno 
-          organizzato lo sviluppo
-\end{itemize}
+Sulla gestione del progetto, Streamlit ha permesso una prototipazione rapida dell'interfaccia,
+accelerando notevolmente lo sviluppo. L'automazione attraverso CI/CD ha ridotto gli errori in
+produzione, e la documentazione parallela al codice ha facilitato la manutenzione. La disciplina
+nel version control, con commit atomici e branch dedicati per le feature, ha mantenuto organizzato
+il flusso di sviluppo.
 
 \section{Considerazioni Finali}
 
