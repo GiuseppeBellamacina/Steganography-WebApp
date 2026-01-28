@@ -16,10 +16,11 @@ class ImageSteganography:
     """Classe per operazioni di steganografia su immagini usando DWT"""
 
     WAVELET: str = "haar"  # Wavelet di Haar per semplicità
-    LEVEL: int = 1  # Livello decomposizione (1=veloce, 2=più robusto ma meno capacità)
-    SEED: int = 42  # Seed fisso per determinismo
-    STEP: float = 12.0  # Step di quantizzazione QIM (8-32: capacità vs qualità)
-    CHANNEL: int = 0  # Usa solo canale R (grayscale-like) per robustezza
+    SEED: int = 42  # Seed fisso per determinismo nella selezione coefficienti
+    STEP: float = (
+        12.0  # Step di quantizzazione QIM (8-32: capacità vs qualità) - PARAMETRO PRINCIPALE
+    )
+    CHANNEL: int = 0  # Canale RGB da usare (0=R, 1=G, 2=B) per embedding
     BITS_SECRET: int = 3  # Bit per pixel dell'immagine segreta (2-4 MSB)
     BANDS: list[str] = [
         "cH",
@@ -153,7 +154,6 @@ class ImageSteganography:
             "step": ImageSteganography.STEP,
             "channel": ImageSteganography.CHANNEL,
             "bits_per_pixel": ImageSteganography.BITS_SECRET,
-            "level": ImageSteganography.LEVEL,
             "bands": ImageSteganography.BANDS,
         }
         backup_system.save_backup_data(DataType.IMAGE, params, backup_file)
@@ -209,9 +209,7 @@ class ImageSteganography:
                 ImageSteganography.BANDS = backup_data["params"].get(
                     "bands", ImageSteganography.BANDS
                 )
-                ImageSteganography.LEVEL = backup_data["params"].get(
-                    "level", ImageSteganography.LEVEL
-                )
+
                 ImageSteganography.SEED = backup_data["params"].get(
                     "seed", ImageSteganography.SEED
                 )
@@ -243,9 +241,7 @@ class ImageSteganography:
                 ImageSteganography.BANDS = recent_params.get(
                     "bands", ImageSteganography.BANDS
                 )
-                ImageSteganography.LEVEL = recent_params.get(
-                    "level", ImageSteganography.LEVEL
-                )
+
                 ImageSteganography.SEED = recent_params.get(
                     "seed", ImageSteganography.SEED
                 )

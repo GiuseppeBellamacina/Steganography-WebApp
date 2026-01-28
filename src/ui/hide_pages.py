@@ -111,26 +111,45 @@ class HideDataPages:
                     "⚖️ Bilanciato",
                     "🎨 Qualità",
                     "💪 Robustezza",
+                    "📦 Capacità",
                     "⚙️ Personalizzato",
                 ],
                 index=0,
                 key="dwt_msg_hide_preset",
-                help="Bilanciato: uso generale. Qualità: invisibile. Robustezza: resiste a compressione/rumore.",
+                help="Bilanciato: uso generale. Qualità: invisibile. Robustezza: resiste a compressione/rumore. Capacità: massimo payload.",
             )
 
             if preset == "⚖️ Bilanciato":
                 DWT_Msg.WAVELET = "haar"
                 DWT_Msg.ALPHA = 0.1
-                st.info("⚖️ Wavelet Haar, alpha 0.1 - Compromesso qualità/robustezza")
+                DWT_Msg.BANDS = ["cH"]
+                DWT_Msg.USE_ALL_CHANNELS = True
+                st.info(
+                    "⚖️ Wavelet Haar, alpha 0.1, banda cH, tutti i canali - Compromesso qualità/robustezza"
+                )
             elif preset == "🎨 Qualità":
                 DWT_Msg.WAVELET = "haar"
                 DWT_Msg.ALPHA = 0.05
-                st.info("🎨 Wavelet Haar, alpha 0.05 - Minima distorsione, fragile")
+                DWT_Msg.BANDS = ["cH"]
+                DWT_Msg.USE_ALL_CHANNELS = True
+                st.info(
+                    "🎨 Wavelet Haar, alpha 0.05, banda cH, tutti i canali - Minima distorsione, fragile"
+                )
             elif preset == "💪 Robustezza":
                 DWT_Msg.WAVELET = "db4"
                 DWT_Msg.ALPHA = 0.3
+                DWT_Msg.BANDS = ["cH", "cV"]
+                DWT_Msg.USE_ALL_CHANNELS = True
                 st.info(
-                    "💪 Wavelet Daubechies 4, alpha 0.3 - Più robusto, resiste meglio a modifiche"
+                    "💪 Wavelet Daubechies 4, alpha 0.3, 2 bande, tutti i canali - Più robusto, resiste meglio a modifiche"
+                )
+            elif preset == "📦 Capacità":
+                DWT_Msg.WAVELET = "haar"
+                DWT_Msg.ALPHA = 0.15
+                DWT_Msg.BANDS = ["cH", "cV", "cD"]
+                DWT_Msg.USE_ALL_CHANNELS = True
+                st.info(
+                    "📦 Alpha 0.15, 3 bande (tutte), tutti i canali - Massima capacità"
                 )
             else:
                 col1, col2 = st.columns(2)
@@ -142,7 +161,6 @@ class HideDataPages:
                         help="haar=veloce standard, db/sym=più robuste",
                         key="dwt_msg_hide_wavelet",
                     )
-                with col2:
                     alpha = st.slider(
                         "Alpha (forza embedding)",
                         min_value=0.05,
@@ -152,9 +170,29 @@ class HideDataPages:
                         help="Basso=invisibile ma fragile, Alto=visibile ma robusto",
                         key="dwt_msg_hide_alpha",
                     )
+                with col2:
+                    bands_selection = st.multiselect(
+                        "Bande DWT",
+                        options=["cH", "cV", "cD"],
+                        default=["cH"],
+                        help="cH=orizzontale, cV=verticale, cD=diagonale. Più bande = più capacità",
+                        key="dwt_msg_hide_bands",
+                    )
+                    if not bands_selection:
+                        st.error("⚠️ Seleziona almeno una banda!")
+                        bands_selection = ["cH"]
+                    use_all_channels = st.checkbox(
+                        "Usa tutti i canali RGB",
+                        value=True,
+                        help="Se attivo usa R+G+B (3x capacità), altrimenti solo canale R",
+                        key="dwt_msg_hide_all_channels",
+                    )
 
                 DWT_Msg.WAVELET = wavelet
                 DWT_Msg.ALPHA = alpha
+                DWT_Msg.BANDS = bands_selection
+                DWT_Msg.USE_ALL_CHANNELS = use_all_channels
+                DWT_Msg.CHANNEL = 0  # Sempre R quando single-channel
 
         output_name = st.text_input(
             "📁 Nome file output", value="image_with_message.png"
@@ -329,39 +367,46 @@ class HideDataPages:
 
             # Applica preset
             if preset == "⚖️ Bilanciato (consigliato)":
+                default_wavelet = "haar"
                 default_step = 12.0
                 default_bits = 3
                 default_bands = ["cH", "cV"]
-                default_level = 1
                 st.info(
-                    "⚖️ STEP=12, 3-bit MSB, 2 bande (cH+cV), level 1 - Ottimo compromesso capacità/qualità"
+                    "⚖️ Wavelet Haar, STEP=12, 3-bit MSB, 2 bande (cH+cV), level 1 - Ottimo compromesso capacità/qualità"
                 )
             elif preset == "🎨 Massima Qualità":
+                default_wavelet = "haar"
                 default_step = 24.0
                 default_bits = 4
                 default_bands = ["cH"]
-                default_level = 1
                 st.info(
-                    "🎨 STEP=24, 4-bit MSB, banda cH, level 1 - Minima distorsione, capacità ridotta"
+                    "🎨 STEP=24, 4-bit MSB, banda cH - Minima distorsione, capacità ridotta"
                 )
             elif preset == "📦 Massima Capacità":
+                default_wavelet = "haar"
                 default_step = 8.0
                 default_bits = 2
                 default_bands = ["cH", "cV", "cD"]
-                default_level = 1
                 st.info(
-                    "📦 STEP=8, 2-bit MSB, 3 bande (tutte), level 1 - Capacità massima, qualità ridotta"
+                    "📦 STEP=8, 2-bit MSB, 3 bande (tutte) - Capacità massima, qualità ridotta"
                 )
             else:  # Personalizzato
+                default_wavelet = DWT.WAVELET
                 default_step = DWT.STEP
                 default_bits = DWT.BITS_SECRET
                 default_bands = DWT.BANDS
-                default_level = DWT.LEVEL
 
             # Parametri personalizzabili (se preset personalizzato)
             if preset == "⚙️ Personalizzato":
                 col1, col2 = st.columns(2)
                 with col1:
+                    wavelet_value = st.selectbox(
+                        "Tipo Wavelet",
+                        options=["haar", "db2", "db4", "db8", "sym2", "sym4", "coif1"],
+                        index=0,
+                        help="haar=veloce standard, db/sym=più robuste",
+                        key="dwt_img_wavelet",
+                    )
                     step_value = st.slider(
                         "STEP (Quantizzazione QIM)",
                         min_value=8.0,
@@ -380,13 +425,6 @@ class HideDataPages:
                         key="dwt_bits_slider",
                     )
                 with col2:
-                    level_value = st.selectbox(
-                        "Livello DWT",
-                        options=[1, 2],
-                        index=0 if default_level == 1 else 1,
-                        help="1=veloce standard, 2=più robusto ma meno capacità",
-                        key="dwt_level_select",
-                    )
                     bands_selection = st.multiselect(
                         "Bande DWT",
                         options=["cH", "cV", "cD"],
@@ -398,17 +436,16 @@ class HideDataPages:
                         st.error("⚠️ Seleziona almeno una banda!")
                         bands_selection = ["cH"]
             else:
-                # Usa valori del preset
+                wavelet_value = default_wavelet
                 step_value = default_step
                 bits_secret = default_bits
                 bands_selection = default_bands
-                level_value = default_level
 
-            # Applica configurazione a DWT
+            # Applica i parametri (SOLO quelli usati)
+            DWT.WAVELET = wavelet_value
             DWT.STEP = step_value
             DWT.BITS_SECRET = bits_secret
             DWT.BANDS = bands_selection
-            DWT.LEVEL = level_value
 
             # Calcola capacità DWT teorica (si aggiorna dinamicamente con i parametri)
             if host_image and secret_image:
@@ -795,18 +832,25 @@ class HideDataPages:
 
             # Imposta valori di default basati sul preset
             if dwt_preset == "⚖️ Bilanciato":
+                default_wavelet = "haar"
                 default_alpha = 0.1
                 default_bands = ["cH"]
                 default_multi_channel = False
+                st.info("⚖️ Wavelet Haar, ALPHA=0.1, STEP=12, banda cH, canale singolo")
             elif dwt_preset == "📦 Massima Capacità":
+                default_wavelet = "haar"
                 default_alpha = 0.15
                 default_bands = ["cH", "cV", "cD"]
                 default_multi_channel = True
+                st.info("📦 ALPHA=0.15, 3 bande (tutte), 3 canali RGB")
             elif dwt_preset == "🎨 Massima Qualità":
+                default_wavelet = "haar"
                 default_alpha = 0.05
                 default_bands = ["cH"]
                 default_multi_channel = False
+                st.info("🎨 ALPHA=0.05, banda cH, canale singolo")
             else:  # Personalizzato
+                default_wavelet = "haar"
                 default_alpha = 0.1
                 default_bands = ["cH"]
                 default_multi_channel = False
@@ -815,6 +859,13 @@ class HideDataPages:
             if dwt_preset == "⚙️ Personalizzato":
                 col1, col2 = st.columns(2)
                 with col1:
+                    wavelet_value = st.selectbox(
+                        "Tipo Wavelet",
+                        options=["haar", "db2", "db4", "db8", "sym2", "sym4", "coif1"],
+                        index=0,
+                        help="haar=veloce standard, db/sym=più robuste",
+                        key="dwt_binary_wavelet",
+                    )
                     alpha_value = st.slider(
                         "ALPHA (forza embedding)",
                         min_value=0.05,
@@ -843,11 +894,13 @@ class HideDataPages:
                         bands_selection = ["cH"]
             else:
                 # Usa valori del preset
+                wavelet_value = default_wavelet
                 alpha_value = default_alpha
                 bands_selection = default_bands
                 multi_channel = default_multi_channel
 
-            # Applica configurazione a DWT Binary
+            # Applica configurazione a DWT Binary (SOLO PARAMETRI USATI)
+            DWT_Binary.WAVELET = wavelet_value
             DWT_Binary.ALPHA = alpha_value
             DWT_Binary.BANDS = bands_selection
             DWT_Binary.USE_ALL_CHANNELS = multi_channel

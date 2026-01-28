@@ -163,7 +163,9 @@ class BinarySteganography:
                         break
 
                     pixel1 = int(img_array[row, col, channel])
-                    pixel2 = int(img_array[row, col + 1, channel])
+                    pixel2 = int(
+                        img_array[row, col + BinarySteganography.PAIR_STEP, channel]
+                    )
 
                     _, _, capacity = BinarySteganography._get_range_capacity(
                         pixel2 - pixel1
@@ -175,8 +177,11 @@ class BinarySteganography:
                             pixel1, pixel2, bits_to_embed
                         )
                         img_array[row, col, channel] = new_p1
-                        img_array[row, col + 1, channel] = new_p2
-                        bit_index += len(bits_to_embed)
+                        img_array[row, col + BinarySteganography.PAIR_STEP, channel] = (
+                            new_p2
+                        )
+                        # BUG FIX 2: Incrementa di capacity perché ljust() scrive sempre capacity bit
+                        bit_index += capacity
 
                 if bit_index >= len(full_payload):
                     break
@@ -214,8 +219,6 @@ class BinarySteganography:
     def get_binary_file(
         img: Image.Image,
         output_path: str,
-        compression_mode: int | None = None,  # Accettato per compatibilità API
-        size: int | None = None,
         backup_file: str | None = None,
         # Parametri manuali opzionali
         ranges_type: str | None = None,  # "quality" o "capacity"
@@ -225,39 +228,36 @@ class BinarySteganography:
     ) -> None:
         """Recupera un file binario da un'immagine usando PVD"""
 
+        # Inizializza con valori di default
+        final_pair_step: int = BinarySteganography.PAIR_STEP
+        final_channels: list[int] = BinarySteganography.CHANNELS
+
         # PRIORITÀ: parametri manuali > backup file > cache recente > default
-        if (
-            ranges_type is not None
-            or pair_step is not None
-            or channels is not None
-            or size is not None
-        ):
+        if ranges_type is not None or pair_step is not None or channels is not None:
             print("Usando parametri MANUALI forniti dall'interfaccia")
             # Usa parametri manuali se forniti, altrimenti default
             if ranges_type == "quality":
                 BinarySteganography.RANGES = BinarySteganography.RANGES_QUALITY
             elif ranges_type == "capacity":
                 BinarySteganography.RANGES = BinarySteganography.RANGES_CAPACITY
-            pair_step = (
+            final_pair_step = (
                 pair_step if pair_step is not None else BinarySteganography.PAIR_STEP
             )
-            channels = (
+            final_channels = (
                 channels if channels is not None else BinarySteganography.CHANNELS
             )
-            # size deve essere fornito
-            if size is None:
-                raise ValueError("Size richiesto per parametri manuali")
         else:
             # Carica parametri da backup o cache
-            pair_step = BinarySteganography.PAIR_STEP
-            channels = BinarySteganography.CHANNELS
 
             if backup_file:
                 backup_data = backup_system.load_backup_data(backup_file)
                 if backup_data and "params" in backup_data:
-                    size = backup_data["params"].get("size")
-                    pair_step = backup_data["params"].get("pair_step", pair_step)
-                    channels = backup_data["params"].get("channels", channels)
+                    final_pair_step = backup_data["params"].get(
+                        "pair_step", final_pair_step
+                    )
+                    final_channels = backup_data["params"].get(
+                        "channels", final_channels
+                    )
                     # Carica RANGES
                     ranges_type = backup_data["params"].get("ranges_type", "quality")
                     BinarySteganography.RANGES = (
@@ -269,9 +269,8 @@ class BinarySteganography:
                 recent_params = backup_system.get_last_params(DataType.BINARY)
                 if recent_params:
                     print("Usando parametri dall'ultima operazione di nascondimento")
-                    size = recent_params.get("size")
-                    pair_step = recent_params.get("pair_step", pair_step)
-                    channels = recent_params.get("channels", channels)
+                    final_pair_step = recent_params.get("pair_step", final_pair_step)
+                    final_channels = recent_params.get("channels", final_channels)
                     # Carica RANGES dalla cache
                     ranges_type = recent_params.get("ranges_type", "quality")
                     BinarySteganography.RANGES = (
@@ -280,23 +279,20 @@ class BinarySteganography:
                         else BinarySteganography.RANGES_CAPACITY
                     )
 
-        if size is None:
-            raise ValueError(ErrorMessages.PARAMS_MISSING)
-
         if img.mode != "RGB":
             img = img.convert("RGB")
 
-        print(f"Recuperando file binario ({size} bytes) con PVD...")
+        print("Recuperando file binario con PVD...")
         img_array = np.array(img, dtype=np.int32)
 
         extracted_bits = []
         height, width, _ = img_array.shape
 
-        for channel in channels:
+        for channel in final_channels:
             for row in range(height):
-                for col in range(0, width - 1, 2 * pair_step):
+                for col in range(0, width - 1, 2 * final_pair_step):
                     pixel1 = int(img_array[row, col, channel])
-                    pixel2 = int(img_array[row, col + pair_step, channel])
+                    pixel2 = int(img_array[row, col + final_pair_step, channel])
 
                     bits = BinarySteganography._extract_from_pair(pixel1, pixel2)
                     extracted_bits.append(bits)

@@ -88,7 +88,8 @@ class ImageSteganography:
         for low, high, bits in ImageSteganography.RANGES:
             if low <= d <= high:
                 return low, high, bits
-        return 128, 255, 7
+        # FIX: usa l'ultimo range definito invece di hardcoded (compatibile con QUALITY e CAPACITY)
+        return ImageSteganography.RANGES[-1]
 
     @staticmethod
     def _embed_pair(p1: int, p2: int, bits: str):
@@ -168,7 +169,12 @@ class ImageSteganography:
 
         for ch in ImageSteganography.CHANNELS:
             for y in range(h):
-                for x in range(0, w - 1, 2 * ImageSteganography.PAIR_STEP):
+                # FIX: usa w - PAIR_STEP per evitare out-of-bounds quando x + PAIR_STEP
+                for x in range(
+                    0,
+                    w - ImageSteganography.PAIR_STEP,
+                    2 * ImageSteganography.PAIR_STEP,
+                ):
                     if bit_idx >= len(secret_bits):
                         break
 
@@ -236,6 +242,11 @@ class ImageSteganography:
         # MERGE: parametri manuali hanno priorità su backup
         width = width if width is not None else data["width"]
         height = height if height is not None else data["height"]
+
+        # Type safety: garantisce che width e height non siano None
+        if width is None or height is None:
+            raise ValueError("Width e height mancanti nei parametri di backup")
+
         SECRET_BITS = data.get("secret_bits", 2)  # Default: 2 bit (qualità ottimale)
         pair_step = data.get("pair_step", ImageSteganography.PAIR_STEP)
         channels = data.get("channels", ImageSteganography.CHANNELS)
@@ -247,7 +258,8 @@ class ImageSteganography:
             else ImageSteganography.RANGES_CAPACITY
         )
 
-        total_bits = width * height * 3 * SECRET_BITS
+        # FIX: usa len(channels) invece di hardcoded 3 per total_bits
+        total_bits = width * height * len(channels) * SECRET_BITS
 
         arr = np.array(img, dtype=np.int32)
         extracted = []
@@ -256,7 +268,8 @@ class ImageSteganography:
         h, w, _ = arr.shape
         for ch in channels:
             for y in range(h):
-                for x in range(0, w - 1, 2 * pair_step):
+                # FIX: usa w - pair_step per evitare out-of-bounds
+                for x in range(0, w - pair_step, 2 * pair_step):
                     if count >= total_bits:
                         break
                     bits = ImageSteganography._extract_pair(

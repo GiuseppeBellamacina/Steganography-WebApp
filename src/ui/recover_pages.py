@@ -117,6 +117,7 @@ class RecoverDataPages:
                     "⚖️ Bilanciato",
                     "🎨 Qualità",
                     "💪 Robustezza",
+                    "📦 Capacità",
                     "⚙️ Personalizzato",
                 ],
                 index=0,
@@ -127,15 +128,28 @@ class RecoverDataPages:
             if preset == "⚖️ Bilanciato":
                 DWT_Msg.WAVELET = "haar"
                 DWT_Msg.ALPHA = 0.1
-                st.info("⚖️ Wavelet Haar, alpha 0.1")
+                DWT_Msg.BANDS = ["cH"]
+
+                DWT_Msg.USE_ALL_CHANNELS = True
+                st.info("⚖️ Wavelet Haar, alpha 0.1, banda cH, tutti i canali")
             elif preset == "🎨 Qualità":
                 DWT_Msg.WAVELET = "haar"
                 DWT_Msg.ALPHA = 0.05
-                st.info("🎨 Wavelet Haar, alpha 0.05")
+                DWT_Msg.BANDS = ["cH"]
+                DWT_Msg.USE_ALL_CHANNELS = True
+                st.info("🎨 Wavelet Haar, alpha 0.05, banda cH, tutti i canali")
             elif preset == "💪 Robustezza":
                 DWT_Msg.WAVELET = "db4"
                 DWT_Msg.ALPHA = 0.3
-                st.info("💪 Wavelet Daubechies 4, alpha 0.3")
+                DWT_Msg.BANDS = ["cH", "cV"]
+                DWT_Msg.USE_ALL_CHANNELS = True
+                st.info("💪 Wavelet Daubechies 4, alpha 0.3, 2 bande, tutti i canali")
+            elif preset == "📦 Capacità":
+                DWT_Msg.WAVELET = "haar"
+                DWT_Msg.ALPHA = 0.15
+                DWT_Msg.BANDS = ["cH", "cV", "cD"]
+                DWT_Msg.USE_ALL_CHANNELS = True
+                st.info("📦 Alpha 0.15, 3 bande (tutte), tutti i canali")
             else:
                 col1, col2 = st.columns(2)
                 with col1:
@@ -145,7 +159,6 @@ class RecoverDataPages:
                         index=0,
                         key="dwt_msg_recover_wavelet",
                     )
-                with col2:
                     alpha = st.slider(
                         "Alpha (forza embedding)",
                         min_value=0.05,
@@ -154,9 +167,28 @@ class RecoverDataPages:
                         step=0.05,
                         key="dwt_msg_recover_alpha",
                     )
+                with col2:
+                    bands_selection = st.multiselect(
+                        "Bande DWT",
+                        options=["cH", "cV", "cD"],
+                        default=["cH"],
+                        key="dwt_msg_recover_bands",
+                    )
+                    if not bands_selection:
+                        st.error("⚠️ Seleziona almeno una banda!")
+                        bands_selection = ["cH"]
+                    use_all_channels = st.checkbox(
+                        "Usa tutti i canali RGB",
+                        value=True,
+                        help="Deve corrispondere all'impostazione usata durante l'hide!",
+                        key="dwt_msg_recover_all_channels",
+                    )
 
                 DWT_Msg.WAVELET = wavelet
                 DWT_Msg.ALPHA = alpha
+                DWT_Msg.BANDS = bands_selection
+                DWT_Msg.USE_ALL_CHANNELS = use_all_channels
+                DWT_Msg.CHANNEL = 0  # Sempre R quando single-channel
 
         # Per le stringhe LSB non servono parametri particolari
         elif selected_method == SteganographyMethod.LSB:
@@ -280,28 +312,34 @@ class RecoverDataPages:
             )
 
             if preset == "⚖️ Bilanciato":
+                DWT.WAVELET = "haar"
                 DWT.STEP = 12.0
                 DWT.BITS_SECRET = 3
                 DWT.BANDS = ["cH", "cV"]
-                DWT.LEVEL = 1
-                st.info("✅ STEP=12, 3-bit, cH+cV, level 1")
+                st.info("✅ Wavelet Haar, STEP=12, 3-bit, cH+cV")
             elif preset == "🎨 Qualità":
+                DWT.WAVELET = "haar"
                 DWT.STEP = 24.0
                 DWT.BITS_SECRET = 4
                 DWT.BANDS = ["cH"]
-                DWT.LEVEL = 1
-                st.info("🎨 STEP=24, 4-bit, cH, level 1")
+                st.info("🎨 STEP=24, 4-bit, cH")
             elif preset == "📦 Capacità":
+                DWT.WAVELET = "haar"
                 DWT.STEP = 8.0
                 DWT.BITS_SECRET = 2
                 DWT.BANDS = ["cH", "cV", "cD"]
-                DWT.LEVEL = 1
-                st.info("📦 STEP=8, 2-bit, tutte bande, level 1")
+                st.info("📦 STEP=8, 2-bit, tutte bande")
             else:
                 col1, col2 = st.columns(2)
                 with col1:
+                    wavelet_val = st.selectbox(
+                        "Tipo Wavelet",
+                        options=["haar", "db2", "db4", "db8", "sym2", "sym4", "coif1"],
+                        index=0,
+                        key="dwt_img_rec_wavelet",
+                    )
                     step_val = st.slider(
-                        "STEP", 4.0, 32.0, 12.0, 0.5, key="dwt_img_rec_step"
+                        "STEP", 8.0, 32.0, 12.0, 4.0, key="dwt_img_rec_step"
                     )
                     bits_val = st.slider("Bit Secret", 2, 4, 3, key="dwt_img_rec_bits")
                 with col2:
@@ -311,14 +349,14 @@ class RecoverDataPages:
                         default=["cH", "cV"],
                         key="dwt_img_rec_bands",
                     )
-                    level_val = st.number_input(
-                        "Level", 1, 3, 1, key="dwt_img_rec_level"
-                    )
+                    if not bands_val:
+                        st.error("⚠️ Seleziona almeno una banda!")
+                        bands_val = ["cH"]
 
+                DWT.WAVELET = wavelet_val
                 DWT.STEP = step_val
                 DWT.BITS_SECRET = bits_val
-                DWT.BANDS = bands_val if bands_val else ["cH"]
-                DWT.LEVEL = level_val
+                DWT.BANDS = bands_val
 
         elif manual_params and selected_method == SteganographyMethod.PVD:
             st.info("💡 Configura i parametri PVD usati durante l'occultamento")
@@ -538,6 +576,10 @@ class RecoverDataPages:
             "binary_get", show_manual=True
         )
 
+        # Se l'utente sceglie parametri manuali, ignora il backup
+        if manual_params:
+            backup_file_path = None
+
         # Configurazione metodo SOLO se parametri manuali
         dwt_alpha = dwt_bands = dwt_use_all_channels = None
         pvd_ranges_type = pvd_pair_step = pvd_channels = None
@@ -550,6 +592,10 @@ class RecoverDataPages:
         ):
 
             st.info("💡 Configura i parametri DWT usati durante l'occultamento")
+
+            from src.steganografia.dwt.binary_operations import (
+                BinarySteganography as DWT_Binary,
+            )
 
             preset = st.selectbox(
                 "📋 Preconfigurazione DWT:",
@@ -564,23 +610,33 @@ class RecoverDataPages:
             )
 
             if preset == "⚖️ Bilanciato":
-                dwt_alpha = 0.1
-                dwt_bands = ["cH"]
-                dwt_use_all_channels = False
-                st.info("⚖️ ALPHA=0.1, banda cH, canale R")
+                DWT_Binary.WAVELET = "haar"
+                DWT_Binary.ALPHA = 0.1
+
+                DWT_Binary.BANDS = ["cH"]
+                DWT_Binary.USE_ALL_CHANNELS = False
+                st.info("⚖️ Wavelet Haar, ALPHA=0.1, banda cH, canale R")
             elif preset == "📦 Massima Capacità":
-                dwt_alpha = 0.15
-                dwt_bands = ["cH", "cV", "cD"]
-                dwt_use_all_channels = True
+                DWT_Binary.WAVELET = "haar"
+                DWT_Binary.ALPHA = 0.15
+                DWT_Binary.BANDS = ["cH", "cV", "cD"]
+                DWT_Binary.USE_ALL_CHANNELS = True
                 st.info("📦 ALPHA=0.15, tutte le bande, tutti i canali")
             elif preset == "🎨 Massima Qualità":
-                dwt_alpha = 0.05
-                dwt_bands = ["cH"]
-                dwt_use_all_channels = False
+                DWT_Binary.WAVELET = "haar"
+                DWT_Binary.ALPHA = 0.05
+                DWT_Binary.BANDS = ["cH"]
+                DWT_Binary.USE_ALL_CHANNELS = False
                 st.info("🎨 ALPHA=0.05, banda cH, canale R")
             else:
                 col1, col2 = st.columns(2)
                 with col1:
+                    wavelet_val = st.selectbox(
+                        "Tipo Wavelet",
+                        options=["haar", "db2", "db4", "db8", "sym2", "sym4", "coif1"],
+                        index=0,
+                        key="dwt_bin_rec_wavelet",
+                    )
                     alpha_val = st.slider(
                         "ALPHA", 0.05, 0.3, 0.1, 0.05, key="dwt_bin_rec_alpha"
                     )
@@ -594,10 +650,14 @@ class RecoverDataPages:
                         default=["cH"],
                         key="dwt_bin_rec_bands",
                     )
+                    if not bands_val:
+                        st.error("⚠️ Seleziona almeno una banda!")
+                        bands_val = ["cH"]
 
-                dwt_alpha = alpha_val
-                dwt_bands = bands_val if bands_val else ["cH"]
-                dwt_use_all_channels = multi_ch
+                DWT_Binary.WAVELET = wavelet_val
+                DWT_Binary.ALPHA = alpha_val
+                DWT_Binary.BANDS = bands_val
+                DWT_Binary.USE_ALL_CHANNELS = multi_ch
 
         elif (
             manual_params
@@ -692,8 +752,37 @@ class RecoverDataPages:
 
         if manual_params:
             st.subheader("📎 Parametri File")
-            col1, col2 = st.columns(2)
-            with col1:
+
+            # Per LSB, chiedi sia zip_mode che size
+            if selected_method == SteganographyMethod.LSB:
+                col1, col2 = st.columns(2)
+                with col1:
+                    zip_mode = st.selectbox(
+                        "Modalità Compressione",
+                        [
+                            CompressionMode.NO_ZIP,
+                            CompressionMode.FILE,
+                            CompressionMode.DIR,
+                        ],
+                        format_func=lambda x: {
+                            CompressionMode.NO_ZIP: "❌ Nessuna",
+                            CompressionMode.FILE: "🗄️ File",
+                            CompressionMode.DIR: "📁 Directory",
+                        }.get(x, "❌ Nessuna"),
+                        key="manual_zipmode",
+                    )
+                with col2:
+                    size = st.number_input(
+                        "Dimensione file (bytes)",
+                        min_value=1,
+                        value=1000,
+                        key="manual_size",
+                    )
+            # Per DWT e PVD, solo zip_mode (size viene letto dall'header)
+            else:
+                st.info(
+                    "ℹ️ La dimensione del file viene letta automaticamente dall'header nascosto"
+                )
                 zip_mode = st.selectbox(
                     "Modalità Compressione",
                     [
@@ -708,13 +797,26 @@ class RecoverDataPages:
                     }.get(x, "❌ Nessuna"),
                     key="manual_zipmode",
                 )
-            with col2:
-                size = st.number_input(
-                    "Dimensione file (bytes)",
-                    min_value=1,
-                    value=1000,
-                    key="manual_size",
-                )
+        elif manual_params:
+            # Per DWT e PVD, solo zip_mode senza size (che viene letto dall'header)
+            st.subheader("📎 Parametri File")
+            st.info(
+                "ℹ️ La dimensione del file viene letta automaticamente dall'header nascosto"
+            )
+            zip_mode = st.selectbox(
+                "Modalità Compressione",
+                [
+                    CompressionMode.NO_ZIP,
+                    CompressionMode.FILE,
+                    CompressionMode.DIR,
+                ],
+                format_func=lambda x: {
+                    CompressionMode.NO_ZIP: "❌ Nessuna",
+                    CompressionMode.FILE: "🗄️ File",
+                    CompressionMode.DIR: "📁 Directory",
+                }.get(x, "❌ Nessuna"),
+                key="manual_zipmode",
+            )
 
         output_name = st.text_input(
             "Nome file output", value="recovered_file.bin", key="bin_recover_output"

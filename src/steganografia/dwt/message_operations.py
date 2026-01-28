@@ -6,7 +6,7 @@ import numpy as np
 import pywt
 from PIL import Image
 
-from config.constants import DataType, ErrorMessages
+from config.constants import DataType
 
 from ..backup import backup_system
 from ..bit_operations import binary_convert, binary_convert_back
@@ -18,8 +18,12 @@ class MessageSteganography:
     """Classe per operazioni di steganografia su messaggi usando DWT"""
 
     WAVELET: str = "haar"  # Wavelet di Haar per semplicità
-    LEVEL: int = 1  # Livello di decomposizione
     ALPHA: float = 0.1  # Fattore di embedding (quanto modificare i coefficienti)
+    BANDS: list[str] = ["cH"]  # Bande DWT da usare
+    CHANNEL: int = 0  # Canale principale quando USE_ALL_CHANNELS=False (0=R, 1=G, 2=B)
+    USE_ALL_CHANNELS: bool = (
+        True  # Se True usa tutti e 3 i canali RGB, altrimenti solo CHANNEL
+    )
 
     @staticmethod
     def hide_message(
@@ -47,15 +51,17 @@ class MessageSteganography:
         img_array = np.array(img, dtype=np.float32)
         original_img = img.copy()
 
-        # Prepara il messaggio binario con header
+        # Prepara il messaggio binario con header robusto a 64 bit
         msg_binary = binary_convert(message)
-        magic_header = "1010101011110000"
-        msg_length = format(len(message), "032b")
+        magic_header = (
+            "1100100100001111010110010100110011010101010011110000101011001101"  # 64 bit
+        )
+        msg_length = format(len(message), "032b")  # 32 bit
         checksum = 0
         for char in message:
             checksum ^= ord(char)
-        checksum_binary = format(checksum, "016b")
-        terminator = "1111000011110000"  # Terminatore complesso (16 bit)
+        checksum_binary = format(checksum, "032b")  # 32 bit (era 16)
+        terminator = "1111000011110000"  # 16 bit (non più usato per compatibilità)
 
         full_payload = (
             magic_header + msg_length + checksum_binary + msg_binary + terminator
@@ -69,49 +75,65 @@ class MessageSteganography:
                 f"Lunghezza payload: {len(full_payload)} bit, Capacità: {max_capacity} bit"
             )
 
-        # Nasconde nei coefficienti DWT di ogni canale
+        # Determina quali canali usare
+        channels_to_use = (
+            [0, 1, 2]
+            if MessageSteganography.USE_ALL_CHANNELS
+            else [MessageSteganography.CHANNEL]
+        )
+
+        # Nasconde nei coefficienti DWT dei canali selezionati
         bit_index = 0
-        for channel in range(3):  # R, G, B
+        for channel in channels_to_use:
             channel_data = img_array[:, :, channel]
 
             # Applica DWT 2D
             coeffs = pywt.dwt2(channel_data, MessageSteganography.WAVELET)
             cA, (cH, cV, cD) = coeffs  # Approssimazione e dettagli
 
-            # Nasconde nei coefficienti di dettaglio (cH - orizzontale)
-            cH_flat = cH.flatten()
+            # Usa le bande configurate
+            band_map = {"cH": cH, "cV": cV, "cD": cD}
+            selected_bands = MessageSteganography.BANDS
 
-            # Usa solo coefficienti significativi (abbastanza grandi)
-            threshold = 1.0  # Soglia minima per i coefficienti
-            usable_indices = [i for i, c in enumerate(cH_flat) if abs(c) > threshold]
+            for band_name in selected_bands:
+                if band_name not in band_map or bit_index >= len(full_payload):
+                    continue
 
-            if len(usable_indices) < len(full_payload):
-                # Se non ci sono abbastanza coefficienti in questo canale, continua
-                pass
+                band_coeffs = band_map[band_name]
+                band_flat = band_coeffs.flatten()
 
-            for i in usable_indices:
-                if bit_index >= len(full_payload):
-                    break
+                # Usa solo coefficienti significativi (abbastanza grandi)
+                threshold = 1.0  # Soglia minima per i coefficienti
+                usable_indices = [
+                    i for i, c in enumerate(band_flat) if abs(c) > threshold
+                ]
 
-                # Modifica il coefficiente usando ALPHA
-                bit = int(full_payload[bit_index])
+                for i in usable_indices:
+                    if bit_index >= len(full_payload):
+                        break
 
-                # Delta scalato da ALPHA (moltiplicato per 50 per robustezza)
-                delta = MessageSteganography.ALPHA * 50.0
+                    # Modifica il coefficiente usando ALPHA
+                    bit = int(full_payload[bit_index])
 
-                if bit == 1:
-                    # Assicura che il coefficiente sia positivo
-                    cH_flat[i] = abs(cH_flat[i]) + delta
-                else:
-                    # Assicura che il coefficiente sia negativo
-                    cH_flat[i] = -abs(cH_flat[i]) - delta
+                    # Delta scalato da ALPHA (moltiplicato per 50 per robustezza)
+                    delta = MessageSteganography.ALPHA * 50.0
 
-                bit_index += 1
+                    if bit == 1:
+                        # Assicura che il coefficiente sia positivo
+                        band_flat[i] = abs(band_flat[i]) + delta
+                    else:
+                        # Assicura che il coefficiente sia negativo
+                        band_flat[i] = -abs(band_flat[i]) - delta
 
-            # Ricostruisce la sub-banda
-            cH = cH_flat.reshape(cH.shape)
+                    bit_index += 1
 
-            # Ricostruisce l'immagine con IDWT
+                # Aggiorna la banda modificata
+                band_map[band_name] = band_flat.reshape(band_coeffs.shape)
+
+            # Ricostruisce con le bande modificate
+            cH = band_map["cH"]
+            cV = band_map["cV"]
+            cD = band_map["cD"]
             reconstructed = pywt.idwt2((cA, (cH, cV, cD)), MessageSteganography.WAVELET)
 
             # Gestisce eventuali differenze di dimensione dovute al padding
@@ -130,8 +152,10 @@ class MessageSteganography:
             "method": "dwt",
             "msg_length": len(message),
             "wavelet": MessageSteganography.WAVELET,
-            "level": MessageSteganography.LEVEL,
             "alpha": MessageSteganography.ALPHA,
+            "bands": MessageSteganography.BANDS,
+            "channel": MessageSteganography.CHANNEL,
+            "use_all_channels": MessageSteganography.USE_ALL_CHANNELS,
         }
         backup_system.save_backup_data(DataType.STRING, params, backup_file)
 
@@ -163,8 +187,18 @@ class MessageSteganography:
                 MessageSteganography.ALPHA = backup_data["params"].get(
                     "alpha", MessageSteganography.ALPHA
                 )
+                MessageSteganography.BANDS = backup_data["params"].get(
+                    "bands", MessageSteganography.BANDS
+                )
+                MessageSteganography.CHANNEL = backup_data["params"].get(
+                    "channel", MessageSteganography.CHANNEL
+                )
+                MessageSteganography.USE_ALL_CHANNELS = backup_data["params"].get(
+                    "use_all_channels", MessageSteganography.USE_ALL_CHANNELS
+                )
                 print(
-                    f"Parametri DWT caricati da backup: WAVELET={MessageSteganography.WAVELET}, ALPHA={MessageSteganography.ALPHA}"
+                    f"Parametri DWT caricati da backup: WAVELET={MessageSteganography.WAVELET}, ALPHA={MessageSteganography.ALPHA}, "
+                    f"BANDS={MessageSteganography.BANDS}, CHANNEL={MessageSteganography.CHANNEL}, USE_ALL_CHANNELS={MessageSteganography.USE_ALL_CHANNELS}"
                 )
         else:
             # Usa parametri dalla cache dell'ultima operazione
@@ -176,8 +210,18 @@ class MessageSteganography:
                 MessageSteganography.ALPHA = recent.get(
                     "alpha", MessageSteganography.ALPHA
                 )
+                MessageSteganography.BANDS = recent.get(
+                    "bands", MessageSteganography.BANDS
+                )
+                MessageSteganography.CHANNEL = recent.get(
+                    "channel", MessageSteganography.CHANNEL
+                )
+                MessageSteganography.USE_ALL_CHANNELS = recent.get(
+                    "use_all_channels", MessageSteganography.USE_ALL_CHANNELS
+                )
                 print(
-                    f"Parametri DWT dalla cache: WAVELET={MessageSteganography.WAVELET}, ALPHA={MessageSteganography.ALPHA}"
+                    f"Parametri DWT dalla cache: WAVELET={MessageSteganography.WAVELET}, ALPHA={MessageSteganography.ALPHA}, "
+                    f"BANDS={MessageSteganography.BANDS}, CHANNEL={MessageSteganography.CHANNEL}, USE_ALL_CHANNELS={MessageSteganography.USE_ALL_CHANNELS}"
                 )
 
         if img.mode != "RGB":
@@ -186,68 +230,147 @@ class MessageSteganography:
         print("Recuperando messaggio con DWT...")
         img_array = np.array(img, dtype=np.float32)
 
-        # Estrae i bit dai coefficienti DWT
-        extracted_bits = []
+        # Determina quali canali usare (stessi dell'hide)
+        channels_to_use = (
+            [0, 1, 2]
+            if MessageSteganography.USE_ALL_CHANNELS
+            else [MessageSteganography.CHANNEL]
+        )
 
-        for channel in range(3):  # R, G, B
+        # === ESTRAZIONE SINCRONIZZATA IN DUE FASI ===
+        # FASE 1: Estrai header (64) + msg_length (32) + checksum (32) = 128 bit
+        # FASE 2: Calcola bit necessari e continua estrazione
+
+        HEADER_BITS = 64
+        LENGTH_BITS = 32
+        CHECKSUM_BITS = 32
+        TERMINATOR_BITS = 16
+        magic_header = (
+            "1100100100001111010110010100110011010101010011110000101011001101"
+        )
+
+        # FASE 1: Estrai primi 128 bit (header + length + checksum)
+        bits_needed = HEADER_BITS + LENGTH_BITS + CHECKSUM_BITS
+        extracted_bits = []
+        threshold = 1.0  # Soglia minima per coefficienti utilizzabili
+
+        for channel in channels_to_use:
+            if len(extracted_bits) >= bits_needed:
+                break
+
             channel_data = img_array[:, :, channel]
 
             # Applica DWT 2D
             coeffs = pywt.dwt2(channel_data, MessageSteganography.WAVELET)
             cA, (cH, cV, cD) = coeffs
 
-            # Legge dai coefficienti di dettaglio
-            cH_flat = cH.flatten()
+            # Usa le stesse bande configurate nell'hide
+            band_map = {"cH": cH, "cV": cV, "cD": cD}
+            selected_bands = MessageSteganography.BANDS
 
-            # Usa solo coefficienti significativi (stessa soglia)
-            threshold = 1.0
-            usable_indices = [i for i, c in enumerate(cH_flat) if abs(c) > threshold]
+            for band_name in selected_bands:
+                if band_name not in band_map:
+                    continue
+                if len(extracted_bits) >= bits_needed:
+                    break
 
-            for i in usable_indices:
-                # Estrae il bit dal segno del coefficiente
-                if cH_flat[i] > 0:
-                    extracted_bits.append("1")
-                else:
-                    extracted_bits.append("0")
+                band_coeffs = band_map[band_name]
+                band_flat = band_coeffs.flatten()
 
-        # Cerca il magic header
-        full_binary = "".join(extracted_bits)
-        magic_header = "1010101011110000"
+                # Usa solo coefficienti significativi (stessa soglia dell'hide)
+                usable_indices = [
+                    i for i, c in enumerate(band_flat) if abs(c) > threshold
+                ]
 
-        # Debug: mostra i primi bit estratti
-        print(f"Primi 100 bit estratti: {full_binary[:100]}")
-        print(f"Totale bit estratti: {len(full_binary)}")
-
-        header_pos = full_binary.find(magic_header)
-        if header_pos == -1:
-            # Prova a cercare in una finestra più ampia
-            search_limit = min(5000, len(full_binary) - 64)
-            for pos in range(search_limit):
-                if pos + 16 <= len(full_binary):
-                    candidate = full_binary[pos : pos + 16]
-                    if candidate == magic_header:
-                        header_pos = pos
-                        print(f"Header trovato alla posizione: {pos}")
+                for i in usable_indices:
+                    if len(extracted_bits) >= bits_needed:
                         break
+                    # Estrae il bit dal segno del coefficiente
+                    if band_flat[i] > 0:
+                        extracted_bits.append("1")
+                    else:
+                        extracted_bits.append("0")
 
-            if header_pos == -1:
-                raise ValueError(ErrorMessages.NO_MESSAGE_FOUND)
+        bitstream = "".join(extracted_bits)
 
-        # Legge la lunghezza del messaggio
-        length_start = header_pos + 16
-        length_end = length_start + 32
-        msg_length_binary = full_binary[length_start:length_end]
+        # Verifica header DEVE essere all'inizio (no find!)
+        if len(bitstream) < HEADER_BITS + LENGTH_BITS + CHECKSUM_BITS:
+            raise ValueError(
+                "Immagine troppo piccola o corrotta: impossibile leggere header messaggio DWT"
+            )
+
+        if bitstream[:HEADER_BITS] != magic_header:
+            raise ValueError(
+                "Header non valido: nessun messaggio DWT trovato. "
+                "Possibili cause: (1) Metodo sbagliato (usa LSB/PVD invece di DWT), "
+                "(2) Immagine corrotta, (3) Parametri errati (WAVELET/BANDS/CHANNELS/USE_ALL_CHANNELS diversi dall'hide)"
+            )
+
+        # Decodifica msg_length e checksum
+        msg_length_binary = bitstream[HEADER_BITS : HEADER_BITS + LENGTH_BITS]
         msg_length = int(msg_length_binary, 2)
 
-        # Legge il checksum
-        checksum_start = length_end
-        checksum_end = checksum_start + 16
-        expected_checksum = int(full_binary[checksum_start:checksum_end], 2)
+        checksum_start = HEADER_BITS + LENGTH_BITS
+        expected_checksum = int(
+            bitstream[checksum_start : checksum_start + CHECKSUM_BITS], 2
+        )
+
+        # FASE 2: Calcola bit totali e continua estrazione
+        total_bits_needed = (
+            HEADER_BITS
+            + LENGTH_BITS
+            + CHECKSUM_BITS
+            + (msg_length * 8)
+            + TERMINATOR_BITS
+        )
+
+        # Continua estrazione solo se servono più bit
+        if len(extracted_bits) < total_bits_needed:
+            bits_read = len(extracted_bits)
+            current_bit_index = 0
+
+            for channel in channels_to_use:
+                if len(extracted_bits) >= total_bits_needed:
+                    break
+
+                channel_data = img_array[:, :, channel]
+                coeffs = pywt.dwt2(channel_data, MessageSteganography.WAVELET)
+                cA, (cH, cV, cD) = coeffs
+                band_map = {"cH": cH, "cV": cV, "cD": cD}
+                selected_bands = MessageSteganography.BANDS
+
+                for band_name in selected_bands:
+                    if band_name not in band_map:
+                        continue
+                    if len(extracted_bits) >= total_bits_needed:
+                        break
+
+                    band_coeffs = band_map[band_name]
+                    band_flat = band_coeffs.flatten()
+                    usable_indices = [
+                        i for i, c in enumerate(band_flat) if abs(c) > threshold
+                    ]
+
+                    for i in usable_indices:
+                        # Salta bit già estratti nella FASE 1
+                        if current_bit_index < bits_read:
+                            current_bit_index += 1
+                            continue
+
+                        if len(extracted_bits) >= total_bits_needed:
+                            break
+                        if band_flat[i] > 0:
+                            extracted_bits.append("1")
+                        else:
+                            extracted_bits.append("0")
+                        current_bit_index += 1
+
+        bitstream = "".join(extracted_bits)
 
         # Legge il messaggio
-        msg_start = checksum_end
+        msg_start = HEADER_BITS + LENGTH_BITS + CHECKSUM_BITS
         msg_end = msg_start + (msg_length * 8)
-        msg_binary = full_binary[msg_start:msg_end]
+        msg_binary = bitstream[msg_start:msg_end]
 
         # Decodifica
         message = binary_convert_back(msg_binary)

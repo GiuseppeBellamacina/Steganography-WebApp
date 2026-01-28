@@ -46,7 +46,8 @@ class MessageSteganography:
         for lower, upper, capacity in MessageSteganography.RANGES:
             if lower <= abs_diff <= upper:
                 return lower, upper, capacity
-        return 128, 255, 7  # Default al range più alto
+        # FIX: usa l'ultimo range definito invece di hardcoded (compatibile con QUALITY e CAPACITY)
+        return MessageSteganography.RANGES[-1]
 
     @staticmethod
     def _embed_in_pair(pixel1: int, pixel2: int, bits: str) -> tuple[int, int]:
@@ -156,12 +157,19 @@ class MessageSteganography:
 
         for channel in MessageSteganography.CHANNELS:
             for row in range(height):
-                for col in range(0, width - 1, 2 * MessageSteganography.PAIR_STEP):
+                # FIX: usa width - PAIR_STEP per evitare out-of-bounds quando col + PAIR_STEP
+                for col in range(
+                    0,
+                    width - MessageSteganography.PAIR_STEP,
+                    2 * MessageSteganography.PAIR_STEP,
+                ):
                     if bit_index >= len(full_payload):
                         break
 
                     pixel1 = int(img_array[row, col, channel])
-                    pixel2 = int(img_array[row, col + 1, channel])
+                    pixel2 = int(
+                        img_array[row, col + MessageSteganography.PAIR_STEP, channel]
+                    )
 
                     # Determina quanti bit possiamo nascondere
                     _, _, capacity = MessageSteganography._get_range_capacity(
@@ -174,7 +182,10 @@ class MessageSteganography:
                             pixel1, pixel2, bits_to_embed
                         )
                         img_array[row, col, channel] = new_p1
-                        img_array[row, col + 1, channel] = new_p2
+                        img_array[
+                            row, col + MessageSteganography.PAIR_STEP, channel
+                        ] = new_p2
+                        # FIX: Incrementa di len(bits_to_embed) non capacity (evita desync quando payload finisce)
                         bit_index += len(bits_to_embed)
 
                 if bit_index >= len(full_payload):
@@ -259,9 +270,11 @@ class MessageSteganography:
 
         for channel in channels:
             for row in range(height):
-                for col in range(0, width - 1, 2 * pair_step):
+                # FIX: usa width - pair_step per evitare out-of-bounds
+                for col in range(0, width - pair_step, 2 * pair_step):
                     pixel1 = int(img_array[row, col, channel])
-                    pixel2 = int(img_array[row, col + 1, channel])
+                    # FIX CRITICO: usa pair_step invece di hardcoded +1
+                    pixel2 = int(img_array[row, col + pair_step, channel])
 
                     bits = MessageSteganography._extract_from_pair(pixel1, pixel2)
                     extracted_bits.append(bits)

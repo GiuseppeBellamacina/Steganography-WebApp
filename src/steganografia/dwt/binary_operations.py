@@ -16,13 +16,11 @@ class BinarySteganography:
     """Classe per operazioni di steganografia su file binari usando DWT"""
 
     WAVELET: str = "haar"  # Wavelet di Haar per semplicità
-    LEVEL: int = 1  # Livello di decomposizione
-    SEED: int = 42  # Seed per determinismo
-    STEP: float = 12.0  # Step di quantizzazione (compatibilità con image)
-    CHANNEL: int = 0  # Canale principale (compatibilità)
-    BITS_SECRET: int = 3  # Compatibilità con image (non usato in binary)
+    CHANNEL: int = 0  # Canale principale (0=R, 1=G, 2=B)
     BANDS: list[str] = ["cH"]  # Banda DWT da usare per binary
-    ALPHA: float = 0.1  # Fattore di embedding (quanto modificare i coefficienti)
+    ALPHA: float = (
+        0.1  # Fattore di embedding - PARAMETRO PRINCIPALE (controlla strength = 1.0 / ALPHA)
+    )
     USE_ALL_CHANNELS: bool = False  # Se True usa tutti e 3 i canali RGB (3x capacità)
 
     @staticmethod
@@ -49,13 +47,15 @@ class BinarySteganography:
         # Converte in binario
         file_binary = "".join(format(byte, "08b") for byte in file_data)
 
-        # Prepara payload con header
-        magic_header = "1010101011110000"
-        size_binary = format(file_size, "032b")
-        terminator = "1111000011110000"  # Terminatore complesso (16 bit)
+        # Prepara payload con header robusto a 64 bit (riduce falsi positivi)
+        magic_header = (
+            "1100100100001111010110010100110011010101010011110000101011001101"  # 64 bit
+        )
+        size_binary = format(file_size, "032b")  # 32 bit
+        terminator = "1111000011110000"  # 16 bit
         full_payload = magic_header + size_binary + file_binary + terminator
 
-        # Verifica capacità
+        # Verifica capacità (header 64 + size 32 + file + terminator 16)
         max_capacity = img.width * img.height * 3 // 4
         if len(full_payload) > max_capacity:
             raise ValueError(
@@ -69,7 +69,7 @@ class BinarySteganography:
 
         print(f"Nascondendo file binario ({file_size} bytes) con DWT...")
         print(
-            f"DWT Hide Binary - Parametri: WAVELET={BinarySteganography.WAVELET}, LEVEL={BinarySteganography.LEVEL}, ALPHA={BinarySteganography.ALPHA}, BANDS={BinarySteganography.BANDS}, USE_ALL_CHANNELS={BinarySteganography.USE_ALL_CHANNELS}"
+            f"DWT Hide Binary - Parametri: WAVELET={BinarySteganography.WAVELET}, ALPHA={BinarySteganography.ALPHA}, BANDS={BinarySteganography.BANDS}, USE_ALL_CHANNELS={BinarySteganography.USE_ALL_CHANNELS}"
         )
         original_img = img.copy()
         img_array = np.array(img, dtype=np.float32)
@@ -145,11 +145,7 @@ class BinarySteganography:
             "method": "dwt",
             "size": file_size,
             "wavelet": BinarySteganography.WAVELET,
-            "level": BinarySteganography.LEVEL,
-            "seed": BinarySteganography.SEED,
-            "step": BinarySteganography.STEP,
             "channel": BinarySteganography.CHANNEL,
-            "bits_secret": BinarySteganography.BITS_SECRET,
             "bands": BinarySteganography.BANDS,
             "alpha": BinarySteganography.ALPHA,
             "use_all_channels": BinarySteganography.USE_ALL_CHANNELS,
@@ -165,8 +161,6 @@ class BinarySteganography:
     def get_binary_file(
         img: Image.Image,
         output_path: str,
-        compression_mode: int | None = None,  # Accettato per compatibilità API
-        size: int | None = None,
         backup_file: str | None = None,
         # Parametri manuali opzionali (usati se manual_params=True)
         alpha: float | None = None,
@@ -180,7 +174,6 @@ class BinarySteganography:
         Args:
             img: Immagine contenente il file nascosto
             output_path: Percorso di output
-            size: Dimensione del file nascosto in byte
             backup_file: File di backup opzionale
             alpha: Fattore di embedding manuale (opzionale)
             bands: Bande DWT manuali (opzionale)
@@ -188,12 +181,7 @@ class BinarySteganography:
         """
         # PRIORITÀ: parametri manuali > backup file > cache recente > default
         # Se sono forniti parametri manuali, usali
-        if (
-            alpha is not None
-            or bands is not None
-            or use_all_channels is not None
-            or size is not None
-        ):
+        if alpha is not None or bands is not None or use_all_channels is not None:
             print("Usando parametri MANUALI forniti dall'interfaccia")
             # Usa parametri manuali se forniti, altrimenti default
             alpha = alpha if alpha is not None else BinarySteganography.ALPHA
@@ -203,14 +191,9 @@ class BinarySteganography:
                 if use_all_channels is not None
                 else BinarySteganography.USE_ALL_CHANNELS
             )
-            # Altri parametri sempre da default (wavelet, level, etc.)
+            # Altri parametri sempre da default
             wavelet = BinarySteganography.WAVELET
-            level = BinarySteganography.LEVEL
-            seed = BinarySteganography.SEED
             channel_idx = BinarySteganography.CHANNEL
-            # size deve essere ancora fornito
-            if size is None:
-                raise ValueError("Size richiesto per parametri manuali")
         else:
             # Carica parametri da backup o cache
             backup_data = None
@@ -226,11 +209,8 @@ class BinarySteganography:
 
             if backup_data and "params" in backup_data:
                 params = backup_data["params"]
-                size = params.get("size")
                 # Carica TUTTI i parametri DWT
                 wavelet = params.get("wavelet", BinarySteganography.WAVELET)
-                level = params.get("level", BinarySteganography.LEVEL)
-                seed = params.get("seed", BinarySteganography.SEED)
                 channel_idx = params.get("channel", BinarySteganography.CHANNEL)
                 bands = params.get("bands", BinarySteganography.BANDS)
                 alpha = params.get("alpha", BinarySteganography.ALPHA)
@@ -239,26 +219,20 @@ class BinarySteganography:
                 )
             else:
                 # Usa valori di default se non c'è backup
-                size = None
                 wavelet = BinarySteganography.WAVELET
-                level = BinarySteganography.LEVEL
-                seed = BinarySteganography.SEED
                 channel_idx = BinarySteganography.CHANNEL
                 bands = BinarySteganography.BANDS
                 alpha = BinarySteganography.ALPHA
                 use_all_channels = BinarySteganography.USE_ALL_CHANNELS
 
         print(
-            f"DWT Get Binary - Parametri: WAVELET={wavelet}, LEVEL={level}, SEED={seed}, ALPHA={alpha}, BANDS={bands}, USE_ALL_CHANNELS={use_all_channels}"
+            f"DWT Get Binary - Parametri: WAVELET={wavelet}, ALPHA={alpha}, BANDS={bands}, USE_ALL_CHANNELS={use_all_channels}"
         )
-
-        if size is None:
-            raise ValueError(ErrorMessages.PARAMS_MISSING)
 
         if img.mode != "RGB":
             img = img.convert("RGB")
 
-        print(f"Recuperando file binario ({size} bytes) con DWT...")
+        print("Recuperando file binario con DWT (dimensione dall'header)...")
         img_array = np.array(img, dtype=np.float32)
 
         # Determina quali canali usare (deve corrispondere a hide)
@@ -269,43 +243,103 @@ class BinarySteganography:
         if bands is None:
             bands = ["cH"]
 
-        # ESTRAZIONE BASATA SU SEGNO (semplice e robusto)
+        # === ESTRAZIONE SINCRONIZZATA IN DUE FASI ===
+        # FASE 1: Estrai solo header (64 bit) + size (32 bit) = 96 bit
+        # FASE 2: Calcola quanti bit servono e continua estrazione
+
+        HEADER_BITS = 64
+        SIZE_BITS = 32
+        TERMINATOR_BITS = 16
+        magic_header = (
+            "1100100100001111010110010100110011010101010011110000101011001101"
+        )
+
+        # FASE 1: Estrai primi 96 bit (header + size)
+        bits_needed = HEADER_BITS + SIZE_BITS
+        extracted_bits = []
+
         for ch_idx in channels_to_use:
+            if len(extracted_bits) >= bits_needed:
+                break
+
             channel_data = img_array[:, :, ch_idx]
             coeffs = pywt.dwt2(channel_data, wavelet)
             cA, (cH, cV, cD) = coeffs
-
-            # Estrae bit dalle bande configurate
             band_map = {"cH": cH, "cV": cV, "cD": cD}
 
             for band_name in bands:
                 if band_name not in band_map:
                     continue
+                if len(extracted_bits) >= bits_needed:
+                    break
 
                 coeff_flat = band_map[band_name].flatten()
                 for coeff in coeff_flat:
-                    # bit=1 se POSITIVO, bit=0 se NEGATIVO
+                    if len(extracted_bits) >= bits_needed:
+                        break
                     extracted_bits.append("1" if coeff > 0 else "0")
 
-        full_binary = "".join(extracted_bits)
-        magic_header = "1010101011110000"
+        bitstream = "".join(extracted_bits)
 
-        header_pos = full_binary.find(magic_header)
-        if header_pos == -1:
+        # Verifica header DEVE essere all'inizio (no find!)
+        if len(bitstream) < HEADER_BITS + SIZE_BITS:
             raise ValueError(
-                "Nessun file trovato nell'immagine. "
-                "Possibili cause: (1) Metodo sbagliato - verifica di usare DWT sia per hide che per get, "
-                "(2) Immagine corrotta, (3) Nessun file nascosto presente."
+                "Immagine troppo piccola o corrotta: impossibile leggere header"
             )
 
-        size_start = header_pos + 16
-        size_end = size_start + 32
-        file_size_binary = full_binary[size_start:size_end]
+        if bitstream[:HEADER_BITS] != magic_header:
+            raise ValueError(
+                "Header non valido: nessun file DWT nascosto trovato. "
+                "Possibili cause: (1) Metodo sbagliato (usa LSB/PVD invece di DWT), "
+                "(2) Immagine corrotta, (3) Parametri errati (wavelet/bands/channels diversi)"
+            )
+
+        # Decodifica file_size dai bit 64-96
+        file_size_binary = bitstream[HEADER_BITS : HEADER_BITS + SIZE_BITS]
         file_size = int(file_size_binary, 2)
 
-        file_start = size_end
+        # FASE 2: Calcola bit totali necessari e continua estrazione
+        total_bits_needed = HEADER_BITS + SIZE_BITS + (file_size * 8) + TERMINATOR_BITS
+
+        # Continua estrazione per il payload rimanente (solo se servono più bit)
+        if len(extracted_bits) < total_bits_needed:
+            # Traccia posizione: quale canale, banda e coefficiente abbiamo letto finora
+            bits_read = len(extracted_bits)
+            current_bit_index = 0
+
+            for ch_idx in channels_to_use:
+                if len(extracted_bits) >= total_bits_needed:
+                    break
+
+                channel_data = img_array[:, :, ch_idx]
+                coeffs = pywt.dwt2(channel_data, wavelet)
+                cA, (cH, cV, cD) = coeffs
+                band_map = {"cH": cH, "cV": cV, "cD": cD}
+
+                for band_name in bands:
+                    if band_name not in band_map:
+                        continue
+                    if len(extracted_bits) >= total_bits_needed:
+                        break
+
+                    coeff_flat = band_map[band_name].flatten()
+                    for coeff in coeff_flat:
+                        # Salta i bit già estratti nella FASE 1
+                        if current_bit_index < bits_read:
+                            current_bit_index += 1
+                            continue
+
+                        if len(extracted_bits) >= total_bits_needed:
+                            break
+                        extracted_bits.append("1" if coeff > 0 else "0")
+                        current_bit_index += 1
+
+        bitstream = "".join(extracted_bits)
+
+        # Estrai payload file (dopo header + size)
+        file_start = HEADER_BITS + SIZE_BITS
         file_end = file_start + (file_size * 8)
-        file_binary = full_binary[file_start:file_end]
+        file_binary = bitstream[file_start:file_end]
 
         # Ricostruisce il file
         file_bytes = bytearray()
