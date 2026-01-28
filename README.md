@@ -79,7 +79,7 @@ cd Steganograpgy-WebApp
 2. **Installa le dipendenze:**
 
 ```bash
-pip install -r requirements.txt
+uv sync [--all-extras]
 ```
 
 3. **Avvia l'applicazione:**
@@ -167,7 +167,6 @@ isort src/ config/ --check-only
 ```
 Steganography-WebApp/
 ├── 🌐 app.py                    # Streamlit application
-├── 🧺 requirements.txt          # Python dependencies
 ├── ⚙️ pyproject.toml            # Project configuration
 ├── 📄 README.md                 # Documentation
 │
