@@ -319,3 +319,204 @@ L'applicazione è deployata su Streamlit Cloud con configurazione automatica:
 \end{itemize}
 
 Il deploy è completamente automatizzato: ogni push su \texttt{main} triggera un redeploy.
+\section{Test Sperimentali LSB - Occultamento Immagini}
+
+In questa sezione presentiamo una serie di test sperimentali dell'algoritmo LSB per l'occultamento di immagini, variando i parametri LSB e MSB per analizzare il trade-off tra qualità visiva e capacità di occultamento.
+
+\subsection{Setup Sperimentale}
+
+Per tutti i test sono state utilizzate le seguenti immagini:
+\begin{itemize}
+    \item \textbf{Immagine Host}: \texttt{host.jpg} - immagine carrier di dimensioni maggiori
+    \item \textbf{Immagine Segreta}: \texttt{occulted.jpg} - immagine da nascondere (720×1280 pixel)
+\end{itemize}
+
+\subsection{Test 1: Configurazione Bilanciata (LSB=4, MSB=4)}
+
+Questa configurazione rappresenta un buon compromesso tra qualità visiva e capacità di occultamento.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+LSB & 4 bit \\ \hline
+MSB & 4 bit \\ \hline
+DIV & 3.38 (automatico) \\ \hline
+Pixel utilizzati & 29.63\% \\ \hline
+SSIM & 0.8563 (Eccellente) \\ \hline
+PSNR & 35.84 dB (Buona) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per configurazione bilanciata}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{assets/lsb_4-msb_4.png}
+        \caption{Immagine stego con LSB=4, MSB=4}
+        \label{fig:lsb_4_4_stego}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{assets/recovered_lsb_4-msb_4.png}
+        \caption{Immagine recuperata da LSB=4, MSB=4}
+        \label{fig:lsb_4_4_recovered}
+    \end{minipage}
+\end{figure}
+
+\textbf{Analisi}: Con LSB=4 e MSB=4 si ottiene un eccellente SSIM di 0.8563, indicando che l'immagine stego è quasi indistinguibile dall'originale. Il recupero dell'immagine segreta è preciso, preservando 4 bit per canale.
+
+\subsection{Test 2: Alta Qualità (LSB=1, MSB=1)}
+
+Configurazione che privilegia la massima qualità dell'immagine stego a discapito della fedeltà dell'immagine recuperata.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+LSB & 1 bit \\ \hline
+MSB & 1 bit \\ \hline
+DIV & 3.38 (automatico) \\ \hline
+Pixel utilizzati & 29.63\% \\ \hline
+SSIM & 0.9981 (Eccellente) \\ \hline
+PSNR & 56.60 dB (Eccellente) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per configurazione alta qualità}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{assets/lsb_1-msb_1.png}
+        \caption{Immagine stego con LSB=1, MSB=1}
+        \label{fig:lsb_1_1_stego}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{assets/recovered_lsb_1-msb_1.png}
+        \caption{Immagine recuperata da LSB=1, MSB=1}
+        \label{fig:lsb_1_1_recovered}
+    \end{minipage}
+\end{figure}
+
+\textbf{Analisi}: Con LSB=1 e MSB=1 si ottiene un SSIM quasi perfetto (0.9981) e un PSNR eccellente di 56.60 dB. L'immagine stego è praticamente identica all'originale. Tuttavia, l'immagine recuperata preserva solo 1 bit per canale, risultando in una qualità visiva degradata ma ancora riconoscibile.
+
+\subsection{Test 3: Alta Capacità (LSB=6, MSB=2)}
+
+Configurazione che massimizza la capacità di occultamento utilizzando più bit dell'immagine host.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+LSB & 6 bit \\ \hline
+MSB & 2 bit \\ \hline
+DIV & 10.12 (automatico) \\ \hline
+Pixel utilizzati & 9.88\% \\ \hline
+SSIM & 0.5601 (Accettabile) \\ \hline
+PSNR & 27.07 dB (Accettabile) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per configurazione alta capacità}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{assets/capacita-lsb_6-msb_2.png}
+        \caption{Immagine stego con LSB=6, MSB=2}
+        \label{fig:lsb_6_2_stego}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{assets/recovered_lsb_6-msb_2.png}
+        \caption{Immagine recuperata da LSB=6, MSB=2}
+        \label{fig:lsb_6_2_recovered}
+    \end{minipage}
+\end{figure}
+
+\textbf{Analisi}: Modificando 6 bit per pixel si riduce significativamente l'utilizzo dell'immagine host (solo 9.88\% dei pixel), ma a costo di una qualità visiva ridotta (SSIM=0.5601). L'immagine recuperata preserva solo 2 bit per canale.
+
+\subsection{Test 4: Massima Capacità Estrema (LSB=7, MSB=8)}
+
+Test estremo che modifica quasi tutti i bit dell'immagine host per preservare l'intera profondità colore dell'immagine segreta.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+LSB & 7 bit \\ \hline
+MSB & 8 bit (tutti) \\ \hline
+DIV & 2.95 (automatico) \\ \hline
+Pixel utilizzati & 33.86\% \\ \hline
+SSIM & 0.1008 (Scarsa) \\ \hline
+PSNR & 18.03 dB (Scarsa) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per configurazione estrema}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{assets/lsb_7-msb_8.png}
+        \caption{Immagine stego con LSB=7, MSB=8}
+        \label{fig:lsb_7_8_stego}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{assets/recovered_lsb_7-msb_8.png}
+        \caption{Immagine recuperata da LSB=7, MSB=8 (qualit\`a perfetta)}
+        \label{fig:lsb_7_8_recovered}
+    \end{minipage}
+\end{figure}
+
+\textbf{Analisi}: Con LSB=7 e MSB=8 si ottiene un recupero perfetto dell'immagine segreta (tutti gli 8 bit preservati), ma l'immagine stego presenta distorsioni evidenti (SSIM=0.1008, PSNR=18.03 dB). Questa configurazione è inadatta per applicazioni steganografiche reali.
+
+\subsection{Test 5: Modalità Automatica (LSB=auto, MSB=8)}
+
+Test della modalità automatica che calcola il valore ottimale di LSB in base alle dimensioni delle immagini.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+LSB & 3 bit (calcolato automaticamente) \\ \hline
+MSB & 8 bit \\ \hline
+DIV & 1.27 (automatico) \\ \hline
+Pixel utilizzati & 79.01\% \\ \hline
+SSIM & 0.9000 (Eccellente) \\ \hline
+PSNR & 38.39 dB (Buona) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per modalità automatica}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{assets/lsb_auto-msb_auto.png}
+    \caption{Immagine stego con modalità automatica (LSB=3, MSB=8)}
+    \label{fig:lsb_auto_stego}
+\end{figure}
+
+\textbf{Analisi}: La modalità automatica ha calcolato LSB=3 come valore ottimale per nascondere l'intera immagine segreta (MSB=8) mantenendo un'eccellente qualità visiva (SSIM=0.9000, PSNR=38.39 dB). L'utilizzo dei pixel è elevato (79.01\%), indicando un'efficiente distribuzione dei dati.
+
+\subsection{Conclusioni sui Test LSB}
+
+I test dimostrano chiaramente il trade-off tra qualità dell'immagine stego e fedeltà dell'immagine recuperata:
+
+\begin{itemize}
+    \item \textbf{LSB=1, MSB=1}: Ottima invisibilità (SSIM=0.998), immagine recuperata degradata
+    \item \textbf{LSB=4, MSB=4}: Configurazione bilanciata raccomandata (SSIM=0.856)
+    \item \textbf{LSB=6, MSB=2}: Basso utilizzo pixel (9.88\%), qualità accettabile
+    \item \textbf{LSB=7, MSB=8}: Recupero perfetto ma distorsioni visibili
+    \item \textbf{Modalità automatica}: Calcolo intelligente per ottimizzare capacità/qualità
+\end{itemize}
+
+La scelta dei parametri dipende dal caso d'uso: per steganografia che richiede invisibilit\`a, configurazioni con LSB$\leq$4 sono preferibili. Per archiviazione con compressione visiva accettabile, configurazioni con MSB$\geq$6 preservano meglio l'immagine segreta.
