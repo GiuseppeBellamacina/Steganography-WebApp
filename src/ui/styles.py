@@ -112,7 +112,16 @@ def get_custom_css() -> str:
     .stSuccess [data-testid="stMarkdownContainer"], .stError [data-testid="stMarkdownContainer"], .stWarning [data-testid="stMarkdownContainer"], .stInfo [data-testid="stMarkdownContainer"] { color: var(--text-color) !important; }
     [data-testid="stMetricValue"] { font-size: 1.5rem; font-weight: 700; color: #667eea !important; }
     [data-testid="stMetricLabel"], [data-testid="stMetricDelta"] { color: var(--text-color) !important; }
-    [data-testid="stSidebar"] { background: var(--secondary-background-color); }
+    [data-testid="stSidebar"] { background-color: #3d4d6b !important; backdrop-filter: none !important; }
+    [data-testid="stSidebar"] > div { background-color: #3d4d6b !important; }
+    section[data-testid="stSidebar"] { background-color: #3d4d6b !important; }
+    section[data-testid="stSidebar"] > div { background-color: #3d4d6b !important; }
+    @media (prefers-color-scheme: dark) {
+        [data-testid="stSidebar"] { background-color: #1e2433 !important; }
+        [data-testid="stSidebar"] > div { background-color: #1e2433 !important; }
+        section[data-testid="stSidebar"] { background-color: #1e2433 !important; }
+        section[data-testid="stSidebar"] > div { background-color: #1e2433 !important; }
+    }
     [data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] .stMarkdown p, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span { color: var(--text-color) !important; }
     [data-testid="stSidebar"] .stInfo { background-color: rgba(102, 126, 234, 0.15) !important; border-color: #667eea !important; }
     .stDownloadButton > button { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white !important; border-radius: 8px; padding: 0.75rem 2rem; font-weight: 600; border: none; box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3); transition: all 0.3s ease; }
