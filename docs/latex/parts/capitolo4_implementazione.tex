@@ -682,3 +682,273 @@ I test dimostrano l'impatto del parametro N sulla qualit\`a dell'immagine stego:
 \end{itemize}
 
 Il parametro DIV influenza la distribuzione dei dati: valori automatici distribuiscono uniformemente i dati nell'immagine, mentre DIV=1 concentra i dati creando artefatti visibili. Per applicazioni steganografiche, N$\leq$4 con DIV automatico offre il miglior compromesso invisibilit\`a/capacit\`a.
+
+\section{Test Sperimentali DWT - Occultamento File Binari}
+
+In questa sezione presentiamo test sperimentali dell'algoritmo DWT (Discrete Wavelet Transform) per l'occultamento di file binari. A differenza di LSB, DWT modifica i coefficienti delle trasformate wavelet e ha una capacit\`a notevolmente inferiore ma offre maggiore robustezza.
+
+\subsection{Setup Sperimentale}
+
+Per tutti i test \`e stato utilizzato:
+\begin{itemize}
+    \item \textbf{Immagine Host}: \texttt{host.jpg} - immagine carrier
+    \item \textbf{File Binario}: File di test da 80 KB
+    \item \textbf{Wavelet}: Haar (trasformata discreta)
+    \item \textbf{Parametri Variabili}: ALPHA (fattore di embedding), BANDS (bande DWT), CHANNELS (canali RGB)
+\end{itemize}
+
+\subsection{Test 1: Alta Qualit\`a - Configurazione Conservativa}
+
+Configurazione che privilegia la qualit\`a visiva usando ALPHA basso e un solo canale.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+ALPHA & 0.05 \\ \hline
+BANDS & cH (1 banda) \\ \hline
+CHANNELS & 1 canale (R) \\ \hline
+SSIM & 0.7726 (Buona) \\ \hline
+PSNR & 26.62 dB (Accettabile) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per configurazione alta qualit\`a}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{assets/dwt/qualita-alpha_005-banda_ch-1ch-ssim_7726-psnr_2662.png}
+    \caption{DWT con ALPHA=0.05, 1 banda, 1 canale - alta qualit\`a}
+    \label{fig:dwt_quality}
+\end{figure}
+
+\textbf{Analisi}: Con ALPHA=0.05 (embedding debole) e un solo canale, si ottiene un buon SSIM (0.7726). Il PSNR \`e accettabile (26.62 dB). Questa configurazione \`e adatta quando la qualit\`a visiva \`e prioritaria, ma ha capacit\`a limitata.
+
+\subsection{Test 2: Capacit\`a Aumentata - Configurazione Estesa}
+
+Configurazione che aumenta la capacit\`a usando ALPHA moderato e tutti e 3 i canali RGB.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+ALPHA & 0.15 \\ \hline
+BANDS & 3 bande (cH, cV, cD) \\ \hline
+CHANNELS & 3 canali (RGB) \\ \hline
+SSIM & 0.8910 (Eccellente) \\ \hline
+PSNR & 35.24 dB (Buona) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per configurazione alta capacit\`a}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{assets/dwt/capacita-alpha_015-3bande-3ch-ssim8910-psnr_3524.png}
+    \caption{DWT con ALPHA=0.15, 3 bande, 3 canali - capacit\`a triplicata}
+    \label{fig:dwt_capacity}
+\end{figure}
+
+\textbf{Analisi}: Aumentando ALPHA a 0.15 e utilizzando tutti e 3 i canali RGB con 3 bande DWT, la capacit\`a viene triplicata. Sorprendentemente, SSIM e PSNR migliorano (0.8910 e 35.24 dB), probabilmente perch\'e la distribuzione su pi\`u canali rende le modifiche meno concentrate.
+
+\subsection{Test 3: Massima Capacit\`a - Configurazione Aggressiva}
+
+Configurazione che massimizza la capacit\`a con ALPHA elevato.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+ALPHA & 0.30 \\ \hline
+BANDS & 3 bande (cH, cV, cD) \\ \hline
+CHANNELS & 3 canali (RGB) \\ \hline
+SSIM & 0.9203 (Eccellente) \\ \hline
+PSNR & 34.47 dB (Buona) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per configurazione massima capacit\`a}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{assets/dwt/qualita-alpha_030-3bande-ech-ssim_9203-psnr_3447.png}
+    \caption{DWT con ALPHA=0.30, 3 bande, 3 canali - embedding aggressivo}
+    \label{fig:dwt_max}
+\end{figure}
+
+\textbf{Analisi}: Con ALPHA=0.30 (massimo embedding) si ottiene un SSIM eccellente (0.9203), il migliore tra tutti i test. Questo risultato controintuitivo suggerisce che DWT beneficia di modifiche pi\`u ampie distribuite uniformemente, che risultano meno percettibili di modifiche concentrate.
+
+\subsection{Confronto DWT vs LSB per File Binari}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Caratteristica} & \textbf{LSB} & \textbf{DWT} \\ \hline
+Capacit\`a & Alta (fino a 86\% pixel) & Bassa (file 80KB limite) \\ \hline
+Qualit\`a Massima & SSIM=0.972 (N=2) & SSIM=0.920 (ALPHA=0.30) \\ \hline
+Robustezza & Fragile & Robusta \\ \hline
+Complessit\`a & Bassa & Alta \\ \hline
+Parametri & N, DIV & ALPHA, BANDS, CHANNELS \\ \hline
+Caso d'uso & File grandi & File piccoli critici \\ \hline
+\end{tabular}
+\caption{Confronto tra LSB e DWT per occultamento file binari}
+\end{table}
+
+\subsection{Conclusioni sui Test DWT Binary}
+
+I test dimostrano le caratteristiche distintive di DWT:
+
+\begin{itemize}
+    \item \textbf{Capacit\`a Limitata}: Per file da 80 KB, DWT raggiunge il limite di capacit\`a, mentre LSB potrebbe gestire file molto pi\`u grandi
+    \item \textbf{Qualit\`a Eccellente}: SSIM migliora con ALPHA pi\`u elevato (0.773 $\rightarrow$ 0.920), comportamento opposto a LSB
+    \item \textbf{Distribuzione Uniforme}: L'uso di 3 canali e 3 bande distribuisce le modifiche uniformemente, migliorando l'invisibilit\`a
+    \item \textbf{Robustezza}: DWT opera nel dominio delle frequenze, offrendo maggiore resistenza a compressione e filtri
+\end{itemize}
+
+\textbf{Raccomandazioni}: DWT \`e ideale per file binari critici di dimensioni limitate ($<$100 KB) che richiedono robustezza. Per file pi\`u grandi, LSB offre capacit\`a superiore. La configurazione ALPHA=0.15-0.30 con 3 canali e 3 bande rappresenta il miglior compromesso.
+
+\section{Test Sperimentali PVD - Occultamento File Binari}
+
+In questa sezione presentiamo il funzionamento dell'algoritmo PVD (Pixel Value Differencing) per l'occultamento di file binari. PVD utilizza le differenze tra pixel adiacenti per nascondere i dati, offrendo un eccellente compromesso tra qualit\`a visiva e capacit\`a.
+
+\subsection{Parametri PVD per File Binari}
+
+L'algoritmo PVD offre tre parametri configurabili che influenzano il trade-off capacit\`a/qualit\`a:
+
+\begin{enumerate}
+    \item \textbf{Quality Ranges}: Abilita range di qualit\`a che privilegiano le aree meno percettibili
+    \item \textbf{RGB Channels}: Numero di canali utilizzati (1-3 canali)
+    \item \textbf{Sparsit\`a}: Controllo della distribuzione dei dati (range 1-4)
+\end{enumerate}
+
+\subsection{Impatto dei Parametri}
+
+\subsubsection{Quality Ranges}
+
+L'attivazione dei quality ranges modifica il comportamento dell'embedding:
+
+\begin{itemize}
+    \item \textbf{Disabilitato}: Massima capacit\`a, PSNR ridotto
+    \item \textbf{Abilitato}: PSNR aumentato, capacit\`a ridotta (impossibile precalcolare esattamente, dipende dalla struttura dell'immagine)
+    \item \textbf{Nota}: L'impatto su SSIM non \`e garantito, dipende dalle caratteristiche dell'immagine host
+\end{itemize}
+
+\subsubsection{RGB Channels}
+
+Il numero di canali utilizzati influenza direttamente capacit\`a e qualit\`a:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Canali} & \textbf{Capacit\`a} & \textbf{Qualit\`a} \\ \hline
+1 (R) & Bassa & Alta \\ \hline
+2 (R,G) & Media & Media \\ \hline
+3 (R,G,B) & Alta & Bassa \\ \hline
+\end{tabular}
+\caption{Impatto del numero di canali RGB}
+\end{table}
+
+\subsubsection{Sparsit\`a}
+
+Il parametro di sparsit\`a controlla la densit\`a dell'embedding:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Sparsit\`a} & \textbf{Capacit\`a} & \textbf{Qualit\`a} \\ \hline
+1 & Massima & Minima \\ \hline
+2 & Alta & Media-bassa \\ \hline
+3 & Media & Media-alta \\ \hline
+4 & Minima & Massima \\ \hline
+\end{tabular}
+\caption{Relazione sparsit\`a-capacit\`a-qualit\`a}
+\end{table}
+
+\subsection{Esempi di Configurazione}
+
+\subsubsection{Configurazione Pessima (Massima Capacit\`a)}
+
+Configurazione che massimizza la capacit\`a sacrificando la qualit\`a:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+Quality Ranges & Disabilitato \\ \hline
+Canali RGB & 3 (tutti) \\ \hline
+Sparsit\`a & 1 (minima) \\ \hline
+SSIM & $\sim$0.9588 \\ \hline
+PSNR & $\sim$48.25 dB \\ \hline
+\end{tabular}
+\caption{Configurazione massima capacit\`a}
+\end{table}
+
+\textbf{Analisi}: Questa configurazione utilizza tutti e 3 i canali RGB con sparsit\`a minima, ottenendo la massima capacit\`a possibile. La qualit\`a rimane comunque eccellente (SSIM=0.9588) grazie alla natura adattiva di PVD.
+
+\subsubsection{Configurazione Ottima (Massima Qualit\`a)}
+
+Configurazione che massimizza la qualit\`a visiva riducendo la capacit\`a:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+Quality Ranges & Abilitato \\ \hline
+Canali RGB & 1 (solo R) \\ \hline
+Sparsit\`a & 4 (massima) \\ \hline
+SSIM & $\sim$0.9940 \\ \hline
+PSNR & $\sim$52.34 dB \\ \hline
+\end{tabular}
+\caption{Configurazione massima qualit\`a}
+\end{table}
+
+\textbf{Analisi}: Con quality ranges attivati, sparsit\`a massima e un solo canale, si ottiene qualit\`a eccezionale (SSIM quasi perfetto a 0.9940). La capacit\`a \`e notevolmente ridotta ma sufficiente per file di dimensioni moderate.
+
+\subsubsection{Configurazione Bilanciata}
+
+Configurazione raccomandata per uso generale:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+Quality Ranges & Abilitato \\ \hline
+Canali RGB & 2 (R,G) \\ \hline
+Sparsit\`a & 2 \\ \hline
+SSIM & $\sim$0.9750 \\ \hline
+PSNR & $\sim$50.20 dB \\ \hline
+\end{tabular}
+\caption{Configurazione bilanciata}
+\end{table}
+
+\textbf{Analisi}: Questa configurazione offre un buon compromesso tra capacit\`a e qualit\`a, adatta alla maggior parte degli scenari di utilizzo.
+
+\subsection{Considerazioni sulla Capacit\`a}
+
+A differenza di LSB e DWT, la capacit\`a esatta di PVD \textbf{non \`e precalcolabile} perch\'e dipende dalle caratteristiche dell'immagine:
+
+\begin{itemize}
+    \item \textbf{Immagini uniformi}: Poche differenze tra pixel $\rightarrow$ capacit\`a ridotta
+    \item \textbf{Immagini dettagliate}: Molte differenze tra pixel $\rightarrow$ capacit\`a maggiore
+    \item \textbf{Quality ranges}: Riduce la capacit\`a in modo variabile (10-30\% tipicamente)
+\end{itemize}
+
+\subsection{Conclusioni sui Test PVD Binary}
+
+PVD si distingue per le seguenti caratteristiche:
+
+\begin{itemize}
+    \item \textbf{Qualit\`a Eccellente}: Range SSIM 0.9588-0.9940, superiore a LSB e DWT
+    \item \textbf{PSNR Elevato}: Range 48.25-52.34 dB, valori molto alti per steganografia
+    \item \textbf{Adattivit\`a}: La capacit\`a si adatta automaticamente all'immagine
+    \item \textbf{Flessibilit\`a}: Tre parametri indipendenti permettono fine-tuning preciso
+    \item \textbf{Trade-off Minimo}: Anche nella configurazione pessima, la qualit\`a rimane eccellente
+\end{itemize}
+
+\textbf{Raccomandazioni}: PVD \`e ideale quando la qualit\`a visiva \`e prioritaria e la dimensione del file \`e moderata. Per file di dimensioni variabili dove la capacit\`a esatta non \`e nota a priori, la sparsit\`a=2-3 con quality ranges abilitati offre i migliori risultati. Per massima capacit\`a con qualit\`a ancora eccellente, usare tutti e 3 i canali con sparsit\`a=1.
