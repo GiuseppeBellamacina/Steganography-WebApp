@@ -39,12 +39,6 @@ class ParameterValidator:
             raise ValueError(ErrorMessages.INVALID_ZIP_MODE)
 
     @staticmethod
-    def validate_lsb_msb_relationship(lsb: int, msb: int) -> None:
-        """Valida la relazione tra LSB e MSB"""
-        if lsb > msb:
-            raise ValueError(ErrorMessages.LSB_GREATER_MSB)
-
-    @staticmethod
     def validate_image_size_for_message(img: Image.Image, message: str) -> None:
         """Valida che l'immagine sia abbastanza grande per il messaggio"""
         if (img.width * img.height) * 3 < len(message) * 8:

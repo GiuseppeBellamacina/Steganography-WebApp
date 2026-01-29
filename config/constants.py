@@ -76,7 +76,7 @@ class ErrorMessages:
     INVALID_ZIP_MODE = (
         "La modalità di compressione deve essere 0 (nessuna), 1 (file) o 2 (directory)"
     )
-    LSB_GREATER_MSB = "Il valore di LSB deve essere minore di MSB"
+
     DIV_EXCESSIVE = (
         "Il valore di DIV ({div}) è eccessivo. Prova con 0 per il calcolo automatico"
     )

@@ -43,7 +43,6 @@ class ImageSteganography:
         # Validazione parametri
         ParameterValidator.validate_lsb(lsb)
         ParameterValidator.validate_msb(msb)
-        ParameterValidator.validate_lsb_msb_relationship(lsb, msb)
 
         # Determina LSB automatico se necessario
         if lsb == 0:
