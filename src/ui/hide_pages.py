@@ -211,7 +211,7 @@ class HideDataPages:
 
                         # Nascondi messaggio
                         with st.spinner("Nascondendo messaggio..."):
-                            result_img, metrics = hide_message(
+                            result_img, metrics, percentage = hide_message(
                                 img, message, method=selected_method
                             )
 
@@ -227,6 +227,7 @@ class HideDataPages:
                             "filename": output_name,
                             "preview_image": result_img,  # Mantieni l'anteprima
                             "metrics": metrics,  # Salva le metriche
+                            "preview_info": f"📊 Pixel usati: {percentage:.2f}%",
                         }
 
                         # Cleanup
@@ -245,6 +246,10 @@ class HideDataPages:
             st.subheader("📥 Download Risultati")
 
             result_data = st.session_state["hide_string_result"]
+
+            # Mostra info se disponibile
+            if "preview_info" in result_data:
+                st.info(result_data["preview_info"])
 
             # Mostra metriche se disponibili
             if "metrics" in result_data:
@@ -489,17 +494,23 @@ class HideDataPages:
             preset = st.selectbox(
                 "📋 Preconfigurazione:",
                 options=[
+                    "🤖 Automatico",
                     "⚖️ Bilanciato",
                     "🎨 Alta Qualità",
                     "📦 Alta Capacità",
                     "⚙️ Personalizzato",
                 ],
                 index=0,
-                help="Bilanciato: LSB=4 MSB=4. Alta Qualità: LSB=1 MSB=8. Alta Capacità: LSB=6 MSB=2. DIV sempre automatico.",
+                help="Automatico: LSB=auto MSB=8. Bilanciato: LSB=4 MSB=4. Alta Qualità: LSB=1 MSB=8. Alta Capacità: LSB=6 MSB=2. DIV sempre automatico.",
                 key="lsb_img_preset",
             )
 
-            if preset == "⚖️ Bilanciato":
+            if preset == "🤖 Automatico":
+                lsb = 0
+                msb = 8
+                div = 0.0
+                st.info("🤖 LSB=auto, MSB=auto, DIV=auto - Calcolo automatico ottimale")
+            elif preset == "⚖️ Bilanciato":
                 lsb = 4
                 msb = 4
                 div = 0.0
@@ -663,6 +674,7 @@ class HideDataPages:
                                 _,
                                 _,
                                 metrics,
+                                percentage,
                             ) = result
                             st.success("✅ Immagine nascosta con successo!")
 
@@ -678,7 +690,7 @@ class HideDataPages:
                                     "label": "📥 Scarica immagine con immagine nascosta",
                                 },
                                 "preview_image": result_img,  # Mantieni anteprima
-                                "preview_info": f"📊 Parametri utilizzati: LSB={final_lsb}, MSB={final_msb}, DIV={final_div:.2f}",
+                                "preview_info": f"📊 Parametri utilizzati: LSB={final_lsb}, MSB={final_msb}, DIV={final_div:.2f} - Pixel usati: {percentage:.2f}%",
                                 "metrics": metrics,  # Salva le metriche
                             }
 
@@ -1100,7 +1112,14 @@ class HideDataPages:
                             )
 
                         if result:  # Controllo successo
-                            result_img, final_n, final_div, size, metrics = result
+                            (
+                                result_img,
+                                final_n,
+                                final_div,
+                                size,
+                                metrics,
+                                percentage,
+                            ) = result
                             st.success("✅ File nascosto con successo!")
 
                             # Salva risultati per il download
@@ -1115,7 +1134,7 @@ class HideDataPages:
                                     "label": "📥 Scarica immagine con file nascosto",
                                 },
                                 "preview_image": result_img,  # Mantieni anteprima
-                                "preview_info": f"📊 Parametri utilizzati: N={final_n}, DIV={final_div:.2f}, SIZE={size} bytes",
+                                "preview_info": f"📊 Parametri utilizzati: N={final_n}, DIV={final_div:.2f}, SIZE={size} bytes - Pixel usati: {percentage:.2f}%",
                                 "metrics": metrics,  # Salva le metriche
                             }
 

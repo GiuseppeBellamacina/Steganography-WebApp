@@ -29,7 +29,7 @@ class BinarySteganography:
         file_path: str,
         backup_file: str | None = None,
         **kwargs,  # Ignora compression_mode, n, div per compatibilità API
-    ) -> tuple[Image.Image, int, float, int, dict]:
+    ) -> tuple[Image.Image, int, float, int, dict, float]:
         """
         Nasconde un file binario in un'immagine usando DWT
 
@@ -140,6 +140,13 @@ class BinarySteganography:
         img_array = np.clip(img_array, 0, 255).astype(np.uint8)
         result_img = Image.fromarray(img_array, mode="RGB")
 
+        # Calcola percentuale di bit usati
+        total_bits_host = img.width * img.height * 3
+        percentage = format((len(full_payload) / total_bits_host) * 100, ".2f")
+        print(
+            f"TERMINATO - Percentuale di pixel usati con DWT: {percentage}% ({len(full_payload)}/{total_bits_host} bit)"
+        )
+
         # Salva parametri (sempre nella cache, opzionalmente su file)
         params = {
             "method": "dwt",
@@ -155,7 +162,7 @@ class BinarySteganography:
         metrics = QualityMetrics.calculate_metrics(original_img, result_img)
         print("File nascosto con successo usando DWT")
 
-        return result_img, 1, 0.0, file_size, metrics
+        return result_img, 1, 0.0, file_size, metrics, float(percentage)
 
     @staticmethod
     def get_binary_file(

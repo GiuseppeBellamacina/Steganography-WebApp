@@ -36,9 +36,9 @@ def hide_message(
     message: str,
     backup_file: str | None = None,
     method: str = SteganographyMethod.LSB,
-) -> tuple[Image.Image, dict]:
+) -> tuple[Image.Image, dict, float]:
     """
-    Nasconde una stringa in un'immagine. Restituisce (immagine, metriche)
+    Nasconde una stringa in un'immagine. Restituisce (immagine, metriche, percentuale)
 
     Args:
         img: Immagine host
@@ -84,9 +84,9 @@ def hide_image(
     div: float = 0,
     backup_file: str | None = None,
     method: str = SteganographyMethod.LSB,
-) -> tuple[Image.Image, int, int, float, int, int, dict]:
+) -> tuple[Image.Image, int, int, float, int, int, dict, float]:
     """
-    Nasconde un'immagine in un'altra. Restituisce (immagine, lsb, msb, div, width, height, metriche)
+    Nasconde un'immagine in un'altra. Restituisce (immagine, lsb, msb, div, width, height, metriche, percentuale)
 
     Args:
         host_img: Immagine host
@@ -147,9 +147,9 @@ def hide_bin_file(
     div: float = 0,
     backup_file: str | None = None,
     method: str = SteganographyMethod.LSB,
-) -> tuple[Image.Image, int, float, int, dict]:
+) -> tuple[Image.Image, int, float, int, dict, float]:
     """
-    Nasconde un file binario in un'immagine. Restituisce (immagine, n, div, size, metriche)
+    Nasconde un file binario in un'immagine. Restituisce (immagine, n, div, size, metriche, percentuale)
 
     Args:
         img: Immagine host
