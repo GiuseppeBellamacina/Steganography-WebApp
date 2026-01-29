@@ -44,6 +44,3 @@ docs/latex/*.synctex.gz
 docs/latex/*.log
 docs/latex/*.out
 docs/latex/*.toc
-
-# Relazione
-docs/latex/relazione.pdf

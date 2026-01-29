@@ -4,6 +4,8 @@
 
 A comprehensive web application for steganography that allows hiding and recovering different types of data (text, images, binary files) within images using three advanced techniques: LSB (Least Significant Bit), DWT (Discrete Wavelet Transform), and PVD (Pixel Value Differencing).
 
+📖 **[Documentazione completa (PDF)](docs/relazione.pdf)**
+
 ## 🌐 Live Demo
 
 Prova l'applicazione online su [Streamlit Cloud](https://steg-app.streamlit.app)
@@ -64,8 +66,8 @@ Il progetto segue un'architettura modulare con separazione delle responsabilità
 
 ### Prerequisiti
 
-- Python 3.8+
-- pip (package manager)
+- Python 3.9+
+- uv (package manager)
 
 ### Setup Rapido
 
@@ -73,7 +75,7 @@ Il progetto segue un'architettura modulare con separazione delle responsabilità
 
 ```bash
 git clone https://github.com/GiuseppeBellamacina/Steganography-WebApp.git
-cd Steganograpgy-WebApp
+cd Steganography-WebApp
 ```
 
 2. **Installa le dipendenze:**
@@ -111,12 +113,11 @@ I file modificati vengono ri-aggiunti allo stage automaticamente prima del commi
 
 ### Dipendenze Principali
 
-- `streamlit`: Interfaccia web interattiva
-- `numpy`: Operazioni matematiche su array
-- `opencv-python`: Elaborazione avanzata delle immagini
-- `Pillow`: Manipolazione delle immagini
-- `PyWavelets`: Trasformate wavelet per DWT
-- `scikit-image`: Metriche di qualità e analisi immagini
+- `streamlit>=1.20.0`: Interfaccia web interattiva
+- `numpy>=1.24.0`: Operazioni matematiche su array
+- `Pillow>=9.5.0`: Manipolazione delle immagini
+- `PyWavelets>=1.4.0`: Trasformate wavelet per DWT
+- `scikit-image>=0.20.0`: Metriche di qualità (PSNR, SSIM)
 
 ## 💻 Utilizzo
 
@@ -129,37 +130,39 @@ streamlit run app.py
 ```
 
 2. **Seleziona il metodo di steganografia:**
-   - **LSB**: Per nascondere rapidamente dati
-   - **DWT**: Per maggiore robustezza
-   - **PVD**: Per capacità adattiva
+   - **LSB**: Alta capacità, veloce ma fragile
+   - **DWT**: Robusto a compressioni ma capacità limitata
+   - **PVD**: Adattivo, buon compromesso
 
 3. **Scegli il tipo di dato:**
-   - Stringhe
-   - Immagini
-   - File binari
+   - Stringhe (testo semplice)
+   - Immagini (nasconde un'immagine in un'altra)
+   - File binari (qualsiasi tipo di file)
 
 4. **Seleziona l'operazione:**
-   - **Hide**: Nascondere dati
-   - **Recover**: Recuperare dati
+   - **Hide**: Nascondere dati in un'immagine
+   - **Recover**: Recuperare dati nascosti
 
 5. **Carica l'immagine** e segui le istruzioni interattive
 
+### Parametri Configurabili
+
+- **LSB**: Numero di bit da modificare (LSB), bit da preservare (MSB), distribuzione (DIV)
+- **DWT**: Fattore di embedding (ALPHA), bande wavelet, canali RGB
+- **PVD**: Quality ranges, sparsità, canali RGB
+
 ## ⚙️ Strumenti di Sviluppo
 
-### Formattazione del Codice
+### Linting e Formattazione
 
-Il progetto utilizza **Black** e **isort** per mantenere uno stile di codice consistente.
+Il progetto utilizza **ruff** per linting e formattazione automatica del codice.
 
 ```bash
-# Formatta il codice con Black
-black src/ config/
+# Controlla e correggi il codice
+ruff check --fix .
 
-# Ordina gli import con isort
-isort src/ config/
-
-# Controlla la formattazione (senza modificare)
-black src/ config/ --check
-isort src/ config/ --check-only
+# Solo controllo (senza modificare)
+ruff check .
 ```
 
 ## 📁 Struttura del Progetto
@@ -205,6 +208,13 @@ Steganography-WebApp/
 ├── 📁 config/                   # Configuration
 │   └── constants.py             # Global constants
 │
+├── 📁 docs/                     # Documentation
+│   ├── relazione.pdf            # Compiled PDF
+│   └── 📁 latex/                # LaTeX documentation
+│       ├── relazione.tex        # Main document
+│       ├── bibliografia.bib     # Bibliography file
+│       └── 📁 parts/            # Document chapters
+│
 └── 📁 assets/                   # Static resources
     ├── 📁 img/                  # Sample images
     ├── 📁 pdf/                  # PDF files
@@ -216,24 +226,30 @@ Steganography-WebApp/
 
 ### ⚡ LSB (Least Significant Bit)
 
-Modifica i bit meno significativi dei pixel per nascondere i dati. Semplice e veloce, ideale per la maggior parte delle applicazioni.
+Modifica i bit meno significativi dei pixel per nascondere i dati. Semplice e veloce, ideale per alta capacità.
 
-**Vantaggi**: Elevata capacità, veloce
-**Svantaggi**: Vulnerabile a compressione e modifiche dell'immagine
+**Vantaggi**: Elevata capacità (3 bpp), PSNR >50 dB, veloce
+**Svantaggi**: Fragile a compressione JPEG e manipolazioni
+
+**Parametri**: LSB (bit da modificare), MSB (bit da preservare), DIV (distribuzione), N (bit per pixel per file binari)
 
 ### 🧪 DWT (Discrete Wavelet Transform)
 
-Utilizza trasformate wavelet per incorporare i dati nei coefficienti di frequenza dell'immagine. Più robusto rispetto a LSB.
+Utilizza trasformate wavelet per incorporare i dati nei coefficienti di frequenza dell'immagine. Robusto ma con capacità limitata.
 
-**Vantaggi**: Resistente a compressione JPEG, più sicuro
-**Svantaggi**: Capacità inferiore, più lento
+**Vantaggi**: Resistente a compressione JPEG, operazioni nel dominio frequenza
+**Svantaggi**: Capacità ridotta (0.5-1 bpp), più lento, PSNR 35-45 dB
+
+**Parametri**: ALPHA (fattore embedding), BANDS (bande wavelet), CHANNELS (canali RGB)
 
 ### 🔀 PVD (Pixel Value Differencing)
 
 Sfrutta le differenze tra pixel adiacenti per nascondere quantità variabili di dati in base alle caratteristiche locali dell'immagine.
 
-**Vantaggi**: Adattivo, buon compromesso capacità/qualità
-**Svantaggi**: Più complesso, velocità media
+**Vantaggi**: Adattivo al contenuto, PSNR 45-55 dB, SSIM >0.95
+**Svantaggi**: Complessità media, capacità dipendente dall'immagine
+
+**Parametri**: Quality ranges (abilita/disabilita), SPARSITY (distribuzione 1-4), CHANNELS (canali RGB)
 
 ## 📈 Performance e Limiti
 
