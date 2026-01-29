@@ -812,6 +812,15 @@ I test dimostrano le caratteristiche distintive di DWT:
 
 In questa sezione presentiamo il funzionamento dell'algoritmo PVD (Pixel Value Differencing) per l'occultamento di file binari. PVD utilizza le differenze tra pixel adiacenti per nascondere i dati, offrendo un eccellente compromesso tra qualit\`a visiva e capacit\`a.
 
+\textbf{Nota sulle immagini}: A differenza degli altri algoritmi, le immagini risultanti con PVD sono visivamente identiche all'originale in tutte le configurazioni testate, grazie all'elevata qualit\`a dell'algoritmo (SSIM $>$ 0.95). Per questa ragione non vengono mostrate immagini separate per ogni test.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{assets/host.jpg}
+    \caption{Immagine host utilizzata per tutti i test PVD}
+    \label{fig:pvd_host}
+\end{figure}
+
 \subsection{Parametri PVD per File Binari}
 
 L'algoritmo PVD offre tre parametri configurabili che influenzano il trade-off capacit\`a/qualit\`a:
@@ -836,16 +845,16 @@ L'attivazione dei quality ranges modifica il comportamento dell'embedding:
 
 \subsubsection{RGB Channels}
 
-Il numero di canali utilizzati influenza direttamente capacit\`a e qualit\`a:
+Il numero di canali utilizzati influenza direttamente capacit\`a e qualit\`a. \`E possibile selezionare qualsiasi combinazione di canali RGB (es: solo R, solo G, solo B, oppure RG, RB, GB, o tutti e tre RGB):
 
 \begin{table}[H]
 \centering
 \begin{tabular}{|c|c|c|}
 \hline
-\textbf{Canali} & \textbf{Capacit\`a} & \textbf{Qualit\`a} \\ \hline
-1 (R) & Bassa & Alta \\ \hline
-2 (R,G) & Media & Media \\ \hline
-3 (R,G,B) & Alta & Bassa \\ \hline
+\textbf{N. Canali} & \textbf{Capacit\`a} & \textbf{Qualit\`a} \\ \hline
+1 (es: R, G o B) & Bassa & Alta \\ \hline
+2 (es: RG, RB o GB) & Media & Media \\ \hline
+3 (RGB) & Alta & Bassa \\ \hline
 \end{tabular}
 \caption{Impatto del numero di canali RGB}
 \end{table}
@@ -899,7 +908,7 @@ Configurazione che massimizza la qualit\`a visiva riducendo la capacit\`a:
 \hline
 \textbf{Parametro} & \textbf{Valore} \\ \hline
 Quality Ranges & Abilitato \\ \hline
-Canali RGB & 1 (solo R) \\ \hline
+Canali RGB & 1 (es: solo R) \\ \hline
 Sparsit\`a & 4 (massima) \\ \hline
 SSIM & $\sim$0.9940 \\ \hline
 PSNR & $\sim$52.34 dB \\ \hline
@@ -919,7 +928,7 @@ Configurazione raccomandata per uso generale:
 \hline
 \textbf{Parametro} & \textbf{Valore} \\ \hline
 Quality Ranges & Abilitato \\ \hline
-Canali RGB & 2 (R,G) \\ \hline
+Canali RGB & 2 (es: RG) \\ \hline
 Sparsit\`a & 2 \\ \hline
 SSIM & $\sim$0.9750 \\ \hline
 PSNR & $\sim$50.20 dB \\ \hline
