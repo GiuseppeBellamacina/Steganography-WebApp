@@ -39,13 +39,11 @@ Tempo medio* & 0.12s & 1.85s & 0.45s \\ \hline
 
 \subsection{Trade-off Osservati}
 
-I test sperimentali hanno confermato le caratteristiche distintive di ciascun algoritmo.
-LSB eccelle in qualità visiva e velocità di esecuzione, ma sacrifica completamente la
-robustezza a compressione JPEG. DWT rappresenta l'unico approccio robusto a compressioni
-JPEG fino al 90\%, ma questa resistenza comporta una capacità ridotta e costi computazionali
-significativamente più elevati. PVD si posiziona come compromesso interessante, offrendo un
-buon bilanciamento tra capacità e qualità con complessità intermedia, pur mostrando sensibilità
-a operazioni di ridimensionamento.
+I test hanno confermato le caratteristiche attese di ogni algoritmo. LSB offre la migliore
+qualità visiva e velocità, ma non resiste a compressione JPEG. DWT è l'unico robusto a
+compressioni moderate, ma ha capacità ridotta e tempi più lunghi. PVD si posiziona come
+compromesso intermedio, con buon bilanciamento capacità/qualità ma sensibile a
+ridimensionamenti.
 
 \section{Contributi Originali}
 
@@ -100,84 +98,20 @@ sopravvive a ritagli significativi o ridimensionamenti sostanziali.
 
 \subsection{Sviluppi Futuri Proposti}
 
-\subsubsection{Nuovi Algoritmi}
-
-L'architettura modulare faciliterebbe l'integrazione di algoritmi aggiuntivi. Un'implementazione
-basata su DCT (Discrete Cosine Transform) offrirebbe compatibilità nativa con JPEG, operando
-direttamente sui coefficienti di compressione. Le tecniche spread spectrum distribuirebbero
-i dati su multiple frequenze aumentando la robustezza al rumore. Approcci di embedding adattivo
-potrebbero selezionare automaticamente le zone più adatte in base al contenuto dell'immagine,
-migliorando il trade-off tra capacità e impercettibilità.
-
-\subsubsection{Funzionalità Aggiuntive}
-
-\begin{enumerate}
-    \item \textbf{Crittografia integrata}:
-          \begin{lstlisting}
-# Cifratura pre-embedding
-from cryptography.fernet import Fernet
-
-key = Fernet.generate_key()
-cipher = Fernet(key)
-encrypted_msg = cipher.encrypt(message.encode())
-
-# Embedding del messaggio cifrato
-hide_message(img, encrypted_msg)
-          \end{lstlisting}
-    
-    \item \textbf{Stegoanalisi integrata}:
-          \begin{itemize}
-              \item Chi-square attack detection
-              \item RS analysis
-              \item Visual attack visualization
-          \end{itemize}
-    
-    \item \textbf{Batch processing}:
-          \begin{itemize}
-              \item Upload multiplo immagini
-              \item Distribuzione dati su più immagini
-              \item Processing parallelo
-          \end{itemize}
-    
-    \item \textbf{Supporto video}:
-          \begin{itemize}
-              \item Embedding in frame video
-              \item Maggiore capacità totale
-              \item Robustezza temporale
-          \end{itemize}
-    
-    \item \textbf{API REST}:
-          \begin{itemize}
-              \item Integrazione programmatica
-              \item Automazione workflows
-              \item Servizio headless
-          \end{itemize}
-\end{enumerate}
-
-\subsubsection{Ottimizzazioni Tecniche}
+Possibili migliormenti includono:
 
 \begin{itemize}
-    \item \textbf{GPU acceleration}: Uso CUDA per DWT su grandi immagini
-    \item \textbf{Compressione adattiva}: Algoritmi di compressione context-aware per binari
-    \item \textbf{Multi-threading}: Parallelizzazione embedding su canali RGB
-    \item \textbf{Progressive encoding}: Streaming per file molto grandi
+    \item \textbf{Nuovi algoritmi}: DCT per compatibilità JPEG, spread spectrum per maggiore
+          robustezza, embedding adattivo basato sul contenuto
+    \item \textbf{Crittografia integrata}: Cifrare i dati prima dell'embedding per maggiore
+          sicurezza
+    \item \textbf{Stegoanalisi}: Strumenti per rilevare la presenza di dati nascosti (chi-square
+          test, RS analysis)
+    \item \textbf{Batch processing}: Elaborazione di più immagini simultaneamente
+    \item \textbf{Supporto video}: Embedding in frame video per maggiore capacità
+    \item \textbf{Ottimizzazioni}: GPU acceleration per immagini grandi, multi-threading per
+          parallelizzare l'elaborazione
 \end{itemize}
-
-\section{Lezioni Apprese}
-
-L'esperienza di sviluppo ha evidenziato alcuni aspetti fondamentali. Dal punto di vista tecnico,
-i trade-off tra capacità, qualità e robustezza si sono rivelati inevitabili: ogni tentativo di
-ottimizzare una dimensione comporta sacrifici sulle altre. La validazione preventiva degli input
-è emersa come pratica essenziale, evitando computazioni inutili e migliorando significativamente
-l'esperienza utente. L'architettura modulare ha dimostrato il suo valore durante il debugging e
-le estensioni successive, mentre le metriche quantitative si sono rivelate fondamentali per
-valutazioni oggettive degli algoritmi.
-
-Sulla gestione del progetto, Streamlit ha permesso una prototipazione rapida dell'interfaccia,
-accelerando notevolmente lo sviluppo. L'automazione attraverso CI/CD ha ridotto gli errori in
-produzione, e la documentazione parallela al codice ha facilitato la manutenzione. La disciplina
-nel version control, con commit atomici e branch dedicati per le feature, ha mantenuto organizzato
-il flusso di sviluppo.
 
 \section{Considerazioni Finali}
 
@@ -196,10 +130,8 @@ algoritmi e funzionalità.
 
 \vspace{1cm}
 
-\textit{Il progetto è disponibile pubblicamente su GitHub:}
+\textit{Il progetto è disponibile su:}
 
-\texttt{https://github.com/GiuseppeBellamacina/Steganography-WebApp}
+GitHub: \texttt{https://github.com/GiuseppeBellamacina/Steganography-WebApp}
 
-\textit{Demo live su Streamlit Cloud:}
-
-\texttt{https://steg-app.streamlit.app}
+Demo: \texttt{https://steg-app.streamlit.app}
