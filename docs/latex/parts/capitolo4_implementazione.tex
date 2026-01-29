@@ -354,13 +354,13 @@ PSNR & 35.84 dB (Buona) \\ \hline
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb_4-msb_4.png}
+        \includegraphics[width=\textwidth]{assets/lsb/lsb_4-msb_4.png}
         \caption{Immagine stego con LSB=4, MSB=4}
         \label{fig:lsb_4_4_stego}
     \end{minipage}\hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/recovered_lsb_4-msb_4.png}
+        \includegraphics[width=\textwidth]{assets/lsb/recovered_lsb_4-msb_4.png}
         \caption{Immagine recuperata da LSB=4, MSB=4}
         \label{fig:lsb_4_4_recovered}
     \end{minipage}
@@ -391,13 +391,13 @@ PSNR & 56.60 dB (Eccellente) \\ \hline
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb_1-msb_1.png}
+        \includegraphics[width=\textwidth]{assets/lsb/lsb_1-msb_1.png}
         \caption{Immagine stego con LSB=1, MSB=1}
         \label{fig:lsb_1_1_stego}
     \end{minipage}\hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/recovered_lsb_1-msb_1.png}
+        \includegraphics[width=\textwidth]{assets/lsb/recovered_lsb_1-msb_1.png}
         \caption{Immagine recuperata da LSB=1, MSB=1}
         \label{fig:lsb_1_1_recovered}
     \end{minipage}
@@ -428,13 +428,13 @@ PSNR & 27.07 dB (Accettabile) \\ \hline
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/capacita-lsb_6-msb_2.png}
+        \includegraphics[width=\textwidth]{assets/lsb/capacita-lsb_6-msb_2.png}
         \caption{Immagine stego con LSB=6, MSB=2}
         \label{fig:lsb_6_2_stego}
     \end{minipage}\hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/recovered_lsb_6-msb_2.png}
+        \includegraphics[width=\textwidth]{assets/lsb/recovered_lsb_6-msb_2.png}
         \caption{Immagine recuperata da LSB=6, MSB=2}
         \label{fig:lsb_6_2_recovered}
     \end{minipage}
@@ -465,13 +465,13 @@ PSNR & 18.03 dB (Scarsa) \\ \hline
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb_7-msb_8.png}
+        \includegraphics[width=\textwidth]{assets/lsb/lsb_7-msb_8.png}
         \caption{Immagine stego con LSB=7, MSB=8}
         \label{fig:lsb_7_8_stego}
     \end{minipage}\hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/recovered_lsb_7-msb_8.png}
+        \includegraphics[width=\textwidth]{assets/lsb/recovered_lsb_7-msb_8.png}
         \caption{Immagine recuperata da LSB=7, MSB=8 (qualit\`a perfetta)}
         \label{fig:lsb_7_8_recovered}
     \end{minipage}
@@ -500,7 +500,7 @@ PSNR & 38.39 dB (Buona) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.45\textwidth]{assets/lsb_auto-msb_auto.png}
+    \includegraphics[width=0.45\textwidth]{assets/lsb/lsb_auto-msb_auto.png}
     \caption{Immagine stego con modalità automatica (LSB=3, MSB=8)}
     \label{fig:lsb_auto_stego}
 \end{figure}
@@ -520,3 +520,165 @@ I test dimostrano chiaramente il trade-off tra qualità dell'immagine stego e fe
 \end{itemize}
 
 La scelta dei parametri dipende dal caso d'uso: per steganografia che richiede invisibilit\`a, configurazioni con LSB$\leq$4 sono preferibili. Per archiviazione con compressione visiva accettabile, configurazioni con MSB$\geq$6 preservano meglio l'immagine segreta.
+
+\section{Test Sperimentali LSB - Occultamento File Binari}
+
+In questa sezione presentiamo test sperimentali dell'algoritmo LSB per l'occultamento di file binari, analizzando l'impatto del parametro N (numero di bit modificati per pixel) sulla qualit\`a visiva dell'immagine stego.
+
+\subsection{Setup Sperimentale}
+
+Per tutti i test \`e stato utilizzato:
+\begin{itemize}
+    \item \textbf{Immagine Host}: \texttt{host.jpg} - immagine carrier
+    \item \textbf{File Binario}: File di test (dimensione variabile)
+    \item \textbf{DIV}: Calcolato automaticamente (tranne Test 5)
+\end{itemize}
+
+\subsection{Test 1: Configurazione Alta Qualit\`a (N=2)}
+
+Configurazione che privilegia la massima qualit\`a visiva modificando solo 2 bit per pixel.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+N (bit per pixel) & 2 bit \\ \hline
+DIV & 1.16 (automatico) \\ \hline
+Pixel utilizzati & 85.98\% \\ \hline
+SSIM & 0.9719 (Eccellente) \\ \hline
+PSNR & 44.85 dB (Eccellente) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per N=2}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{assets/lsb/n2.png}
+    \caption{Immagine stego con N=2 - massima qualit\`a visiva}
+    \label{fig:n2_stego}
+\end{figure}
+
+\textbf{Analisi}: Con N=2 si ottiene un SSIM quasi perfetto (0.9719) e PSNR eccellente (44.85 dB). L'immagine \`e praticamente identica all'originale. L'elevato utilizzo dei pixel (85.98\%) indica che quasi tutta l'immagine viene impiegata per nascondere i dati.
+
+\subsection{Test 2: Configurazione Bilanciata (N=4)}
+
+Configurazione che offre un buon compromesso tra capacit\`a e qualit\`a visiva.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+N (bit per pixel) & 4 bit \\ \hline
+DIV & 2.33 (automatico) \\ \hline
+Pixel utilizzati & 42.99\% \\ \hline
+SSIM & 0.8194 (Eccellente) \\ \hline
+PSNR & 35.74 dB (Buona) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per N=4}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{assets/lsb/n4.png}
+    \caption{Immagine stego con N=4 - configurazione bilanciata}
+    \label{fig:n4_stego}
+\end{figure}
+
+\textbf{Analisi}: N=4 rappresenta la configurazione raccomandata per la maggior parte degli utilizzi. Mantiene un'eccellente qualit\`a visiva (SSIM=0.8194) con un utilizzo efficiente dei pixel (42.99\%).
+
+\subsection{Test 3: Configurazione Alta Capacit\`a (N=6)}
+
+Configurazione che massimizza la capacit\`a di occultamento modificando 6 bit per pixel.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+N (bit per pixel) & 6 bit \\ \hline
+DIV & 3.49 (automatico) \\ \hline
+Pixel utilizzati & 28.66\% \\ \hline
+SSIM & 0.3167 (Accettabile) \\ \hline
+PSNR & 24.57 dB (Accettabile) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per N=6}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{assets/lsb/n6.png}
+    \caption{Immagine stego con N=6 - alta capacit\`a}
+    \label{fig:n6_stego}
+\end{figure}
+
+\textbf{Analisi}: Con N=6 l'utilizzo dei pixel scende al 28.66\%, permettendo di nascondere pi\`u dati in meno spazio. Tuttavia, la qualit\`a visiva \`e ridotta (SSIM=0.3167), con distorsioni visibili ma accettabili per alcuni scenari.
+
+\subsection{Test 4: Configurazione Estrema con DIV Automatico (N=8)}
+
+Test estremo che modifica tutti gli 8 bit per pixel con DIV calcolato automaticamente.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+N (bit per pixel) & 8 bit (tutti) \\ \hline
+DIV & 4.65 (automatico) \\ \hline
+Pixel utilizzati & 21.50\% \\ \hline
+SSIM & 0.0592 (Scarsa) \\ \hline
+PSNR & 12.94 dB (Scarsa) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per N=8 con DIV automatico}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{assets/lsb/n8.png}
+    \caption{Immagine stego con N=8, DIV automatico - distorsioni evidenti}
+    \label{fig:n8_auto_stego}
+\end{figure}
+
+\textbf{Analisi}: Modificando tutti gli 8 bit con DIV automatico si ottiene la massima capacit\`a (solo 21.50\% dei pixel utilizzati), ma l'immagine presenta distorsioni molto evidenti (SSIM=0.0592, PSNR=12.94 dB). Inadatto per steganografia.
+
+\subsection{Test 5: Configurazione Estrema con DIV=1 (N=8)}
+
+Test estremo che modifica tutti gli 8 bit per pixel con DIV fissato a 1 (nessuna distribuzione).
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parametro} & \textbf{Valore} \\ \hline
+N (bit per pixel) & 8 bit (tutti) \\ \hline
+DIV & 1.00 (manuale) \\ \hline
+Pixel utilizzati & 21.50\% \\ \hline
+SSIM & 0.7859 (Buona) \\ \hline
+PSNR & 13.75 dB (Scarsa) \\ \hline
+\end{tabular}
+\caption{Parametri e metriche per N=8 con DIV=1}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{assets/lsb/n8-div1.png}
+    \caption{Immagine stego con N=8, DIV=1 - concentrazione visibile}
+    \label{fig:n8_div1_stego}
+\end{figure}
+
+\textbf{Analisi}: Con DIV=1 i dati vengono scritti consecutivamente senza distribuzione. Curiosamente, l'SSIM migliora rispetto al DIV automatico (0.7859 vs 0.0592), ma il PSNR rimane basso (13.75 dB). La concentrazione dei dati \`e visibile nell'immagine, creando pattern riconoscibili.
+
+\subsection{Conclusioni sui Test LSB Binary}
+
+I test dimostrano l'impatto del parametro N sulla qualit\`a dell'immagine stego:
+
+\begin{itemize}
+    \item \textbf{N=2}: Massima qualit\`a (SSIM=0.972), alto utilizzo pixel (86\%)
+    \item \textbf{N=4}: Configurazione bilanciata raccomandata (SSIM=0.819)
+    \item \textbf{N=6}: Alta capacit\`a, qualit\`a accettabile (SSIM=0.317)
+    \item \textbf{N=8, DIV auto}: Massima capacit\`a, qualit\`a scarsa (SSIM=0.059)
+    \item \textbf{N=8, DIV=1}: Pattern visibili, inadatto per steganografia
+\end{itemize}
+
+Il parametro DIV influenza la distribuzione dei dati: valori automatici distribuiscono uniformemente i dati nell'immagine, mentre DIV=1 concentra i dati creando artefatti visibili. Per applicazioni steganografiche, N$\leq$4 con DIV automatico offre il miglior compromesso invisibilit\`a/capacit\`a.

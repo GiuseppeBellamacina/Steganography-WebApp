@@ -1126,6 +1126,12 @@ class HideDataPages:
                             img_buffer = io.BytesIO()
                             result_img.save(img_buffer, format="PNG")
 
+                            # Crea messaggio info in base al metodo
+                            if selected_method == "lsb":
+                                preview_info = f"📊 Parametri utilizzati: N={final_n}, DIV={final_div:.2f}, SIZE={size} bytes - Pixel usati: {percentage:.2f}%"
+                            else:  # DWT o PVD
+                                preview_info = f"📊 Parametri utilizzati: SIZE={size} bytes - Pixel usati: {percentage:.2f}%"
+
                             downloads = {
                                 "image": {
                                     "data": img_buffer.getvalue(),
@@ -1134,7 +1140,7 @@ class HideDataPages:
                                     "label": "📥 Scarica immagine con file nascosto",
                                 },
                                 "preview_image": result_img,  # Mantieni anteprima
-                                "preview_info": f"📊 Parametri utilizzati: N={final_n}, DIV={final_div:.2f}, SIZE={size} bytes - Pixel usati: {percentage:.2f}%",
+                                "preview_info": preview_info,
                                 "metrics": metrics,  # Salva le metriche
                             }
 
