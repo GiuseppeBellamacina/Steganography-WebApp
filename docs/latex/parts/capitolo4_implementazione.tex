@@ -333,6 +333,8 @@ Per tutti i test sono state utilizzate le seguenti immagini:
     \item \textbf{Immagine Segreta}: \texttt{occulted.jpg} - immagine da nascondere (720×1280 pixel)
 \end{itemize}
 
+\newpage
+
 \subsection{Test 1: Configurazione Bilanciata (LSB=4, MSB=4)}
 
 Questa configurazione rappresenta un buon compromesso tra qualità visiva e capacità di occultamento.
@@ -356,19 +358,21 @@ PSNR & 35.84 dB (Buona) \\ \hline
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb/lsb_4-msb_4.png}
+        \includegraphics[width=0.65\textwidth]{assets/lsb/lsb_4-msb_4.png}
         \caption{Immagine stego con LSB=4, MSB=4}
         \label{fig:lsb_4_4_stego}
     \end{minipage}\hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb/recovered_lsb_4-msb_4.png}
+        \includegraphics[width=0.65\textwidth]{assets/lsb/recovered_lsb_4-msb_4.png}
         \caption{Immagine recuperata da LSB=4, MSB=4}
         \label{fig:lsb_4_4_recovered}
     \end{minipage}
 \end{figure}
 
 \textbf{Analisi}: Con LSB=4 e MSB=4 si ottiene un eccellente SSIM di 0.8563, indicando che l'immagine stego è quasi indistinguibile dall'originale. Il recupero dell'immagine segreta è preciso, preservando 4 bit per canale.
+
+\newpage
 
 \subsection{Test 2: Alta Qualità (LSB=1, MSB=1)}
 
@@ -393,19 +397,21 @@ PSNR & 56.60 dB (Eccellente) \\ \hline
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb/lsb_1-msb_1.png}
+        \includegraphics[width=0.65\textwidth]{assets/lsb/lsb_1-msb_1.png}
         \caption{Immagine stego con LSB=1, MSB=1}
         \label{fig:lsb_1_1_stego}
     \end{minipage}\hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb/recovered_lsb_1-msb_1.png}
+        \includegraphics[width=0.65\textwidth]{assets/lsb/recovered_lsb_1-msb_1.png}
         \caption{Immagine recuperata da LSB=1, MSB=1}
         \label{fig:lsb_1_1_recovered}
     \end{minipage}
 \end{figure}
 
 \textbf{Analisi}: Con LSB=1 e MSB=1 si ottiene un SSIM quasi perfetto (0.9981) e un PSNR eccellente di 56.60 dB. L'immagine stego è praticamente identica all'originale. Tuttavia, l'immagine recuperata preserva solo 1 bit per canale, risultando in una qualità visiva degradata ma ancora riconoscibile.
+
+\newpage
 
 \subsection{Test 3: Alta Capacità (LSB=6, MSB=2)}
 
@@ -430,19 +436,21 @@ PSNR & 27.07 dB (Accettabile) \\ \hline
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb/capacita-lsb_6-msb_2.png}
+        \includegraphics[width=0.65\textwidth]{assets/lsb/capacita-lsb_6-msb_2.png}
         \caption{Immagine stego con LSB=6, MSB=2}
         \label{fig:lsb_6_2_stego}
     \end{minipage}\hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb/recovered_lsb_6-msb_2.png}
+        \includegraphics[width=0.65\textwidth]{assets/lsb/recovered_lsb_6-msb_2.png}
         \caption{Immagine recuperata da LSB=6, MSB=2}
         \label{fig:lsb_6_2_recovered}
     \end{minipage}
 \end{figure}
 
 \textbf{Analisi}: Modificando 6 bit per pixel si riduce significativamente l'utilizzo dell'immagine host (solo 9.88\% dei pixel), ma a costo di una qualità visiva ridotta (SSIM=0.5601). L'immagine recuperata preserva solo 2 bit per canale.
+
+\newpage
 
 \subsection{Test 4: Massima Capacità Estrema (LSB=7, MSB=8)}
 
@@ -467,19 +475,21 @@ PSNR & 18.03 dB (Scarsa) \\ \hline
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb/lsb_7-msb_8.png}
+        \includegraphics[width=0.65\textwidth]{assets/lsb/lsb_7-msb_8.png}
         \caption{Immagine stego con LSB=7, MSB=8}
         \label{fig:lsb_7_8_stego}
     \end{minipage}\hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{assets/lsb/recovered_lsb_7-msb_8.png}
+        \includegraphics[width=0.65\textwidth]{assets/lsb/recovered_lsb_7-msb_8.png}
         \caption{Immagine recuperata da LSB=7, MSB=8 (qualit\`a perfetta)}
         \label{fig:lsb_7_8_recovered}
     \end{minipage}
 \end{figure}
 
 \textbf{Analisi}: Con LSB=7 e MSB=8 si ottiene un recupero perfetto dell'immagine segreta (tutti gli 8 bit preservati), ma l'immagine stego presenta distorsioni evidenti (SSIM=0.1008, PSNR=18.03 dB). Questa configurazione è inadatta per applicazioni steganografiche reali.
+
+\newpage
 
 \subsection{Test 5: Modalità Automatica (LSB=auto, MSB=8)}
 
@@ -502,7 +512,7 @@ PSNR & 38.39 dB (Buona) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.45\textwidth]{assets/lsb/lsb_auto-msb_auto.png}
+    \includegraphics[width=0.3\textwidth]{assets/lsb/lsb_auto-msb_auto.png}
     \caption{Immagine stego con modalità automatica (LSB=3, MSB=8)}
     \label{fig:lsb_auto_stego}
 \end{figure}
@@ -536,6 +546,8 @@ Per tutti i test \`e stato utilizzato:
     \item \textbf{DIV}: Calcolato automaticamente (tranne Test 5)
 \end{itemize}
 
+\newpage
+
 \subsection{Test 1: Configurazione Alta Qualit\`a (N=2)}
 
 Configurazione che privilegia la massima qualit\`a visiva modificando solo 2 bit per pixel.
@@ -556,12 +568,14 @@ PSNR & 44.85 dB (Eccellente) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{assets/lsb/n2.png}
+    \includegraphics[width=0.4\textwidth]{assets/lsb/n2.png}
     \caption{Immagine stego con N=2 - massima qualit\`a visiva}
     \label{fig:n2_stego}
 \end{figure}
 
 \textbf{Analisi}: Con N=2 si ottiene un SSIM quasi perfetto (0.9719) e PSNR eccellente (44.85 dB). L'immagine \`e praticamente identica all'originale. L'elevato utilizzo dei pixel (85.98\%) indica che quasi tutta l'immagine viene impiegata per nascondere i dati.
+
+\newpage
 
 \subsection{Test 2: Configurazione Bilanciata (N=4)}
 
@@ -583,12 +597,14 @@ PSNR & 35.74 dB (Buona) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{assets/lsb/n4.png}
+    \includegraphics[width=0.4\textwidth]{assets/lsb/n4.png}
     \caption{Immagine stego con N=4 - configurazione bilanciata}
     \label{fig:n4_stego}
 \end{figure}
 
 \textbf{Analisi}: N=4 rappresenta la configurazione raccomandata per la maggior parte degli utilizzi. Mantiene un'eccellente qualit\`a visiva (SSIM=0.8194) con un utilizzo efficiente dei pixel (42.99\%).
+
+\newpage
 
 \subsection{Test 3: Configurazione Alta Capacit\`a (N=6)}
 
@@ -610,12 +626,14 @@ PSNR & 24.57 dB (Accettabile) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{assets/lsb/n6.png}
+    \includegraphics[width=0.4\textwidth]{assets/lsb/n6.png}
     \caption{Immagine stego con N=6 - alta capacit\`a}
     \label{fig:n6_stego}
 \end{figure}
 
 \textbf{Analisi}: Con N=6 l'utilizzo dei pixel scende al 28.66\%, permettendo di nascondere pi\`u dati in meno spazio. Tuttavia, la qualit\`a visiva \`e ridotta (SSIM=0.3167), con distorsioni visibili ma accettabili per alcuni scenari.
+
+\newpage
 
 \subsection{Test 4: Configurazione Estrema con DIV Automatico (N=8)}
 
@@ -637,12 +655,14 @@ PSNR & 12.94 dB (Scarsa) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{assets/lsb/n8.png}
+    \includegraphics[width=0.4\textwidth]{assets/lsb/n8.png}
     \caption{Immagine stego con N=8, DIV automatico - distorsioni evidenti}
     \label{fig:n8_auto_stego}
 \end{figure}
 
 \textbf{Analisi}: Modificando tutti gli 8 bit con DIV automatico si ottiene la massima capacit\`a (solo 21.50\% dei pixel utilizzati), ma l'immagine presenta distorsioni molto evidenti (SSIM=0.0592, PSNR=12.94 dB). Inadatto per steganografia.
+
+\newpage
 
 \subsection{Test 5: Configurazione Estrema con DIV=1 (N=8)}
 
@@ -664,7 +684,7 @@ PSNR & 13.75 dB (Scarsa) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{assets/lsb/n8-div1.png}
+    \includegraphics[width=0.4\textwidth]{assets/lsb/n8-div1.png}
     \caption{Immagine stego con N=8, DIV=1 - concentrazione visibile}
     \label{fig:n8_div1_stego}
 \end{figure}
@@ -699,6 +719,8 @@ Per tutti i test \`e stato utilizzato:
     \item \textbf{Parametri Variabili}: ALPHA (fattore di embedding), BANDS (bande DWT), CHANNELS (canali RGB)
 \end{itemize}
 
+\newpage
+
 \subsection{Test 1: Alta Qualit\`a - Configurazione Conservativa}
 
 Configurazione che privilegia la qualit\`a visiva usando ALPHA basso e un solo canale.
@@ -719,12 +741,14 @@ PSNR & 26.62 dB (Accettabile) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{assets/dwt/qualita-alpha_005-banda_ch-1ch-ssim_7726-psnr_2662.png}
+    \includegraphics[width=0.4\textwidth]{assets/dwt/qualita-alpha_005-banda_ch-1ch-ssim_7726-psnr_2662.png}
     \caption{DWT con ALPHA=0.05, 1 banda, 1 canale - alta qualit\`a}
     \label{fig:dwt_quality}
 \end{figure}
 
 \textbf{Analisi}: Con ALPHA=0.05 (embedding debole) e un solo canale, si ottiene un buon SSIM (0.7726). Il PSNR \`e accettabile (26.62 dB). Questa configurazione \`e adatta quando la qualit\`a visiva \`e prioritaria, ma ha capacit\`a limitata.
+
+\newpage
 
 \subsection{Test 2: Capacit\`a Aumentata - Configurazione Estesa}
 
@@ -746,12 +770,14 @@ PSNR & 35.24 dB (Buona) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{assets/dwt/capacita-alpha_015-3bande-3ch-ssim8910-psnr_3524.png}
+    \includegraphics[width=0.4\textwidth]{assets/dwt/capacita-alpha_015-3bande-3ch-ssim8910-psnr_3524.png}
     \caption{DWT con ALPHA=0.15, 3 bande, 3 canali - capacit\`a triplicata}
     \label{fig:dwt_capacity}
 \end{figure}
 
 \textbf{Analisi}: Aumentando ALPHA a 0.15 e utilizzando tutti e 3 i canali RGB con 3 bande DWT, la capacit\`a viene triplicata. Sorprendentemente, SSIM e PSNR migliorano (0.8910 e 35.24 dB), probabilmente perch\'e la distribuzione su pi\`u canali rende le modifiche meno concentrate.
+
+\newpage
 
 \subsection{Test 3: Massima Capacit\`a - Configurazione Aggressiva}
 
@@ -773,7 +799,7 @@ PSNR & 34.47 dB (Buona) \\ \hline
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{assets/dwt/qualita-alpha_030-3bande-ech-ssim_9203-psnr_3447.png}
+    \includegraphics[width=0.4\textwidth]{assets/dwt/qualita-alpha_030-3bande-ech-ssim_9203-psnr_3447.png}
     \caption{DWT con ALPHA=0.30, 3 bande, 3 canali - embedding aggressivo}
     \label{fig:dwt_max}
 \end{figure}
@@ -818,7 +844,7 @@ In questa sezione presentiamo il funzionamento dell'algoritmo PVD (Pixel Value D
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{assets/host.jpg}
+    \includegraphics[width=0.4\textwidth]{assets/host.jpg}
     \caption{Immagine host utilizzata per tutti i test PVD}
     \label{fig:pvd_host}
 \end{figure}
