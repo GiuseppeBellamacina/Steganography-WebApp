@@ -23,7 +23,7 @@ class MessageSteganography:
     @staticmethod
     def hide_message(
         img: Image.Image, message: str, backup_file: str | None = None
-    ) -> tuple[Image.Image, dict]:
+    ) -> tuple[Image.Image, dict, float]:
         """
         Nasconde una stringa in un'immagine
 
@@ -33,7 +33,7 @@ class MessageSteganography:
             backup_file: File dove salvare i parametri di backup
 
         Returns:
-            Tupla con (immagine_con_messaggio, metrics) dove metrics è un dizionario con 'ssim' e 'psnr'
+            Tupla con (immagine_con_messaggio, metrics, percentuale) dove metrics è un dizionario con 'ssim' e 'psnr' e percentuale è la percentuale di pixel usati
         """
         # Validazione
         ParameterValidator.validate_image_size_for_message(img, message)
@@ -103,7 +103,7 @@ class MessageSteganography:
             f"Metriche di qualità - SSIM: {metrics['ssim']:.4f}, PSNR: {metrics['psnr']:.2f} dB"
         )
 
-        return img_copy, metrics
+        return img_copy, metrics, float(percentage)
 
     @staticmethod
     def get_message(img: Image.Image, backup_file: str | None = None) -> str:

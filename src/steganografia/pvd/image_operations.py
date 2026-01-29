@@ -199,6 +199,13 @@ class ImageSteganography:
 
         stego = Image.fromarray(host.astype(np.uint8), "RGB")
 
+        # Calcola percentuale di bit usati
+        total_bits_host = h * w * len(ImageSteganography.CHANNELS)
+        percentage = format((bit_idx / total_bits_host) * 100, ".2f")
+        print(
+            f"TERMINATO - Percentuale di pixel usati con PVD: {percentage}% ({bit_idx}/{total_bits_host} bit)"
+        )
+
         # Determina se RANGES è quality o capacity
         is_quality = ImageSteganography.RANGES == ImageSteganography.RANGES_QUALITY
         params = {
@@ -213,7 +220,7 @@ class ImageSteganography:
         backup_system.save_backup_data(DataType.IMAGE, params, backup_file)
 
         metrics = QualityMetrics.calculate_metrics(original, stego)
-        return stego, 1, 8, 0.0, width, height, metrics
+        return stego, 1, 8, 0.0, width, height, metrics, float(percentage)
 
     @staticmethod
     def get_image(

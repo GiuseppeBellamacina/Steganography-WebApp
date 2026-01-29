@@ -33,7 +33,7 @@ class ImageSteganography:
         secret_img: Image.Image,
         backup_file: str | None = None,
         **kwargs,  # Ignora lsb, msb, div per compatibilità API
-    ) -> tuple[Image.Image, int, int, float, int, int, dict]:
+    ) -> tuple[Image.Image, int, int, float, int, int, dict, float]:
         """
         Nasconde un'immagine in un'altra usando DWT
 
@@ -144,6 +144,13 @@ class ImageSteganography:
         host_array = np.clip(host_array, 0, 255).astype(np.uint8)
         result_img = Image.fromarray(host_array, mode="RGB")
 
+        # Calcola percentuale di bit usati
+        total_bits_host = host_img.width * host_img.height * 3
+        percentage = format((len(secret_binary) / total_bits_host) * 100, ".2f")
+        print(
+            f"TERMINATO - Percentuale di pixel usati con DWT: {percentage}% ({len(secret_binary)}/{total_bits_host} bit)"
+        )
+
         # Salva parametri (sempre nella cache, opzionalmente su file)
         params = {
             "method": "dwt",
@@ -162,7 +169,16 @@ class ImageSteganography:
         print("Immagine nascosta con successo usando DWT")
 
         # Restituisce con parametri dummy per compatibilità
-        return result_img, 1, 8, 0.0, secret_width, secret_height, metrics
+        return (
+            result_img,
+            1,
+            8,
+            0.0,
+            secret_width,
+            secret_height,
+            metrics,
+            float(percentage),
+        )
 
     @staticmethod
     def get_image(

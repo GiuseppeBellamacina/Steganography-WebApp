@@ -29,7 +29,7 @@ class BinarySteganography:
         n: int = 0,
         div: float = 0,
         backup_file: str | None = None,
-    ) -> tuple[Image.Image, int, float, int, dict]:
+    ) -> tuple[Image.Image, int, float, int, dict, float]:
         """
         Nasconde un file binario o una cartella in un'immagine
 
@@ -161,7 +161,7 @@ class BinarySteganography:
             }
             backup_system.save_backup_data(DataType.BINARY, params, backup_file)
 
-            return (result_img, n, div, total_bytes, metrics)
+            return (result_img, n, div, total_bytes, metrics, float(percentage))
 
         finally:
             # Pulizia file temporanei

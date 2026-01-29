@@ -24,7 +24,7 @@ class ImageSteganography:
         msb: int = 8,
         div: float = 0,
         backup_file: str | None = None,
-    ) -> tuple[Image.Image, int, int, float, int, int, dict]:
+    ) -> tuple[Image.Image, int, int, float, int, int, dict, float]:
         """
         Nasconde un'immagine in un'altra
 
@@ -37,29 +37,37 @@ class ImageSteganography:
             backup_file: File dove salvare i parametri
 
         Returns:
-            Tupla con (immagine_risultato, lsb_finale, msb_finale, div_finale, width, height, metrics)
-            dove metrics è un dizionario con 'ssim' e 'psnr'
+            Tupla con (immagine_risultato, lsb_finale, msb_finale, div_finale, width, height, metrics, percentuale)
+            dove metrics è un dizionario con 'ssim' e 'psnr' e percentuale è la percentuale di pixel usati
         """
         # Validazione parametri
         ParameterValidator.validate_lsb(lsb)
         ParameterValidator.validate_msb(msb)
 
-        # Determina LSB automatico se necessario
+        # Determina LSB e MSB automatici se necessario
         if lsb == 0:
             lsb = 1
             while (lsb * host_img.width * host_img.height * 3) < (
                 msb * secret_img.width * secret_img.height * 3
             ):
                 lsb += 1
-                if lsb > 8:
-                    raise ValueError(
-                        ErrorMessages.IMAGE_TOO_SMALL_IMAGE.format(
-                            host_width=host_img.width,
-                            host_height=host_img.height,
-                            secret_width=secret_img.width,
-                            secret_height=secret_img.height,
+                if lsb > msb:
+                    # Se LSB supera MSB, riparti da 1 e riduci MSB
+                    lsb = 1
+                    msb -= 1
+                    if msb == 0:
+                        # Se MSB arriva a 0, l'immagine è troppo piccola
+                        raise ValueError(
+                            ErrorMessages.IMAGE_TOO_SMALL_IMAGE.format(
+                                host_width=host_img.width,
+                                host_height=host_img.height,
+                                secret_width=secret_img.width,
+                                secret_height=secret_img.height,
+                            )
                         )
-                    )
+            print(
+                f"Modalità automatica: LSB={lsb}, MSB={msb} calcolati automaticamente"
+            )
 
         # Verifica dimensioni
         ParameterValidator.validate_image_size_for_image(host_img, secret_img, lsb, msb)
@@ -159,7 +167,7 @@ class ImageSteganography:
         }
         backup_system.save_backup_data(DataType.IMAGE, params, backup_file)
 
-        return (result_img, lsb, msb, div, w, h, metrics)
+        return (result_img, lsb, msb, div, w, h, metrics, float(percentage))
 
     @staticmethod
     def get_image(

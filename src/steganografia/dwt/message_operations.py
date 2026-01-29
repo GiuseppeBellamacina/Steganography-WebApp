@@ -28,7 +28,7 @@ class MessageSteganography:
     @staticmethod
     def hide_message(
         img: Image.Image, message: str, backup_file: str | None = None
-    ) -> tuple[Image.Image, dict]:
+    ) -> tuple[Image.Image, dict, float]:
         """
         Nasconde una stringa in un'immagine usando DWT
 
@@ -38,7 +38,7 @@ class MessageSteganography:
             backup_file: File dove salvare i parametri di backup
 
         Returns:
-            Tupla con (immagine_con_messaggio, metrics)
+            Tupla con (immagine_con_messaggio, metrics, percentuale)
         """
         # Validazione
         ParameterValidator.validate_image_size_for_message(img, message)
@@ -147,6 +147,13 @@ class MessageSteganography:
         img_array = np.clip(img_array, 0, 255).astype(np.uint8)
         result_img = Image.fromarray(img_array, mode="RGB")
 
+        # Calcola percentuale di bit usati
+        total_bits_host = img.width * img.height * 3
+        percentage = format((bit_index / total_bits_host) * 100, ".2f")
+        print(
+            f"TERMINATO - Percentuale di pixel usati con DWT: {percentage}% ({bit_index}/{total_bits_host} bit)"
+        )
+
         # Salva parametri (sempre nella cache, opzionalmente su file)
         params = {
             "method": "dwt",
@@ -163,7 +170,7 @@ class MessageSteganography:
         metrics = QualityMetrics.calculate_metrics(original_img, result_img)
 
         print("Messaggio nascosto con successo usando DWT")
-        return result_img, metrics
+        return result_img, metrics, float(percentage)
 
     @staticmethod
     def get_message(img: Image.Image, backup_file: str | None = None) -> str:
