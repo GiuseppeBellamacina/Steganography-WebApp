@@ -12,15 +12,15 @@ Prova l'applicazione online su [Streamlit Cloud](https://steg-app.streamlit.app)
 
 ## 📋 Indice
 
-- [Caratteristiche](#caratteristiche)
-- [Architettura del Progetto](#architettura-del-progetto)
-- [Installazione](#installazione)
-- [Setup Git Hooks](#setup-git-hooks)
-- [Utilizzo](#utilizzo)
-- [Struttura del Progetto](#struttura-del-progetto)
-- [Algoritmi di Steganografia](#algoritmi-di-steganografia)
-- [Contribuire](#contribuire)
-- [Licenza](#licenza)
+- [Caratteristiche](#-caratteristiche)
+- [Architettura del Progetto](#️-architettura-del-progetto)
+- [Installazione](#-installazione)
+- [Setup Git Hooks](#️-setup-git-hooks)
+- [Utilizzo](#-utilizzo)
+- [Struttura del Progetto](#-struttura-del-progetto)
+- [Algoritmi di Steganografia](#-algoritmi-di-steganografia)
+- [Contribuire](#-contribuire)
+- [Licenza](#-licenza)
 
 ## ✨ Caratteristiche
 
@@ -49,7 +49,7 @@ Prova l'applicazione online su [Streamlit Cloud](https://steg-app.streamlit.app)
 
 Il progetto segue un'architettura modulare con separazione delle responsabilità:
 
-```
+```text
 ├── Frontend (UI)
 │   ├── Streamlit App (app.py)
 │   └── UI Components (src/ui/)
@@ -167,7 +167,7 @@ ruff check .
 
 ## 📁 Struttura del Progetto
 
-```
+```text
 Steganography-WebApp/
 ├── 🌐 app.py                    # Streamlit application
 ├── ⚙️ pyproject.toml            # Project configuration
