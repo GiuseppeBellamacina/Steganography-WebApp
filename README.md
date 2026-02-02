@@ -168,58 +168,100 @@ ruff check .
 ## 📁 Struttura del Progetto
 
 ```text
-Steganography-WebApp/
-├── 🌐 app.py                    # Streamlit application
-├── ⚙️ pyproject.toml            # Project configuration
-├── 📄 README.md                 # Documentation
-│
-├── 📁 src/                      # Source code
-│   ├── 📁 steganografia/        # Core steganography algorithms
-│   │   ├── backup.py            # Backup system
-│   │   ├── bit_operations.py    # Bit manipulation
-│   │   ├── core.py              # Core functions
-│   │   ├── file_utils.py        # File utilities
-│   │   ├── metrics.py           # Quality metrics (PSNR, SSIM)
-│   │   ├── validator.py         # Input validation
-│   │   │
-│   │   ├── 📁 lsb/              # LSB algorithm
-│   │   │   ├── binary_operations.py
-│   │   │   ├── image_operations.py
-│   │   │   └── message_operations.py
-│   │   │
-│   │   ├── 📁 dwt/              # DWT algorithm
-│   │   │   ├── binary_operations.py
-│   │   │   ├── image_operations.py
-│   │   │   └── message_operations.py
-│   │   │
-│   │   └── 📁 pvd/              # PVD algorithm
-│   │       ├── binary_operations.py
-│   │       ├── image_operations.py
-│   │       └── message_operations.py
-│   │
-│   └── 📁 ui/                   # User interface components
-│       ├── components.py        # Reusable components
-│       ├── hide_pages.py        # Hide data pages
-│       ├── image_utils.py       # Image utilities
-│       ├── layout.py            # Main layout
-│       ├── recover_pages.py     # Recover data pages
-│       └── styles.py            # CSS styles
-│
-├── 📁 config/                   # Configuration
-│   └── constants.py             # Global constants
-│
-├── 📁 docs/                     # Documentation
-│   ├── relazione.pdf            # Compiled PDF
-│   └── 📁 latex/                # LaTeX documentation
-│       ├── relazione.tex        # Main document
-│       ├── bibliografia.bib     # Bibliography file
-│       └── 📁 parts/            # Document chapters
-│
-└── 📁 assets/                   # Static resources
-    ├── 📁 img/                  # Sample images
-    ├── 📁 pdf/                  # PDF files
-    ├── 📁 text/                 # Text files
-    └── 📁 video/                # Video files
+├── 📁 .githooks
+│   ├── 📄 pre-commit
+│   └── 📄 setup-hooks.sh
+├── 📁 .github
+│   └── 📁 workflows
+│       └── ⚙️ ci.yml
+├── 📁 assets
+│   ├── 📁 img
+│   │   ├── 🖼️ darth.jpg
+│   │   └── 🖼️ rainbow.jpg
+│   ├── 📁 pdf
+│   │   └── 📕 itu.pdf
+│   ├── 📁 text
+│   │   └── 📄 div.txt
+│   └── 📁 video
+│       └── 🎬 timer.mp4
+├── 📁 config
+│   └── 🐍 constants.py
+├── 📁 docs
+│   ├── 📁 latex
+│   │   ├── 📁 assets
+│   │   │   ├── 📁 dwt
+│   │   │   │   ├── 🖼️ capacita-alpha_015-3bande-3ch-ssim8910-psnr_3524.png
+│   │   │   │   ├── 🖼️ qualita-alpha_005-banda_ch-1ch-ssim_7726-psnr_2662.png
+│   │   │   │   └── 🖼️ qualita-alpha_030-3bande-ech-ssim_9203-psnr_3447.png
+│   │   │   ├── 📁 lsb
+│   │   │   │   ├── 🖼️ capacita-lsb_6-msb_2.png
+│   │   │   │   ├── 🖼️ lsb_1-msb_1.png
+│   │   │   │   ├── 🖼️ lsb_4-msb_4.png
+│   │   │   │   ├── 🖼️ lsb_7-msb_8.png
+│   │   │   │   ├── 🖼️ lsb_auto-msb_auto.png
+│   │   │   │   ├── 🖼️ n2.png
+│   │   │   │   ├── 🖼️ n4.png
+│   │   │   │   ├── 🖼️ n6.png
+│   │   │   │   ├── 🖼️ n8-div1.png
+│   │   │   │   ├── 🖼️ n8.png
+│   │   │   │   ├── 🖼️ recovered_lsb_1-msb_1.png
+│   │   │   │   ├── 🖼️ recovered_lsb_4-msb_4.png
+│   │   │   │   ├── 🖼️ recovered_lsb_6-msb_2.png
+│   │   │   │   └── 🖼️ recovered_lsb_7-msb_8.png
+│   │   │   ├── 🖼️ host.jpg
+│   │   │   └── 🖼️ occulted.jpg
+│   │   ├── 📁 parts
+│   │   │   ├── 📄 abstract.tex
+│   │   │   ├── 📄 capitolo1_fondamenti.tex
+│   │   │   ├── 📄 capitolo2_algoritmi.tex
+│   │   │   ├── 📄 capitolo3_architettura.tex
+│   │   │   ├── 📄 capitolo4_implementazione.tex
+│   │   │   ├── 📄 capitolo5_interfaccia.tex
+│   │   │   ├── 📄 conclusioni.tex
+│   │   │   ├── 📄 frontespizio.tex
+│   │   │   └── 📄 introduzione.tex
+│   │   ├── 📄 bibliografia.bib
+│   │   └── 📄 relazione.tex
+│   └── 📕 relazione.pdf
+├── 📁 src
+│   ├── 📁 steganografia
+│   │   ├── 📁 dwt
+│   │   │   ├── 🐍 __init__.py
+│   │   │   ├── 🐍 binary_operations.py
+│   │   │   ├── 🐍 image_operations.py
+│   │   │   └── 🐍 message_operations.py
+│   │   ├── 📁 lsb
+│   │   │   ├── 🐍 __init__.py
+│   │   │   ├── 🐍 binary_operations.py
+│   │   │   ├── 🐍 image_operations.py
+│   │   │   └── 🐍 message_operations.py
+│   │   ├── 📁 pvd
+│   │   │   ├── 🐍 __init__.py
+│   │   │   ├── 🐍 binary_operations.py
+│   │   │   ├── 🐍 image_operations.py
+│   │   │   └── 🐍 message_operations.py
+│   │   ├── 🐍 __init__.py
+│   │   ├── 🐍 backup.py
+│   │   ├── 🐍 bit_operations.py
+│   │   ├── 🐍 core.py
+│   │   ├── 🐍 file_utils.py
+│   │   ├── 🐍 metrics.py
+│   │   └── 🐍 validator.py
+│   ├── 📁 ui
+│   │   ├── 🐍 __init__.py
+│   │   ├── 🐍 components.py
+│   │   ├── 🐍 hide_pages.py
+│   │   ├── 🐍 image_utils.py
+│   │   ├── 🐍 layout.py
+│   │   ├── 🐍 recover_pages.py
+│   │   └── 🐍 styles.py
+│   └── 🐍 __init__.py
+├── ⚙️ .gitignore
+├── 📄 LICENSE
+├── 📝 README.md
+├── 🐍 app.py
+├── ⚙️ pyproject.toml
+└── 📄 uv.lock
 ```
 
 ## 🎯 Algoritmi di Steganografia
