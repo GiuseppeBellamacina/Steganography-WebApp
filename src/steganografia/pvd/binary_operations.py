@@ -72,7 +72,7 @@ class BinarySteganography:
         # Calcola la nuova differenza
         new_diff = lower + decimal_value
 
-        # ⚠️ CRITICAL: clamp per auto-sincronizzazione
+        #  CRITICAL: clamp per auto-sincronizzazione
         new_diff = min(new_diff, upper)
 
         # Mantiene il segno della differenza originale
@@ -82,7 +82,7 @@ class BinarySteganography:
         # Calcola i nuovi pixel
         m = abs(new_diff) - abs(diff)
 
-        # 🔧 Early return se nessuna modifica
+        #  Early return se nessuna modifica
         if m == 0:
             return pixel1, pixel2
 
@@ -113,7 +113,7 @@ class BinarySteganography:
         # Calcola il valore nascosto
         value = abs(diff) - lower
 
-        # 🔧 Clamp difensivo
+        #  Clamp difensivo
         value = max(0, min(value, (1 << capacity) - 1))
 
         # Converte in binario

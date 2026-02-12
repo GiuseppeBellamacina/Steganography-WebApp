@@ -107,7 +107,7 @@ class ImageSteganography:
 
         delta = new_diff - diff
 
-        # 🔧 Ottimizzazione: evita micro-shift quando value == 0
+        #  Ottimizzazione: evita micro-shift quando value == 0
         if delta == 0:
             return p1, p2, len(bits)
 
@@ -156,7 +156,7 @@ class ImageSteganography:
 
         width, height = secret_img.size
 
-        # ⚠️ IMPORTANTE: PVD è LOSSY RECOVERY (non reversibile al 100%)
+        #  IMPORTANTE: PVD è LOSSY RECOVERY (non reversibile al 100%)
         # - SECRET_BITS = 2 raccomandato per qualità ottimale (PSNR > 40 dB)
         # - Riduciamo la precisione: buttiamo via (8 - SECRET_BITS) bit per canale
         # - L'immagine recuperata sarà simile ma non identica (quantizzazione intenzionale)
@@ -292,7 +292,7 @@ class ImageSteganography:
 
         bitstream = "".join(extracted)[:total_bits]
 
-        # ⚠️ Ricostruzione LOSSY: shiftiamo indietro i bit ridotti
+        #  Ricostruzione LOSSY: shiftiamo indietro i bit ridotti
         # L'immagine recuperata ha perdita di precisione di (8 - SECRET_BITS) bit/canale
         # Questa è la natura intrinseca di PVD, non un bug
         pixels = []
